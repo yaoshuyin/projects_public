@@ -4,6 +4,14 @@
 # mount bind 
 #   mount --bind /backup/sftp /sftp
 #   /backup/sftp /sftp xfs  defaults,rbind 0 0
+#
+# Note: sftp parents path must be root
+#   ls -ld /backup
+#      drwxr-xr-x .. root root /backup
+#
+#   ls -ld /backup/sftp
+#      drwxr-xr-x .. root root /backup/sftp
+#
 
 if [ $(whoami) != "root" ]
 then
