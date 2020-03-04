@@ -24,7 +24,7 @@ fi
 
 cd /tmp/
 
-wget http://nginx.org/download/$newVerNginx && \
+wget -c http://nginx.org/download/$newVerNginx && \
 tar xvf $newVerNginx  && \
 cd $newVerNginxPath && \
 ./configure --prefix=$nginxPath --with-http_ssl_module --with-http_realip_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_auth_request_module --with-http_stub_status_module --with-threads --with-stream --with-http_v2_module && \
