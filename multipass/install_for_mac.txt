@@ -1,0 +1,52 @@
+1)
+   brew cask install multipass
+
+2)
+$ multipass find
+Image                   Aliases           Version          Description
+snapcraft:core          core16            20200221         Snapcraft builder for Core 16
+snapcraft:core18                          20200221         Snapcraft builder for Core 18
+16.04                   xenial            20200218.1       Ubuntu 16.04 LTS
+18.04                   bionic,lts        20200218         Ubuntu 18.04 LTS
+
+3) create a vm ubuntu1604
+$ multipass launch --name ubuntu1604 --mem 2G --disk 200G 16.04
+Retrieving image: 2%   
+
+4) start
+$ multipass start ubuntu1604
+
+4) mount share folder
+$ multipass mount /data/share ubuntu1604:/data/share
+$ multipass umount /data/share
+
+5) copy files
+$ multipass copy-files /tmp/a /tmp/b  ubuntu1604:/tmp/
+$ multipass copy-files ubuntu1604:/tmp/a ubuntu1604:/tmp/b  /tmp
+
+5) show info
+$ multpass info ubuntu1604
+
+6) cmd 
+$ multipass shell ubuntu1604
+
+$ multipass exec ubuntu1604 -- ls -l /tmp
+
+7) list
+$ multipass list
+
+8) delete
+$ multipass delete ubuntu1604
+$ multipass purge
+$ multipass ls
+
+9) set
+
+$ multipass set client.gui.autostart=false
+
+$ multipass set client.xxxx-name
+
+10) get
+$ multipass get client.gui.autostart
+$ multipass get client.primary-name
+$ multipass get local.driver
