@@ -13,9 +13,12 @@ snapcraft:core18                          20200221         Snapcraft builder for
 16.04                   xenial            20200218.1       Ubuntu 16.04 LTS
 18.04                   bionic,lts        20200218         Ubuntu 18.04 LTS
 
+3) .img path
+ $ /private/var/root/Library/Caches/multipassd/vault/images/
+
 3) create a vm ubuntu1604
 $ multipass launch --name ubuntu1604 --mem 2G --disk 60G 16.04
-$ multipass launch --name test --mem 2G --disk 60G 18.04
+$ 
 Retrieving image: 2%   
 
 4) start
