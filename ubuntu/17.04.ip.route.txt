@@ -1,0 +1,38 @@
+source /etc/network/interfaces.d/*
+
+auto lo
+iface lo inet loopback
+
+
+auto ens160
+iface ens160 inet static
+	address 192.168.1.192
+	netmask 255.255.255.0
+	network 192.168.1.0
+	broadcast 192.168.1.255
+	gateway 192.168.1.1
+	dns-nameservers 8.8.8.8.8 8.8.4.4
+
+auto ens192
+iface ens192 inet static
+	address 192.168.2.192
+	netmask 255.255.255.0
+	network 192.168.2.0
+	broadcast 192.168.2.255
+    up ip route flush table 2
+    up ip route add default via 192.168.2.1 dev ens192 table 2
+    up ip route add 192.168.2.0/24 dev ens192 table 2
+    up ip rule add from 192.168.2.190 table 2
+    up ip rule add to 192.168.2.190 table 2
+
+auto ens224
+iface ens224 inet static
+	address 192.168.3.192
+	netmask 255.255.255.0
+	network 192.168.3.0
+	broadcast 192.168.3.255
+    up ip route flush table 3
+    up ip route add default via 192.168.3.1 dev ens224   table 3
+    up ip route add 192.168.3.0/24 dev ens224 table 3
+    up ip rule add from 192.168.3.190 table 3
+    up ip rule add to 192.168.3.190 table 3

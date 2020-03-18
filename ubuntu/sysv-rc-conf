@@ -1,0 +1,15 @@
+.服务
+  .图形管理
+  apt install sysv-rc-conf
+  sysv-rc-conf
+   
+  service   1   2   3   4    5   0  6  S
+  apcid    []   []  []  []  []  []  [] []
+  apport   []   []  []  []  []  []  [] []
+
+.enable
+ update-rc.d ssh defaults
+ update-rc.d ssh enable
+ 
+.disable
+ update-rc.d ssh disable

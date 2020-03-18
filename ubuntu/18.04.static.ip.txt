@@ -1,0 +1,34 @@
+1）查看网卡
+lshw -C network
+
+
+
+2) 编辑文件
+cd /etc/netplan
+
+$ sudo vim xxx.yaml
+network:
+     ethernets:
+              ens160:
+                       addresses:
+                       - 172.17.0.199/24
+                       gateway4: 172.17.0.1
+                       nameservers:
+                              addresses:
+                              - 8.8.8.8
+                              search: []
+                      optional: true
+              ens192:
+                       addresses:
+                       - 172.7.0.199/24
+                       gateway4: 172.7.0.1
+                       nameservers:
+                              addresses:
+                              - 8.8.8.8
+                              search: []
+                      optional: true
+3）使应用生效
+netplan apply
+
+4) 测试
+ping 8.8.8.8

@@ -1,0 +1,206 @@
+.安装
+ apt-get install language-pack-en-base subversion
+
+.建立用户
+ useradd svn
+
+.建立根目录
+ mkdir /svnroot
+
+.建立项目
+ cd /svnroot
+ svnadmin create project1
+
+.编辑配置文件
+ 1)建立/svnroot/conf
+   mv  /svnroot/project1/conf  /svnroot/  
+   ln  -s  /svnroot/conf  /svnroot/project1/
+
+ 2) 编辑配置文件 (注意: 各配置行前面一定不要有空格,否则会报错)
+   a) /svnroot/conf/svnserve.conf
+[general]
+anon-access = none
+auth-access = write
+password-db = passwd
+authz-db = authz 
+
+  b)/svnroot/conf/passwd 
+[users]
+admin=pass
+user1=pass1
+user2=pass2
+user3=pass3
+
+c) /svnroot/conf/authz 
+[groups]
+grp-admin = admin
+grp-user-1 = user1
+grp-user-2 = user2,user3
+[/]
+@grp-admin = rw
+[project1:/]
+@grp-user-1 = rw
+[project2:/]
+@grp-user-2 = rw
+
+.创建新项目
+cd /svnroot
+svnadmin create project2
+rm -fr /svnroot/project2/conf
+ln -s /svnroot/conf /svnroot/project2/
+
+.修改权限
+chown -R svn:svn /svnroot
+
+.启动服务 (停止服务 (killall svnserve))
+svnserve -d -r /svnroot
+
+.随系统启动 vim /etc/rc.local
+ /usr/bin/svnserve -d -r /svnroot
+ exit 0
+ 
+.测试
+ cd /tmp
+ svn co –username user1 –password pass1 svn://127.0.0.1/project1
+ svn co –username user2 –password pass2 svn://127.0.0.1/project2
+
+ ............................
+
+.检出(带.svn)
+svn co --username abc svn://xxxx/trunk myproject
+
+.导出(不带.svn)
+svn export [-r version] --username abc svn://xxx/trunk myproject
+
+.update
+svn update [-r version] [filename]
+
+.add
+svn add .
+svn commit -m "xxxx" .
+
+svn add a.php
+svn commit -m "xxxx" a.php
+
+.delete
+svn delete a.php
+svn commit -m "delete a.php"
+
+.mkdir
+svn mkdir abc
+svn mkdir -m "makedir" svn://xxx/trunk/abc
+
+.diff
+svn diff [-r version1:version2] filename
+
+.status
+svn status -v [filename]
+
+.log
+svn log [filename]
+
+svn info [filename]
+
+.list
+svn list svn://xxx/trunk
+
+.revert
+svn revert [--recursive] <filename|dirname>
+
+.switch
+把工作拷贝更新到别的URL
+svn　switch　http://目录全路径　本地目录全路径
+
+(原为123的分支)当前所在目录分支到localhost/test/456
+svn switch http://localhost/test/456 .
+
+.解决冲突
+svn　resolved　[本地目录全路径]
+
+更新时得到冲突，你的工作拷贝会产生三个新的文件：
+
+$ ls
+foo.c
+foo.c.mine
+foo.c.r30
+foo.c.r31
+
+解决foo.c的冲突
+运行svn resolved让你的工作拷贝知道你已经完成了所有事情
+svn update
+你可以仅仅删除冲突的文件并且提交，但是svn resolved除了删除冲突文件，还修正了一些记录在工作拷贝管理区域的记录数据，所以我们推荐你使用这个命令。
+
+.查看文件
+svn cat svn://localhost/test/readme.txt
+
+.创建分支copy  (从branchA拷贝从而创建一个新分支branchB)
+svn copy branchA branchB  -m "make B branch" 
+
+.合并内容到分支merge  (把对branchA的修改合并到分支branchB)
+svn merge branchA branchB
+
+.合并版本之间的差异到当前文件 
+svn merge -r m:n path 
+svn merge -r 200:205 test.php
+(将版本200与205之间的差异合并到当前文件，但是一般都会产生冲突，需要处理一下)
+ 
+.加锁/解锁 
+svn　lock　-m　“加锁备注信息文本“　[--force]　文件名 
+svn lock -m "锁信测试用test.php文件" test.php 
+svn unlock test.php
+
+.ignore
+1)创建文件夹，并把它加入版本控制，但忽略文件夹中的所有文件的内容：
+$ svn mkdir spool 
+$ svn propset svn:ignore '*' spool 
+$ svn ci -m 'Adding "spool" and ignoring its contents.'
+
+2)若创建一个文件夹，但不加入版本控制，即忽略这个文件夹：
+
+$ mkdir spool 
+$ svn propset svn:ignore 'spool' . 
+$ svn ci -m 'Ignoring a directory called "spool".'
+
+3)若已经创建了文件夹，并加入了版本控制，现在想忽略这个文件夹，但要保持文件夹的内容：
+
+$ svn export spool spool-tmp 
+$ svn rm spool 
+$ svn ci -m 'Removing inadvertently added directory "spool".' 
+
+$ mv spool-tmp spool 
+$ svn propset svn:ignore 'spool' . 
+$ svn ci -m 'Ignoring a directory called "spool".'
+
+.............................
+
+【问题】SVN cannot set LC_CTYPE locale
+【解决】
+   apt-get install language-pack-en-base
+   locale-gen
+
+ …………………………………………………………...
+
+【问题】
+  svn ci -m "vendor add telbot" vendor 
+  svn: E145001: Commit failed (details follow):
+  svn: E145001: Node '/data/CnsPHP/vendor/bin/jp.php' has unexpectedly changed kind
+
+【解决】
+  $ svn rm --keep-local vendor/bin/jp.php 
+        D         vendor/bin/jp.php
+
+  $ ls vendor/bin/jp.php
+       vendor/bin/jp.php
+
+  $ svn ci -m "delete jp.php"
+
+  $ svn add vendor/bin/jp.php 
+       A         vendor/bin/jp.php
+
+  $  svn ci -m "add vender bin jp.php"
+       Adding         vendor/bin/jp.php
+      Transmitting file data .done
+      Committing transaction...
+      Committed revision 438.
+
+

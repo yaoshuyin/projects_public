@@ -1,0 +1,41 @@
+1)install
+    apt-get install snmp snmpd 
+
+
+2) vim  /etc/snmp/snmpd.conf  
+
+    在这里使用默认团体名MYPASSWD，实际环境中建议更改。
+
+
+将原有“agentAddress udp:127.0.0.1:161”改为：
+
+            agentAddress udp:161,udp6:[::1]:161
+
+
+     b)  加入此行
+
+          access MyROSystem "" any noauth exact all none none
+
+
+     c)  将原有“rocommunity public default -V systemonly” 的"-V systemonly" 参数去掉,变成 
+
+           rocommunity MYPASSWD default
+
+
+      d)  将“#trap2sink localhost public”和“#informsink localhost public”前面的“#”去掉，改为：
+
+            trap2sink localhost MYPASSWD
+
+            informsink localhost MYPASSWD
+
+
+
+3) 重启SNMP服务：
+
+    /etc/init.d/snmpd restart
+
+
+
+4) 测试 
+
+snmpwalk -v 2c -c MYPASSWD192.168.1.9

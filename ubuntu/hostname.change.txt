@@ -1,0 +1,8 @@
+1)
+  hostnamectl set-hostname MyServer
+
+2)vim /etc/hosts
+
+  127.0.0.1 localhost MyServer
+
+3) 退出从新登陆则主机名已经变了

@@ -1,0 +1,26 @@
+./etc/ssh/sshd_config
+Ciphers aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,3des-cbc
+
+..............
+
+[客户端]
+.ssh-keygen -t rsa
+
+.ls ~/.ssh/
+
+ id_rsa            （私钥， 保留在本机） 
+ id_rsa.pub    （公钥， 需要把内容放到欲要登陆的远程主机的 ～/.ssh/authorized_keys中）
+ 
+.cat ~/.ssh/id_rsa.pub
+  .....
+  ....
+  ....
+
+[服务器端]
+mkdir ~/.ssh
+
+vim ~/.ssh/authorized_keys
+加入id_rsa.pub的内容到文件末尾
+
+[客户端]
+ssh root@serverip    这次不用输入密码即可登陆
