@@ -1,7 +1,7 @@
 #!/bin/bash
 # Switch docker containers as select menu
 # Script: /usr/local/bin/dockerin
-# Auther: schat 
+# Auther: Trump (https://xchat.win)
 
 if [ $# -eq 1 -a "$1" = "-h" ]
 then
