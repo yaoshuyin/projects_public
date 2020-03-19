@@ -1,0 +1,63 @@
+#!/bin/bash
+# Switch docker containers as select menu
+# Script: /usr/local/bin/dockerin
+# Auther: schat 
+
+if [ $# -eq 1 -a "$1" = "-h" ]
+then
+cat <<'_DOC_'
+1) containers
+   /var/lib/docker
+   /data/docker
+
+2) mount disks
+   /data/docker/disks
+
+3) container run on boot
+   /data/init.sh
+
+4) Dockerfile
+   /data/docker/dockerfile/Dockerfile
+
+5) images
+   REPOSITORY    TAG      IMAGE ID       CREATED          SIZE
+   myubuntu      19.04    613acd1ec7ce   15 minutes ago   386MB
+   myubuntu      18.04    fcbcaf99b504   40 minutes ago   369MB
+   ubuntu        18.04    72300a873c2c   3 weeks ago      64.2MB
+   ubuntu        19.04    c88ac1f841b7   2 months ago     70MB
+
+6) Network
+   192.168.199.0/24
+
+7) create docker
+  dname=test; ip=192.168.199.100; data=/data/docker/disks/test/data; docker run -it -d --name $dname --net=dockernet --ip=$ip -v data=$data -v "$data:/data" -w /data -h $dname --restart=always --privileged=true --cap-add SYS_ADMIN --security-opt seccomp=unconfined -v /sys/fs/cgroup:/sys/fs/cgroup:ro --tmpfs /run myubuntu:18.04 /sbin/init'
+_DOC_
+fi
+
+echo
+
+cat > /tmp/dockergetip <<'_EOF_'
+#!/bin/bash
+function getip(){
+   name=${1/:/}
+   docker inspect $name|grep '"IPAddress": "[0-9]\+.*"'|head -n1|awk '{print $2}'|sed -e 's/"//g' -e 's/,//g'|xargs -I {} echo "$name(ip:{};pid:$(/tmp/dockergetpid $name))"
+}
+
+getip "$1"
+_EOF_
+
+cat > /tmp/dockergetpid <<'_EOF_'
+function dockergetpid() {
+  docker inspect "$1" | grep '"Pid":' | sed 's/,//g' | awk '{printf("%s", $2);}'
+}
+dockergetpid "$1"
+_EOF_
+
+chmod +x /tmp/dockergetip
+chmod +x /tmp/dockergetpid
+
+select c  in $( docker ps |awk 'NR>1 {print $NF}'|xargs -I {} /tmp/dockergetip {})
+do
+  name=$(echo "$c"|sed -e 's/(.*)//g' -e 's/://g')
+  docker exec -it "$name" bash
+done

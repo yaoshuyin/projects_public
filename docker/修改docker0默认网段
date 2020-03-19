@@ -1,0 +1,14 @@
+修改docker0 默认网段与IP
+
+$ ifconfig
+  docker0 Link encap:Ethernet HWaddr 02:42:ff:93:e1:25
+     inet addr:172.17.0.1 Bcast:172.17.255.255 Mask:255.255.0.0
+
+$ sudo vim /etc/docker/daemon.json
+{“bip”:”192.168.199.1/24″}
+
+$ sudo /etc/init.d/docker restart
+
+$ ifconfig
+  docker0: flags=4099 mtu 1500
+     inet 192.168.199.1 netmask 255.255.255.0 broadcast 192.168.199.255
