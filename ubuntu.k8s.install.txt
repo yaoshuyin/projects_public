@@ -17,7 +17,13 @@
   root@k8s-master:~# systemctl start docker
   root@k8s-master:~# systemctl status docker
 
+.禁用swap (所有节点)
+ Kubernetes v1.8+ 要求关闭系统 Swap
+  1）修改/etc/fstab 文件，它永久性地关闭swap space, 只需在下面两行前面加上（#）
+  2）swapoff -a
+
 .安装kubeadm  （所有节点)
+  root@k8s-master:~# kubeadm reset (如果需要)
   root@k8s-master:~# curl -v -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
   root@k8s-master:~# apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main" 
 
@@ -147,13 +153,16 @@ root@k8s-master:~# kubectl get pod -n kubernetes-dashboard
    dashboard-metrics-scraper-7b8b58dc8b-r8j24   1/1     Running   1          54m
    kubernetes-dashboard-5f5f847d57-2kn5t        1/1     Running   0          38m
 
+root@k8s-master:~/k8s/apps#  kubectl get nodes
+NAME         STATUS   ROLES    AGE     VERSION
+k8s-master   Ready    master   12h     v1.17.4
+k8s-node1    Ready    <none>   11h     v1.17.4
+k8s-node2    Ready    <none>   7h34m   v1.17.4
+
 #重启pod
-kubectl get pod kubernetes-dashboard-5f5f847d57-d8dsg  -n kubernetes-dashboard -o yaml | kubectl replace --force -f -
+root@k8s-master:~/k8s/apps#  kubectl get pod kubernetes-dashboard-5f5f847d57-d8dsg  -n kubernetes-dashboard -o yaml | kubectl replace --force -f -
  
-
-
-
-kubectl --namespace=kubernetes-dashboard get service kubernetes-dashboard
+root@k8s-master:~/k8s/apps#  kubectl --namespace=kubernetes-dashboard get service kubernetes-dashboard
 
 
 添加用户
@@ -195,3 +204,73 @@ kubernetes-dashboard   NodePort      10.99.60.41   <none>     443:32662/TCP   16
 
 #使用safari浏览器访问 (选择token, 并填入上面获取的token)
  https://192.168.64.6:32662
+
+
+root@k8s-master:~/k8s/apps# kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://192.168.64.6:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: kubernetes-admin
+  name: kubernetes-admin@kubernetes
+current-context: kubernetes-admin@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: REDACTED
+    client-key-data: REDACTED
+
+
+root@k8s-master:~/k8s/apps# kubeadm config images list
+   W0324 19:37:15.490707   22194 validation.go:28] Cannot validate kube-proxy config - no validator is available
+   W0324 19:37:15.492392   22194 validation.go:28] Cannot validate kubelet config - no validator is available
+   k8s.gcr.io/kube-apiserver:v1.17.4
+   k8s.gcr.io/kube-controller-manager:v1.17.4
+   k8s.gcr.io/kube-scheduler:v1.17.4
+   k8s.gcr.io/kube-proxy:v1.17.4
+   k8s.gcr.io/pause:3.1
+   k8s.gcr.io/etcd:3.4.3-0
+   k8s.gcr.io/coredns:1.6.5
+
+.部署nginx
+ 1)创建docker
+ root@k8s-master:~/k8s/apps#  kubectl create deployment chat-nginx --image=nginx
+
+ root@k8s-master:~/k8s/apps#  kubectl get deployments
+          NAME        READY   UP-TO-DATE   AVAILABLE   AGE
+    nginx-deployment   3/3     3            3           7h28m
+    nginx2             1/1     1            1           3m42s
+
+  2)创建同名的service
+  root@k8s-master:~/k8s/apps# kubectl create service nodeport chat-nginx --tcp 80:80
+      service/chat-nginx created
+
+  root@k8s-master:~/k8s/apps# kubectl get svc
+     NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+     chat-nginx   NodePort    10.107.88.44   <none>        80:31057/TCP   25s
+
+root@k8s-master:~/k8s/apps# netstat -tnlp
+     Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name  
+     ... 
+     tcp6       0      0 :::31057                :::*                    LISTEN      3706/kube-proxy 
+     ...   
+
+root@k8s-master:~/k8s/apps# ifconfig
+   cni0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1450
+           inet 10.244.0.1  netmask 255.255.255.0  broadcast 0.0.0.0 
+   
+   docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+           inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255 
+   
+   enp0s2: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+           inet 192.168.64.6  netmask 255.255.255.0  broadcast 192.168.64.255
+
+在外部使用 
+root@hostA: curl http://192.168.64.6:31057
