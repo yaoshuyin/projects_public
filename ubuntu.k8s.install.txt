@@ -4,7 +4,7 @@
 .设置可以访问国外的代理 （所有节点)
   root@k8s-master:~# export no_proxy="localhost,192.168.0.0/16,10.0.0.0/8,127.0.0.0,127.0.1.1,127.0.1.1,local.home,*aliyuncs.com"
   root@k8s-master:~# export http_proxy=http://192.168.1.88:8889/
-  root@k8s-master:~# export https_proxy=http://192.168.1.88:8889/ 
+  root@k8s-master:~# export https_proxy=http://192.168.1.88:8889/
 
   root@k8s-master:~# export proxy_none_ip="localhost,192.168.0.0/16,10.0.0.0/8,127.0.0.0,127.0.1.1,127.0.1.1,local.home,*aliyuncs.com"
   root@k8s-master:~# export proxy_ip=http://192.168.1.88:8889/
@@ -13,7 +13,7 @@
   root@k8s-master:~# apt -y update
   root@k8s-master:~# apt -y upgrade
   root@k8s-master:~# apt install -y docker.io
-  root@k8s-master:~# systemctl enable docker 
+  root@k8s-master:~# systemctl enable docker
   root@k8s-master:~# systemctl start docker
   root@k8s-master:~# systemctl status docker
 
@@ -25,23 +25,23 @@
 .安装kubeadm  （所有节点)
   root@k8s-master:~# kubeadm reset (如果需要)
   root@k8s-master:~# curl -v -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
-  root@k8s-master:~# apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main" 
+  root@k8s-master:~# apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 
-  root@k8s-master:~# apt -y install kubeadm kubelet kubectl 
+  root@k8s-master:~# apt -y install kubeadm kubelet kubectl
 
   root@k8s-master:~# systemctl daemon-reload
   root@k8s-master:~# systemctl enable kubelet
 
 .在master 节点启动集群（master节点）
  这一步会自动执行 systemctl start kubelet
- root@k8s-master:~# kubeadm init --pod-network-cidr=10.244.0.0/16 --service-cidr=10.96.0.0/12 --ignore-preflight-errors=Swap --image-repository registry.aliyuncs.com/google_containers 
- 
+ root@k8s-master:~# kubeadm init --pod-network-cidr=10.244.0.0/16 --service-cidr=10.96.0.0/12 --ignore-preflight-errors=Swap --image-repository registry.aliyuncs.com/google_containers
+
 .创建用户k8s （主节点)
   root@k8s-master:~# useradd -m -s /bin/bash k8s
   root@k8s-master:~# vim /etc/sudoers
     root    ALL=(ALL:ALL) ALL
     k8s     ALL=(ALL:ALL) NOPASSWD:ALL
-  
+
   #root@k8s-master:~# su - k8s
   root@k8s-master:~# echo "source <(kubectl completion bash)" >> ~/.bashrc
 
@@ -54,18 +54,18 @@
   root@k8s-master:~# echo "1" >/proc/sys/net/bridge/bridge-nf-call-iptables
 
   root@k8s-master:~# kubectl get pods,svc -n kube-system -o wide
-     NAME                                     READY   STATUS    RESTARTS   AGE     IP             NODE      
+     NAME                                     READY   STATUS    RESTARTS   AGE     IP             NODE
      pod/coredns-9d85f5447-9jjzh              1/1     Running   1          4h4m    10.244.0.14    k8s-master
      pod/coredns-9d85f5447-kjcz5              1/1     Running   1          4h4m    10.244.0.15    k8s-master
      pod/etcd-k8s-master                      1/1     Running   1          4h4m    192.168.64.6   k8s-master
      pod/kube-apiserver-k8s-master            1/1     Running   1          4h4m    192.168.64.6   k8s-master
      pod/kube-controller-manager-k8s-master   1/1     Running   1          4h4m    192.168.64.6   k8s-master
-     pod/kube-flannel-ds-amd64-fcj5v          1/1     Running   1          3h16m   192.168.64.7   k8s-node1 
+     pod/kube-flannel-ds-amd64-fcj5v          1/1     Running   1          3h16m   192.168.64.7   k8s-node1
      pod/kube-flannel-ds-amd64-mpsvh          1/1     Running   1          3h52m   192.168.64.6   k8s-master
      pod/kube-proxy-fmn6f                     1/1     Running   1          4h4m    192.168.64.6   k8s-master
-     pod/kube-proxy-r477f                     1/1     Running   0          3h16m   192.168.64.7   k8s-node1 
+     pod/kube-proxy-r477f                     1/1     Running   0          3h16m   192.168.64.7   k8s-node1
      pod/kube-scheduler-k8s-master            1/1     Running   1          4h4m    192.168.64.6   k8s-master
-     
+
      NAME               TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE    SELECTOR
      service/kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   4h4m   k8s-app=kube-dns
 
@@ -83,18 +83,18 @@
      kube-scheduler-k8s-master            1/1     Running   1          4h7m
 
 默认的master节点是不能调度应用pod的，所以我们还需要给master节点打一个污点标记
-root@k8s-master:~# kubectl taint nodes --all node-role.kubernetes.io/master- 
+root@k8s-master:~# kubectl taint nodes --all node-role.kubernetes.io/master-
 
 #获取Node节点加入集群时需要执行的命令（过一段时间就会更新，所以需要重新获取）
 root@k8s-master:~# kubeadm token create --print-join-command
-  kubeadm join 192.168.64.6:6443 --token trj9xj.2hagbra4f4muskho --discovery-token-ca-cert-hash sha256:e748897ee9657323daedf3862e712c6085ce3c2ab047189e91e9bcf45acdb003 
+  kubeadm join 192.168.64.6:6443 --token trj9xj.2hagbra4f4muskho --discovery-token-ca-cert-hash sha256:e748897ee9657323daedf3862e712c6085ce3c2ab047189e91e9bcf45acdb003
 
 root@k8s-master:~#  kubectl cluster-info
    Kubernetes master is running at https://192.168.64.6:6443
    KubeDNS is running at https://192.168.64.6:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 
 .Node节点加入集群 (Node节点,会自动systemctl start kubelet)
-  kubeadm join 192.168.64.6:6443 --token trj9xj.2hagbra4f4muskho --discovery-token-ca-cert-hash sha256:e748897ee9657323daedf3862e712c6085ce3c2ab047189e91e9bcf45acdb003 
+  kubeadm join 192.168.64.6:6443 --token trj9xj.2hagbra4f4muskho --discovery-token-ca-cert-hash sha256:e748897ee9657323daedf3862e712c6085ce3c2ab047189e91e9bcf45acdb003
 
 root@k8s-master:~# kubectl get pods --namespace=kube-system
             NAME                        READY   STATUS    RESTARTS   AGE
@@ -112,16 +112,16 @@ root@k8s-master:~# kubectl get pods --namespace=kube-system
 ................................
 
 .安装dashboard (master节点)
-#官方: https://github.com/kubernetes/dashboard 
+#官方: https://github.com/kubernetes/dashboard
 
-#下载dashboard配置文件 
+#下载dashboard配置文件
 root@k8s-master:~# wget  https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-rc6/aio/deploy/recommended.yaml
 
 #删除旧的dashboard
 root@k8s-master:~# kubectl delete -f admin-user-role-binding.yaml
 
 #创建dashborad
-root@k8s-master:~# kubectl apply -f recommended.yaml 
+root@k8s-master:~# kubectl apply -f recommended.yaml
 
 #启动
 root@k8s-master:~# kubectl proxy --address='0.0.0.0' --port=8001 --accept-hosts='^*$' &
@@ -140,12 +140,12 @@ root@k8s-master:~# kubectl --namespace=kubernetes-dashboard get service kubernet
 root@k8s-master:~# openssl rand -writerand .rnd
 root@k8s-master:~# mkdir key
 root@k8s-master:~# cd key/
-root@k8s-master:~# openssl genrsa -out dashboard.key 2048 
+root@k8s-master:~# openssl genrsa -out dashboard.key 2048
 
 #浏览器所在的IP地址 192.168.1.88
 root@k8s-master:~# openssl req -new -out dashboard.csr -key dashboard.key -subj '/CN=192.168.1.88'
 
-root@k8s-master:~# openssl x509 -req -in dashboard.csr -signkey dashboard.key -out dashboard.crt 
+root@k8s-master:~# openssl x509 -req -in dashboard.csr -signkey dashboard.key -out dashboard.crt
 root@k8s-master:~# kubectl delete secret kubernetes-dashboard-certs -n kubernetes-dashboard
 root@k8s-master:~# kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard.key --from-file=dashboard.crt -n kubernetes-dashboard
 root@k8s-master:~# kubectl get pod -n kubernetes-dashboard
@@ -161,7 +161,7 @@ k8s-node2    Ready    <none>   7h34m   v1.17.4
 
 #重启pod
 root@k8s-master:~/k8s/apps#  kubectl get pod kubernetes-dashboard-5f5f847d57-d8dsg  -n kubernetes-dashboard -o yaml | kubectl replace --force -f -
- 
+
 root@k8s-master:~/k8s/apps#  kubectl --namespace=kubernetes-dashboard get service kubernetes-dashboard
 
 
@@ -195,7 +195,7 @@ kubectl delete -f admin-user-role-binding.yaml
 kubectl create -f admin-user-role-binding.yaml
 
 #获取admin-user的token
-$ sudo kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}') 
+$ sudo kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
 
 #获取登陆端口 :32662
 $ sudo kubectl --namespace=kubernetes-dashboard get service kubernetes-dashboardNAME
@@ -239,6 +239,12 @@ root@k8s-master:~/k8s/apps# kubeadm config images list
    k8s.gcr.io/etcd:3.4.3-0
    k8s.gcr.io/coredns:1.6.5
 
+................应用调用结构........................
+  Ingress:80 --->
+     [ Node1:32143 ,  Node2:32143 ] -->
+         VipService/ClusterIP:80 -->
+              [Node1PodsWeb:8081, Node2PodsWeb:8081]
+
 .部署nginx
  1)创建docker
  root@k8s-master:~/k8s/apps#  kubectl create deployment chat-nginx --image=nginx
@@ -257,20 +263,332 @@ root@k8s-master:~/k8s/apps# kubeadm config images list
      chat-nginx   NodePort    10.107.88.44   <none>        80:31057/TCP   25s
 
 root@k8s-master:~/k8s/apps# netstat -tnlp
-     Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name  
-     ... 
-     tcp6       0      0 :::31057                :::*                    LISTEN      3706/kube-proxy 
-     ...   
+     Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+     ...
+     tcp6       0      0 :::31057                :::*                    LISTEN      3706/kube-proxy
+     ...
 
 root@k8s-master:~/k8s/apps# ifconfig
    cni0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1450
-           inet 10.244.0.1  netmask 255.255.255.0  broadcast 0.0.0.0 
-   
+           inet 10.244.0.1  netmask 255.255.255.0  broadcast 0.0.0.0
+
    docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
-           inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255 
-   
+           inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255
+
    enp0s2: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
            inet 192.168.64.6  netmask 255.255.255.0  broadcast 192.168.64.255
 
-在外部使用 
+在外部使用
 root@hostA: curl http://192.168.64.6:31057
+
+................pods yaml............................
+
+.使用yaml部署容器
+1)打包应用成docker image
+  a)编写server.js
+var http = require('http');
+
+var handleRequest = function(request, response) {
+  console.log('Received request for URL: ' + request.url);
+  response.writeHead(200);
+  response.end('Hello World!');
+};
+var www = http.createServer(handleRequest);
+www.listen(8081);
+
+  b)打包server.js到docker image
+FROM node:8.11.2
+WORKDIR app
+COPY . .
+EXPOSE 8081
+ENTRYPOINT [ "node","server.js" ]
+Dockerfile创建好后，执行如下命令
+
+  c)打包
+root@k8s-master:~/k8s/apps# docker build -t userNameX/kube-node-demo1:v1 .
+root@k8s-master:~/k8s/apps# docker images
+REPOSITORY                                 TAG                 IMAGE ID            CREATED             SIZE
+userNameX/kube-node-demo1                   v1                  e2522bf8e003        1 hours ago        673 MB
+
+root@k8s-master:~/k8s/apps# docker login --username userNameX
+Password:
+Login Succeeded
+
+root@k8s-master:~/k8s/apps# docker push userNameX/kube-node-demo1:v1
+.....
+
+2) 编写deployment.yaml
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kube-node
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: kube-node-demo-instance
+          image: userNameX/kube-node-demo1:v1
+          ports:
+            - containerPort: 8081
+
+3)执行deployment
+root@k8s-master:~/k8s/apps# kubectl create -f deployment.yaml
+  deployment.extensions/kube-node created
+
+root@k8s-master:~/k8s/apps# kubectl get pods
+  NAME                            READY     STATUS             RESTARTS   AGE
+  kube-node-59bf664cbf-2qzgd      0/1       ImagePullBackOff   0          9s
+  kube-node-59bf664cbf-p6wtg      0/1       ImagePullBackOff   0          9s
+
+ 结果发现Pods的状态为ImagePullBackOff, 最终发现是，因为k8s不能够拉取私有仓库的镜像，
+ 通过执行下列命令可以查看具体的Pod信息，其中里面的Events下面显示了创建Pod的详细过程。
+
+root@k8s-master:~/k8s/apps# kubectl describe pods/kube-node-59bf664cbf-2qzgd
+ 参考Kubernetes配置secret拉取私有仓库镜像的官方文档后(点击这里查看)，执行如下命令
+
+root@k8s-master:~/k8s/apps# kubectl create secret docker-registry myregistrykey --docker-server=https://index.docker.io/v1/ --docker-username=userNameX --docker-password=xxxx--docker-email=xxxx@qq.com
+
+root@k8s-master:~/k8s/apps# kubectl get secrets
+  NAME                  TYPE                                  DATA      AGENAME                  TYPE                                  DATA      AGE
+  default-token-2lvth   kubernetes.io/service-account-token   3         4d
+  myregistrykey         kubernetes.io/dockerconfigjson        1         4h
+  这样我们就创建好了secret，然后再将这个secret加到yaml文件中，修改后的deployment.yaml文件如下：
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kube-node
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: kube-node-demo-instance
+          image: kube-node-demo1
+          ports:
+            - containerPort: 8081
+      imagePullSecrets:
+       - name: myregistrykey
+
+ 删除之前的deployment并重新创建新的deployment
+（另一方法是 ：直接编辑此deployment，
+   命令是：kubectl edit deployments/kube-node，编辑完后就立即生效了，
+   所有pods会重新生成）,命令如下：
+
+root@k8s-master:~/k8s/apps# kubectl delete deployments/kube-node
+
+root@k8s-master:~/k8s/apps# kubectl create -f deployment.yaml
+   最终可以看到我们的应用程序被部署上去了
+
+root@k8s-master:~/k8s/apps#  kubectl get pods -o wide
+   NAME                            READY     STATUS    RESTARTS   AGE       IP            NODE
+   kube-node-7bd98cf84d-c6q6h      1/1       Running   0          3m        10.244.2.66   kube-slave-1
+   kube-node-7bd98cf84d-fbjwz      1/1       Running   0          3m        10.244.1.36   kube-slave-3
+
+执行下列命令，来验证部署上去的应用程序是否好用，我们尝试访问第一个IP+8081端口，正常显示Hello World!
+
+root@k8s-master:~/k8s/apps# curl 10.244.2.66:8081
+  Hello World!
+  到这里，我们的应用程序部署成功了。接下来我们要创建一个service来供外部来访问我们的应用程序
+
+...........service.yaml.................
+1)root@k8s-master:~/k8s/apps# vim service.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-node-service
+  labels:
+    name: kube-node-service
+spec:
+  type: NodePort
+  ports:
+  - port: 80          #这里的端口和clusterIP(10.97.114.36)对应，即10.97.114.36:80,供内部访问。
+    targetPort: 8081  #端口一定要和container暴露出来的端口对应，nodejs暴露出来的端口是8081，所以这里也应是8081
+    protocol: TCP
+    nodePort: 32143   #所有的节点都会开放此端口，此端口供外部调用。
+  selector:
+    app: web          #这里选择器一定要选择容器的标签，之前写name:kube-node是错的。
+ 执行命令创建一个service,并列出所有的services
+
+root@k8s-master:~/k8s/apps# kubectl create -f service.yaml
+   service/kube-node-service created
+
+root@k8s-master:~/k8s/apps# kubectl get services
+   NAME                TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+   kube-node-service   NodePort    10.97.114.36   <none>        80:32143/TCP   7s
+   kubernetes          ClusterIP   10.96.0.1      <none>        443/TCP        7d
+
+root@k8s-master:~/k8s/apps# curl localhost:32143
+   Hello World!
+
+
+#由于定义的port是80，所以直接访问clusterIP
+root@k8s-master:~/k8s/apps# curl 10.97.114.36
+   Hello World!
+
+#在每个节点查看端口执行netstat -ntlp，发现每个节点都开放出了端口32143，此端口主要是给外部分用户调用的
+
+#在master节点上查看slave node的ip
+root@k8s-master:~/k8s/apps# kubectl get nodes -o wide
+   NAME           STATUS    ROLES     AGE       VERSION   INTERNAL-IP      EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+   kube-master    Ready     master    7d        v1.11.1   192.168.29.138   <none>        Ubuntu 16.04.4 LTS   4.13.0-36-generic   docker://17.3.2
+   kube-slave-1   Ready     <none>    1d        v1.11.1   192.168.29.141   <none>        Ubuntu 16.04.4 LTS   4.13.0-36-generic   docker://17.3.2
+   kube-slave-3   Ready     <none>    7d        v1.11.1   192.168.29.139   <none>        Ubuntu 16.04.4 LTS   4.15.0-30-generic   docker://17.3.2
+
+#在master节点上,查看所有pods
+root@k8s-master:~/k8s/apps# kubectl get pods -o wide
+   NAME                            READY     STATUS    RESTARTS   AGE       IP            NODE
+   kube-node-64f4f68d4b-sttz2      1/1       Running   0          15m       10.244.1.71   kube-slave-3
+   kube-node-64f4f68d4b-vwwt2      1/1       Running   0          1d        10.244.1.69   kube-slave-3
+
+#在master节点上,访问两个pods,端口都是8081
+root@k8s-master:~/k8s/apps# curl 10.244.1.71:8081
+   Hello World!
+
+root@k8s-master:~/k8s/apps# curl 10.244.1.69:8081
+   Hello World!
+
+#在slave节点kube-slave-1上访问32143端口
+root@k8s-master:~/k8s/apps# curl 192.168.29.141:32143
+   Hello World!
+
+#在slave节点kube-slave-3上访问32143端口
+root@k8s-master:~/k8s/apps# curl 192.168.29.139:32143
+   Hello World!
+
+.................expose命令来创建service...................
+
+root@k8s-master:~/k8s/apps# kubectl expose deployment kube-node --type=NodePort
+  service/kube-node exposed
+
+root@k8s-master:~/k8s/apps# kubectl get services
+  NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+  kube-node           NodePort    10.107.247.158   <none>        8081:31195/TCP   10s
+  kube-node-service   NodePort    10.97.114.36     <none>        80:32143/TCP     1d
+  kubernetes          ClusterIP   10.96.0.1        <none>        443/TCP          8d
+  nginx               NodePort    10.99.22.64      <none>        80:32322/TCP     2d
+
+root@k8s-master:~/k8s/apps# curl localhost:31195
+  Hello World!
+
+root@k8s-master:~/k8s/apps# curl 10.107.247.158:8081
+  Hello World!
+
+root@k8s-master:~/k8s/apps# kubectl describe services/kube-node
+  Name:                     kube-node
+  Namespace:                default
+  Labels:                   app=web
+  Annotations:              <none>
+  Selector:                 app=web
+  Type:                     NodePort
+  IP:                       10.107.247.158
+  Port:                     <unset>  8081/TCP
+  TargetPort:               8081/TCP
+  NodePort:                 <unset>  31195/TCP
+  Endpoints:                10.244.1.71:8081,10.244.2.81:8081  #这里podIp+端口号就是endpoint
+  Session Affinity:         None
+  External Traffic Policy:  Cluster
+  Events:                   <none>
+
+root@k8s-master:~/k8s/apps# kubectl describe services/kube-node-service
+  Name:                     kube-node-service
+  Namespace:                default
+  Labels:                   name=kube-node-service
+  Annotations:              <none>
+  Selector:                 app=web
+  Type:                     NodePort
+  IP:                       10.97.114.36
+  Port:                     <unset>  80/TCP
+  TargetPort:               8081/TCP
+  NodePort:                 <unset>  32143/TCP
+  Endpoints:                10.244.1.71:8081,10.244.2.81:8081 #虽然暴露了两个service，但endpoint是一样滴。
+  Session Affinity:         None
+  External Traffic Policy:  Cluster
+  Events:                   <none>
+ 可以看出，expose命令这里并没有指定clusterIP，说明它是K8S系统中的虚拟IP地址，由系统动态分配。
+ Pod的IP地址是由flannel插件来分配的，而不再由Docker Daemon根据docker0网桥的IP地址进行分配。
+ 可以在任意节点上输入ifconfig可以看到。
+
+......................使用yaml文件创建Service（LoadBalancer）.......................
+root@k8s-master:~/k8s/apps# kubectl expose deployment kube-node --type=LoadBalancer
+   service/kube-node exposed
+
+root@k8s-master:~/k8s/apps# kubectl get services
+   NAME                TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+   kube-node           LoadBalancer   10.99.201.195   <pending>     8081:31585/TCP   10s
+   kube-node-service   NodePort       10.97.114.36    <none>        80:32143/TCP     1d
+   kubernetes          ClusterIP      10.96.0.1       <none>        443/TCP          8d
+   nginx               NodePort       10.99.22.64     <none>        80:32322/TCP     2d
+
+root@k8s-master:~/k8s/apps# curl localhost:31585
+   Hello World!
+
+root@k8s-master:~/k8s/apps# curl 10.99.201.195:8081
+   Hello World!
+
+root@k8s-master:~/k8s/apps# kubectl describe services/kube-node
+   Name:                     kube-node
+   Namespace:                default
+   Labels:                   app=web
+   Annotations:              <none>
+   Selector:                 app=web
+   Type:                     LoadBalancer
+   IP:                       10.99.201.195
+   Port:                     <unset>  8081/TCP
+   TargetPort:               8081/TCP
+   NodePort:                 <unset>  31585/TCP
+   Endpoints:                10.244.1.71:8081,10.244.2.81:8081
+   Session Affinity:         None
+   External Traffic Policy:  Cluster
+   Events:                   <none>
+
+
+root@k8s-master:~/k8s/apps# vim service-lb.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-node-service-lb
+  labels:
+    name: kube-node-service-lb
+spec:
+  type: LoadBalancer
+  clusterIP: 10.99.201.198
+  ports:
+  - port: 80
+    targetPort: 8081
+    protocol: TCP
+    nodePort: 32145
+  selector:
+    app: web
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.168.174.127    #这里是云服务商提供的负载匀衡器的IP地址
+
+root@k8s-master:~/k8s/apps# kubectl create -f service-lb.yaml
+   service/kube-node-service-lb created
+
+root@k8s-master:~/k8s/apps# kubectl get services
+   NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+   kube-node              LoadBalancer   10.99.201.195   <pending>     8081:31585/TCP   21m
+   kube-node-service      NodePort       10.97.114.36    <none>        80:32143/TCP     1d
+   kube-node-service-lb   LoadBalancer   10.99.201.198   <pending>     80:32145/TCP     9s
+   kubernetes             ClusterIP      10.96.0.1       <none>        443/TCP          8d
+   nginx                  NodePort       10.99.22.64     <none>        80:32322/TCP     2d
+
+root@k8s-master:~/k8s/apps# curl 10.99.201.195:8081
+  Hello World!
+
+root@k8s-master:~/k8s/apps# curl localhost:31585
+  Hello World!
