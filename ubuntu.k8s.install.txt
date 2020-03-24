@@ -1,4 +1,6 @@
 
+.环境Ubunt18.06 X86_64 (macos 下的 multipass)
+
 .设置可以访问国外的代理 （所有节点)
   root@k8s-master:~# export no_proxy="localhost,192.168.0.0/16,10.0.0.0/8,127.0.0.0,127.0.1.1,127.0.1.1,local.home,*aliyuncs.com"
   root@k8s-master:~# export http_proxy=http://192.168.1.88:8889/
@@ -85,7 +87,7 @@ root@k8s-master:~#  kubectl cluster-info
    Kubernetes master is running at https://192.168.64.6:6443
    KubeDNS is running at https://192.168.64.6:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 
-.Node节点加入集群 (Node节点)
+.Node节点加入集群 (Node节点,会自动systemctl start kubelet)
   kubeadm join 192.168.64.6:6443 --token trj9xj.2hagbra4f4muskho --discovery-token-ca-cert-hash sha256:e748897ee9657323daedf3862e712c6085ce3c2ab047189e91e9bcf45acdb003 
 
 root@k8s-master:~# kubectl get pods --namespace=kube-system
