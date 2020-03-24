@@ -1,0 +1,105 @@
+tcpdump -n -i eth0 -w a.pcap
+
+tcpdump -n -c 100 -i eth0
+
+tcpdump -n -c 100 -i eth0 <arp|ip|tcp|udp|icmp>
+
+tcpdump -n -c 100 -i eth0 icmp
+
+tcpdump -n -c 100 -i eth0 port 22
+
+tcpdump -n -c 100 -i eth0 dst 192.168.10.100 and port 22
+
+tcpdump -n -c 100 -i eth0 host 192.168.1.1
+tcpdump -n -c 100 -i eth0 src host 192.168.1.1
+tcpdump -n -c 100 -i eth0 dst host 192.168.1.1
+
+tcpdump -n -c 100 -i eth0 port 22
+tcpdump -n -c 100 -i eth0 src port 22
+tcpdump -n -c 100 -i eth0 dst port 22
+
+tcpdump -n -c 100 -i eth0 net 192.168
+tcpdump -n -c 100 -i eth0 src net 192.168
+tcpdump -n -c 100 -i eth0 dst net 192.168
+
+抓取所有经过 eth0,目的地址是 192.168.1.254 或 192.168.1.200 , 端口是 80 的 TCP 数据
+tcpdump -i eth0 '((tcp) and (port 80) and ((dst host 192.168.1.100) or (dst host 192.168.1.101))
+
+抓取所有经过 eth1，目标 MAC 地址是 00:01:02:03:04:05 的 ICMP 数据
+tcpdump -i eth1 '((icmp) and ((ether dst host 00:01:02:03:04:05)))'
+
+抓取所有经过 eth1，目的网络是 192.168，但目的主机不包含192.168.1.200 的 TCP 数据
+# tcpdump -i eth1 '((tcp) and ((dst net 192.168) and (not dst host 192.168.1.200)))'
+
+只抓 SYN 包
+# tcpdump -i eth1 'tcp[tcpflags] = tcp-syn'
+
+抓 SYN, ACK
+# tcpdump -i eth1 'tcp[tcpflags] & tcp-syn != 0 and tcp[tcpflags] & tcp-ack != 0'
+
+
+查看整个网络的数据包
+要获取整个网络的数据包，在终端执行下面命令：
+
+$ tcpdump net 192.168.1.0/24
+
+要指定 IP 地址是源地址或是目的地址则使用：
+
+$ tcpdump src 192.168.1.100
+$ tcpdump dst 192.168.1.100
+
+tcpdump net 192.168.1.0/24
+
+$ tcpdump src 192.168.1.100
+$ tcpdump dst 192.168.1.100
+
+$ tcpdump ssh
+
+$ tcpdump port 22
+$ tcpdump portrange 22-125
+
+ tcpdump src 192.168.1.100 && port 22 -w ssh_packets
+ 
+ 
+$ tcpdump src 192.168.1.100 or dst 192.168.1.50 && port 22 -w ssh_packets
+$ tcpdump port 443 or 80 -w http_packets
+
+A、想要截获所有210.27.48.1 的主机收到的和发出的所有的数据包：
+#tcpdump host 210.27.48.1
+
+B、想要截获主机210.27.48.1 和主机210.27.48.2 或210.27.48.3的通信，使用命令：（在命令行中适用　　　括号时，一定要
+#tcpdump host 210.27.48.1 and \ (210.27.48.2 or 210.27.48.3 \)
+
+.抓取来源为11和12的tcp到port 23636的包
+tcpdump -nn '((tcp) and (port 23636) and ((src host 172.16.121.11 ) or (src host 172.16.121.12)))' -w config02.pcap
+
+C、如果想要获取主机210.27.48.1除了和主机210.27.48.2之外所有主机通信的ip包，使用命令：
+#tcpdump ip host 210.27.48.1 and ! 210.27.48.2
+
+D、如果想要获取主机210.27.48.1接收或发出的telnet包，使用如下命令：
+#tcpdump tcp port 23 host 210.27.48.1
+
+
+tcpdump -i eth0 src port not 22
+　　　-i 　　　指定监听的网络接口；
+ 
+　　　-d 　　　将匹配信息包的代码以人们能够理解的汇编格式给出；
+　　　-dd 　　 将匹配信息包的代码以c语言程序段的格式给出；
+　　　-ddd 　　将匹配信息包的代码以十进制的形式给出；
+
+　　　-e 　　　在输出行打印出数据链路层的头部信息；
+
+　　　-n 　　　不把网络地址转换成名字；
+
+　　　-t 　　　在输出的每一行不打印时间戳；
+
+　　　-v 　　　输出一个稍微详细的信息，例如在ip包中可以包括ttl和服务类型的信息；
+　　　-vv 　　 输出详细的报文信息；
+
+　　　-c 　　　在收到指定的包的数目后，tcpdump就会停止；
+
+　　　-F 　　　从指定的文件中读取表达式,忽略其它的表达式；
+
+　　　-r 　　　从指定的文件中读取包(这些包一般通过-w选项产生)；
+
+　　　-w 　　　直接将包写入文件中，并不分析和打印出来；

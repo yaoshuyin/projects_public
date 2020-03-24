@@ -1,0 +1,41 @@
+% sudo tcpdump -i any -nn -S 'tcp port 3000' !10089
+tcpdump: data link type PKTAP
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on any, link-type PKTAP (Apple DLT_PKTAP), capture size 262144 bytes
+
+client请求建立连接，三次握手
+17:56:04.224218 IP 127.0.0.1.57729 > 127.0.0.1.3000: Flags [SYN], seq 860356044, win 65535, options [mss 16344,nop,wscale 6,nop,nop,TS val 1113971093 ecr 0,sackOK,eol], length 0
+17:56:04.224298 IP 127.0.0.1.3000 > 127.0.0.1.57729: Flags [SYN.ACK], seq 4012548670, ack 860356045, win 65535, options [mss 16344,nop,wscale 6,nop,nop,TS val 1113971093 ecr 1113971093,sackOK,eol], length 0
+17:56:04.224305 IP 127.0.0.1.57729 > 127.0.0.1.3000: Flags [ACK], ack 4012548671, win 6379, options [nop,nop,TS val 1113971093 ecr 1113971093], length 0
+
+client推送信息给server
+17:56:04.224357 IP 127.0.0.1.57729 > 127.0.0.1.3000: Flags [PUSH.ACK], seq 860356045:860356055, ack 4012548671, win 6379, options [nop,nop,TS val 1113971093 ecr 1113971093], length 10
+
+server给响应
+17:56:04.224363 IP 127.0.0.1.3000 > 127.0.0.1.57729: Flags [ACK], ack 860356055, win 6379, options [nop,nop,TS val 1113971093 ecr 1113971093], length 0
+
+server推client推送信息
+17:56:04.224484 IP 127.0.0.1.3000 > 127.0.0.1.57729: Flags [PUSH.ACK], seq 4012548671:4012548681, ack 860356055, win 6379, options [nop,nop,TS val 1113971093 ecr 1113971093], length 10
+
+client给server响应
+17:56:04.224491 IP 127.0.0.1.57729 > 127.0.0.1.3000: Flags [ACK], ack 4012548681, win 6379, options [nop,nop,TS val 1113971093 ecr 1113971093], length 0
+
+四次挥手
+17:56:04.224653 IP 127.0.0.1.57729 > 127.0.0.1.3000: Flags [F.], seq 860356055, ack 4012548681, win 6379, options [nop,nop,TS val 1113971093 ecr 1113971093], length 0
+17:56:04.224684 IP 127.0.0.1.3000 > 127.0.0.1.57729: Flags [F.], seq 4012548681, ack 860356056, win 6379, options [nop,nop,TS val 1113971093 ecr 1113971093], length 0
+17:56:04.224653 IP 127.0.0.1.57729 > 127.0.0.1.3000: Flags [.], seq 860356056, ack 4012548682, win 6379, options [nop,nop,TS val 1113971093 ecr 1113971093], length 0
+
+Flags []里面包含的是TCP FLAG，包含如下内容：
+[S] 代表SYN，请求建立连接
+[.] 代表ACK，这是响应报文
+[P] 代表PUSH，这是推送信息
+[F] 代表FIN，这是请求断开连接
+
+wscale：窗口放大因子：4，结合win：65535，可知接收端缓冲区大小为:64k*4=256kB。通过改变win可通知对方接受缓冲区大小从而告知对方发送的快慢
+ack：响应
+TS val/erc：被用于评估 TCP 往返时间( round-trip time，RTT)，TCP 利用 RTT 去使用 拥塞控制（ congestion-control ） 算法。
+TS val 1433256622：客户端请求时间
+ecr：是echo reply时间戳， 通常是指发送端收到的最新的时间戳
+mss：最大报文段大小( Maximum Segment Size )，表示接收端期望接收的单个报文段最大的字节数
+nop：
+sackOK：选择性确认( Selective Acknowledgement )。这将允许两端确认收到字节的范围。通常确认机制仅允许接收端确认收到的总字节数

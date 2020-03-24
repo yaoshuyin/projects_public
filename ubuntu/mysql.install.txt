@@ -1,0 +1,82 @@
+.install
+$ sudo apt install mysql-server
+
+.
+$ sudo mysql_secure_installation
+
+.
+MySQL root@[mysql]> SELECT User, Host, HEX(authentication_string) FROM mysql.user;
++------------------+-----------+------------------------------------------------------------------------------------+
+| User             | Host      | HEX(authentication_string)                                                         |
++------------------+-----------+------------------------------------------------------------------------------------+
+| root             | localhost |                                                                                    |
+| mysql.session    | localhost | 2A5448495349534E4F544156414C494450415353574F52445448415443414E42455553454448455245 |
+| mysql.sys        | localhost | 2A5448495349534E4F544156414C494450415353574F52445448415443414E42455553454448455245 |
+| debian-sys-maint | localhost | 2A41373338374343343632384345354330434431414233464638303532384145313941444337333033 |
++------------------+-----------+------------------------------------------------------------------------------------+
+4 rows in set (0.00 sec)
+
+MySQL root@[mysql]> alter user 'root'@'localhost' identified by '123456';
+Query OK, 0 rows affected (0.00 sec)
+
+MySQL root@[mysql]> SELECT User, Host, HEX(authentication_string) FROM mysql.user;
++------------------+-----------+------------------------------------------------------------------------------------+
+| User             | Host      | HEX(authentication_string)                                                         |
++------------------+-----------+------------------------------------------------------------------------------------+
+| root             | localhost |                                                                                    |
+| mysql.session    | localhost | 2A5448495349534E4F544156414C494450415353574F52445448415443414E42455553454448455245 |
+| mysql.sys        | localhost | 2A5448495349534E4F544156414C494450415353574F52445448415443414E42455553454448455245 |
+| debian-sys-maint | localhost | 2A41373338374343343632384345354330434431414233464638303532384145313941444337333033 |
++------------------+-----------+------------------------------------------------------------------------------------+
+4 rows in set (0.00 sec)
+
+MySQL root@[mysql]> select * from user where  user='root' \G;
+*************************** 1. row ***************************
+                  Host: localhost
+                  User: root
+           Select_priv: Y
+           Insert_priv: Y
+           ....
+  max_user_connections: 0
+                plugin: auth_socket
+ authentication_string: 
+
+MySQL root@[mysql]> alter user 'root'@'localhost' identified with mysql_native_password by '123456';
+ERROR 1819 (HY000): Your password does not satisfy the current policy requirements
+
+MySQL root@[mysql]> alter user 'root'@'localhost' identified with mysql_native_password by 'P13.@#^dff~';
+Query OK, 0 rows affected (0.00 sec)
+
+MySQL root@[mysql]> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
+
+MySQL root@[mysql]> select * from user where  user='root' \G;
+*************************** 1. row ***************************
+                  Host: localhost
+                  User: root
+           Select_priv: Y 
+                   ....
+  max_user_connections: 0
+                plugin: mysql_native_password
+ authentication_string: *5C0A70E0C2A3AFAE8ADCDCFA1C8597477DF23C56
+      password_expired: N
+
+MySQL root@[mysql]>
+
+
+................ test ................
+
+ubuntu@tyo-evo-mini-demo-01:~$ mysql -uroot -p
+Enter password: 
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+
+ubuntu@tyo-evo-mini-demo-01:~$ mysql -uroot 
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+
+ubuntu@tyo-evo-mini-demo-01:~$ mysql -uroot -h localhost
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+
+ubuntu@tyo-evo-mini-demo-01:~$ mysql -uroot -h localhost -p
+Enter password: 
+   ....
+MySQL root@[(none)]>

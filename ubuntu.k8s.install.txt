@@ -1,0 +1,195 @@
+
+.设置可以访问国外的代理 （所有节点)
+  root@k8s-master:~# export no_proxy="localhost,192.168.0.0/16,10.0.0.0/8,127.0.0.0,127.0.1.1,127.0.1.1,local.home,*aliyuncs.com"
+  root@k8s-master:~# export http_proxy=http://192.168.1.88:8889/
+  root@k8s-master:~# export https_proxy=http://192.168.1.88:8889/ 
+
+  root@k8s-master:~# export proxy_none_ip="localhost,192.168.0.0/16,10.0.0.0/8,127.0.0.0,127.0.1.1,127.0.1.1,local.home,*aliyuncs.com"
+  root@k8s-master:~# export proxy_ip=http://192.168.1.88:8889/
+
+.更新安装docker （所有节点)
+  root@k8s-master:~# apt -y update
+  root@k8s-master:~# apt -y upgrade
+  root@k8s-master:~# apt install -y docker.io
+  root@k8s-master:~# systemctl enable docker 
+  root@k8s-master:~# systemctl start docker
+  root@k8s-master:~# systemctl status docker
+
+.安装kubeadm  （所有节点)
+  root@k8s-master:~# curl -v -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
+  root@k8s-master:~# apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main" 
+
+  root@k8s-master:~# apt -y install kubeadm kubelet kubectl 
+
+  root@k8s-master:~# systemctl daemon-reload
+  root@k8s-master:~# systemctl enable kubelet
+
+.在master 节点启动集群（master节点）
+ 这一步会自动执行 systemctl start kubelet
+ root@k8s-master:~# kubeadm init --pod-network-cidr=10.244.0.0/16 --service-cidr=10.96.0.0/12 --ignore-preflight-errors=Swap --image-repository registry.aliyuncs.com/google_containers 
+ 
+.创建用户k8s （主节点)
+  root@k8s-master:~# useradd -m -s /bin/bash k8s
+  root@k8s-master:~# vim /etc/sudoers
+    root    ALL=(ALL:ALL) ALL
+    k8s     ALL=(ALL:ALL) NOPASSWD:ALL
+  
+  #root@k8s-master:~# su - k8s
+  root@k8s-master:~# echo "source <(kubectl completion bash)" >> ~/.bashrc
+
+  root@k8s-master:~# mkdir -p $HOME/.kube
+  root@k8s-master:~# sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  root@k8s-master:~# sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+  root@k8s-master:~# kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+  root@k8s-master:~# echo "1" >/proc/sys/net/bridge/bridge-nf-call-iptables
+
+  root@k8s-master:~# kubectl get pods,svc -n kube-system -o wide
+     NAME                                     READY   STATUS    RESTARTS   AGE     IP             NODE      
+     pod/coredns-9d85f5447-9jjzh              1/1     Running   1          4h4m    10.244.0.14    k8s-master
+     pod/coredns-9d85f5447-kjcz5              1/1     Running   1          4h4m    10.244.0.15    k8s-master
+     pod/etcd-k8s-master                      1/1     Running   1          4h4m    192.168.64.6   k8s-master
+     pod/kube-apiserver-k8s-master            1/1     Running   1          4h4m    192.168.64.6   k8s-master
+     pod/kube-controller-manager-k8s-master   1/1     Running   1          4h4m    192.168.64.6   k8s-master
+     pod/kube-flannel-ds-amd64-fcj5v          1/1     Running   1          3h16m   192.168.64.7   k8s-node1 
+     pod/kube-flannel-ds-amd64-mpsvh          1/1     Running   1          3h52m   192.168.64.6   k8s-master
+     pod/kube-proxy-fmn6f                     1/1     Running   1          4h4m    192.168.64.6   k8s-master
+     pod/kube-proxy-r477f                     1/1     Running   0          3h16m   192.168.64.7   k8s-node1 
+     pod/kube-scheduler-k8s-master            1/1     Running   1          4h4m    192.168.64.6   k8s-master
+     
+     NAME               TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE    SELECTOR
+     service/kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   4h4m   k8s-app=kube-dns
+
+  root@k8s-master:~# kubectl get pods -n kube-system
+     NAME                                 READY   STATUS    RESTARTS   AGE
+     coredns-9d85f5447-9jjzh              1/1     Running   1          4h7m
+     coredns-9d85f5447-kjcz5              1/1     Running   1          4h7m
+     etcd-k8s-master                      1/1     Running   1          4h7m
+     kube-apiserver-k8s-master            1/1     Running   1          4h7m
+     kube-controller-manager-k8s-master   1/1     Running   1          4h7m
+     kube-flannel-ds-amd64-fcj5v          1/1     Running   1          3h19m
+     kube-flannel-ds-amd64-mpsvh          1/1     Running   1          3h55m
+     kube-proxy-fmn6f                     1/1     Running   1          4h7m
+     kube-proxy-r477f                     1/1     Running   0          3h19m
+     kube-scheduler-k8s-master            1/1     Running   1          4h7m
+
+默认的master节点是不能调度应用pod的，所以我们还需要给master节点打一个污点标记
+root@k8s-master:~# kubectl taint nodes --all node-role.kubernetes.io/master- 
+
+#获取Node节点加入集群时需要执行的命令（过一段时间就会更新，所以需要重新获取）
+root@k8s-master:~# kubeadm token create --print-join-command
+  kubeadm join 192.168.64.6:6443 --token trj9xj.2hagbra4f4muskho --discovery-token-ca-cert-hash sha256:e748897ee9657323daedf3862e712c6085ce3c2ab047189e91e9bcf45acdb003 
+
+root@k8s-master:~#  kubectl cluster-info
+   Kubernetes master is running at https://192.168.64.6:6443
+   KubeDNS is running at https://192.168.64.6:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+.Node节点加入集群 (Node节点)
+  kubeadm join 192.168.64.6:6443 --token trj9xj.2hagbra4f4muskho --discovery-token-ca-cert-hash sha256:e748897ee9657323daedf3862e712c6085ce3c2ab047189e91e9bcf45acdb003 
+
+root@k8s-master:~# kubectl get pods --namespace=kube-system
+            NAME                        READY   STATUS    RESTARTS   AGE
+    coredns-9d85f5447-9jjzh              1/1     Running   0          95m
+    coredns-9d85f5447-kjcz5              1/1     Running   0          95m
+    etcd-k8s-master                      1/1     Running   0          95m
+    kube-apiserver-k8s-master            1/1     Running   0          95m
+    kube-controller-manager-k8s-master   1/1     Running   0          95m
+    kube-flannel-ds-amd64-fcj5v          1/1     Running   1          47m
+    kube-flannel-ds-amd64-mpsvh          1/1     Running   0          83m
+    kube-proxy-fmn6f                     1/1     Running   0          95m
+    kube-proxy-r477f                     1/1     Running   0          47m
+    kube-scheduler-k8s-master            1/1     Running   0          95m
+
+................................
+
+.安装dashboard (master节点)
+#官方: https://github.com/kubernetes/dashboard 
+
+#下载dashboard配置文件 
+root@k8s-master:~# wget  https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-rc6/aio/deploy/recommended.yaml
+
+#删除旧的dashboard
+root@k8s-master:~# kubectl delete -f admin-user-role-binding.yaml
+
+#创建dashborad
+root@k8s-master:~# kubectl apply -f recommended.yaml 
+
+#启动
+root@k8s-master:~# kubectl proxy --address='0.0.0.0' --port=8001 --accept-hosts='^*$' &
+   http://192.168.64.6:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+#获取状态
+root@k8s-master:~# kubectl get pods --namespace=kubernetes-dashboard -o wide
+
+#修改Type: ClusterIP 为 Type: NodePort
+root@k8s-master:~# kubectl --namespace=kubernetes-dashboard edit service kubernetes-dashboard
+
+#查看状态
+root@k8s-master:~# kubectl --namespace=kubernetes-dashboard get service kubernetes-dashboard
+
+#生成sslkey
+root@k8s-master:~# openssl rand -writerand .rnd
+root@k8s-master:~# mkdir key
+root@k8s-master:~# cd key/
+root@k8s-master:~# openssl genrsa -out dashboard.key 2048 
+
+#浏览器所在的IP地址 192.168.1.88
+root@k8s-master:~# openssl req -new -out dashboard.csr -key dashboard.key -subj '/CN=192.168.1.88'
+
+root@k8s-master:~# openssl x509 -req -in dashboard.csr -signkey dashboard.key -out dashboard.crt 
+root@k8s-master:~# kubectl delete secret kubernetes-dashboard-certs -n kubernetes-dashboard
+root@k8s-master:~# kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard.key --from-file=dashboard.crt -n kubernetes-dashboard
+root@k8s-master:~# kubectl get pod -n kubernetes-dashboard
+   NAME                                         READY   STATUS    RESTARTS   AGE
+   dashboard-metrics-scraper-7b8b58dc8b-r8j24   1/1     Running   1          54m
+   kubernetes-dashboard-5f5f847d57-2kn5t        1/1     Running   0          38m
+
+#重启pod
+kubectl get pod kubernetes-dashboard-5f5f847d57-d8dsg  -n kubernetes-dashboard -o yaml | kubectl replace --force -f -
+ 
+
+
+
+kubectl --namespace=kubernetes-dashboard get service kubernetes-dashboard
+
+
+添加用户
+$ vim admin-user.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+
+
+$ vim admin-user-role-binding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+
+kubectl delete -f admin-user.yaml
+kubectl create -f admin-user.yaml
+
+kubectl delete -f admin-user-role-binding.yaml
+kubectl create -f admin-user-role-binding.yaml
+
+#获取admin-user的token
+$ sudo kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}') 
+
+#获取登陆端口 :32662
+$ sudo kubectl --namespace=kubernetes-dashboard get service kubernetes-dashboardNAME
+        TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE
+kubernetes-dashboard   NodePort      10.99.60.41   <none>     443:32662/TCP   16m
+
+#使用safari浏览器访问 (选择token, 并填入上面获取的token)
+ https://192.168.64.6:32662

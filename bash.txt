@@ -1,0 +1,53 @@
+$ start=1; end=10
+$ echo {$start..$end}  # 由于解析顺序，无法得到想要的结果
+{1..10}
+$ eval echo {$start..$end} # 首先进行变量扩展的解析
+1 2 3 4 5 6 7 8 9 10
+
+ ((...))命令可以用于条件语句，因为它的退出状态是0或者非0（大多数情况下是1），可以用于是与非的条件判断
+ VAR=55             # 将整数55赋值给变量VAR
+ ((VAR = VAR + 1))  # 变量VAR加1。注意这里没有'$'
+ ((++VAR))          # 另一种方法给VAR加1。使用C语言风格的前缀自增
+ ((VAR++))          # 另一种方法给VAR加1。使用C语言风格的后缀自增
+ echo $((VAR * 22)) # VAR乘以22并将结果送入命令
+ echo $[VAR * 22]   # 同上，但为过时用法
+ 
+ if((VAR == Y * 3 + X * 2))
+ then
+         echo yes
+ fi
+
+ ((Z > 23)) && echo Yes
+ 
+ 
+ command <<< "string to be read as standard input"
+ 
+ [[ string =~ regex ]]
+ 
+ if [[ abcfoobarbletch =~ 'foo(bar)bl(.*)' ]]
+ then
+         echo The regex matches!
+         echo $BASH_REMATCH      -- outputs: foobarbletch
+         echo ${BASH_REMATCH[1]} -- outputs: bar
+         echo ${BASH_REMATCH[2]} -- outputs: etch
+ fi
+ 
+ 
+ 关联数组
+Bash 4.0 开始支持关联数组，通过类似AWK的方式，对于多维数组提供了伪支持。
+
+$ declare -A a         # 声明一个名为a的伪二位数组
+$ i=1; j=2
+$ a[$i,$j]=5           # 将键 "$i,$j" 与值 5 对应
+$ echo ${a[$i,$j]}
+ 
+ 
+if [[ $a -lt 100 && $b -gt 100 ]]  
+if [[ $a -lt 100 || $b -gt 100 ]] 
+
+if [ $a != $b ]  
+if [ $a -lt 100 -a $b -gt 15 ] 
+if [ $a -lt 100 -o $b -gt 100 ] 
+if [ $a -lt 5 -o $b -gt 100 ] 
+ 
+ 

@@ -1,0 +1,16 @@
+[root@test temp]# setfacl -R -m u:webapp:rwx tomcat01 
+cd tomcat01 
+
+[root@test temp]# cd temp/ 
+# touch 1.txt
+
+[root@test temp]# getfacl 1.txt
+...
+user:webapp:rwx
+...
+ 
+[root@test temp]# mkdir a
+[root@test temp]# getfacl a
+...
+user:webapp:rwx
+...

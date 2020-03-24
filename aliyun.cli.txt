@@ -1,0 +1,47 @@
+.install
+
+.configure
+$ aliyuncli configure
+Aliyun Access Key ID [None]: LTAI4F...p9PbQ
+Aliyun Access Key Secret [None]: E1Z...jPr7
+Default Region Id [None]: cn-hongkong
+Default output format [None]: json
+
+.ecs
+  1) stop
+     aliyuncli ecs StopInstance --InstanceId "i-j6c60ampvfcd5u7jsi9v"
+	 aliyuncli ecs StartInstance --InstanceId  "i-j6c60ampvfcd5u7jsi9v"
+
+  2)
+  
+     aliyuncli ecs AssignPrivateIpAddresses --InstanceId  "i-j6c60ampvfcd5u7jsi9v" --PrivateIpAddresss 172.31.2.40 --NetworkInterfaceId eni-j6c6t5v86sw7rjqjrniq
+
+aliyuncli ecs UnassignPrivateIpAddresses --InstanceId  "i-j6c60ampvfcd5u7jsi9v"   --NetworkInterfaceId eni-j6c6t5v86sw7rjqjrniq  --PrivateIpAddresss .0=172.31.2.35
+
+https://ecs.aliyuncs.com/?Action=UnassignPrivateIpAddresses&NetworkInterfaceId=eni-j6c6t5v86sw7rjqjrniq&PrivateIpAddress.1=172.31.2.35&RegionId=cn-hongkong&AccessKeyId=LTAI4...p9PbQ&AccessKeySecret=E1Z..keigjPr7
+
+https://ecs.aliyuncs.com/?Action=AssignPrivateIpAddresses&NetworkInterfaceId=eni-m5e709m1ytxc4wx7wXXX&PrivateIpAddress.1=172.31.2.39&AccessKeyId=LTA...bQ&AccessKeySecret=E1..jPr7&RegionId=cn-hongkong&InstanceId=i-j6c60ampvfcd5u7jsi9v
+
+https://ec2.amazonaws.com/?Action=UnassignPrivateIpAddresses
+&NetworkInterfaceId=eni-197d9972
+&PrivateIpAddress.1=10.0.2.60 
+&PrivateIpAddress.2=10.0.2.65 
+&AUTHPARAMS
+
+root@aliyun:/data# aliyun ecs AssignPrivateIpAddresses --NetworkInterfaceId eni-j6c6t5v86sw7rjqjrniq --PrivateIpAddress.1 172.31.2.35
+ERROR: SDK.ServerError
+ErrorCode: InvalidIp.IpAssigned
+Recommend: 
+RequestId: 11CB4BCD-31C1-4E35-965E-E8D67A184149
+Message: The specified IP "["172.31.2.35"]" has been assigned.
+
+root@aliyun:/data# aliyun ecs UnassignPrivateIpAddresses --NetworkInterfaceId eni-j6c6t5v86sw7rjqjrniq --PrivateIpAddress.1 172.31.2.35
+ERROR: SDK.ServerError
+ErrorCode: InvalidIp.IpUnassigned
+Recommend: 
+RequestId: AE0CB9BD-55F5-48BC-86CD-E716F15D6858
+Message: The specified IP "["172.31.2.35"]" is(are) not assigned on this ENI.
+
+--InstanceId  "i-j6c60ampvfcd5u7jsi9v"  
+
+ aliyun ecs  DescribeInstanceStatus --InstanceId  "i-j6c60ampvfcd5u7jsi9v"  

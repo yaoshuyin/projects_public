@@ -1,0 +1,98 @@
+.install
+ 1)master
+   a)install
+     # apt install ansible
+
+   b)generate rsa
+     # ssh-keygen -t rsa
+
+   c)copy id_rsa.pub
+     # ssh-copy-id -i /root/.ssh/id_rsa.pub root@host
+
+   d)connect first time
+     # ssh root@host
+
+ 2)clients
+   a)install openssh server
+    # apt install openssh-server
+    # /etc/init.d/ssh start
+  
+   b)
+    # which python || which python3 && ln -s /usr/bin/python3 /usr/bin/python
+
+.cmds
+0)
+    ansible -i hosts --key-file=key/root_private.key angrycard.mongo -m ping 
+
+
+1) ping
+   # ansible -m ping all
+   # ansible -m ping hostgroup 
+
+2) 执行脚本
+   # ansible -m script hostgroup -a "/data/init.sh"  #master hosts /data/init.sh
+
+3) setup system info 
+   # ansible  mysql -m setup -a 'filter=ansible_eth0'
+   # ansible  mysql -m setup -a 'filter=ansible_eth[0-9]'
+ 
+4) create user
+
+   $(echo 123456| mkpasswd --stdin --method=sha-512)
+
+   ansible mysql -m user -a "name='user100' home='/home/user100'  update_password='always' shell='/bin/bash' uid='1100' group='www-data'"
+   
+5) create group
+   ansible mysql -m group -a 'name=mysql gid=1001 system=yes'
+   
+6) copy
+   ansible mysql -m copy -a 'src=/tmp/a.sh dest/tmp/aa.sh owner=root mode=755'
+   
+ 
+
+
+.playbook
+.cron.yml
+- hosts: all
+  tasks:
+    - name: restart-network
+      cron: name='restart network' minute=00 hour=00 job='/usr/sbin/ntpdate time.nist.gov >/dev/null 2>&1'
+    - name: sync time
+      cron: name='sync time' minute=*/5 job="/usr/sbin/ntpdate pool.ntp.com >/dev/null 2>&1"
+	  
+.多主机，多任务
+- hosts: 172.16.60.7
+  tasks:
+    - name: restart-network
+      cron: name='restart network' minute=00 hour=00 job='/usr/sbin/ntpdate time.nist.gov >/dev/null 2>&1'
+    - name: sync time
+      cron: name='sync time' minute=*/5 job="/usr/sbin/ntpdate pool.ntp.com >/dev/null 2>&1"
+ 
+- hosts: 172.16.60.31
+  tasks:
+    - name: show ip addr to file
+      shell: echo $(hostname -i) >> /tmp/ip.txt
+	  
+	  
+. 
+    - name: Install Rsync Nfs-Utils
+      yum: name=rsync,nfs-utils state=installed
+	  
+    - name: Create Group WWW
+      group: name=www gid=666
+	  
+    - name: Create User WWW
+      user: name=www uid=666 group=666 create_home=no shell=/sbin/nologin
+ 
+    - name: Create Rsync_Client_Pass
+      copy: content='1' dest=/etc/rsync.pass mode=600
+ 
+    - name: Create Scripts Directory
+      file: path=/server/scripts recurse=yes state=directory
+ 
+    - name: Push File Scripts
+      copy: src=./scripts/rsync_backup_md5.sh dest=/server/scripts/
+ 
+    - name: Crontable Scripts
+      cron: name="backup scripts" hour=01 minute=00 job="/bin/bash /server/scripts/rsync_backup_md5.sh &>/dev/null"
+ 

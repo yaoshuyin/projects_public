@@ -1,0 +1,320 @@
+.variables
+var x int
+var f float32 = 1.6
+var s = "xxx"
+
+func main() {
+   x := 123
+}
+
+var x, y, z int
+var s, n = "abc", 123
+
+var (
+    a int
+    b float32
+)
+
+func main() {
+    n, s := 0x1234, "Hello, World!"
+    println(x,s,n)
+}
+
+arr := [3]int{0,1,2,3}
+
+func test() (int,string) {
+
+}
+
+function test( x int, y string) (int,string) {
+
+}
+
+s := "abc"
+println(&s)
+
+s, y := "hello", 20
+
+const x, y int = 1, 2
+const s = "hello, world!"
+
+const (
+    a,b = 10,100
+    c bool = false
+)
+
+func main() {
+    const x = "xxx"
+}
+
+const (
+    s = "abc"
+    x 
+)
+
+const (
+    a = "abc"
+    b = len(a)
+    c = unsafe.Sizeof(b)
+)
+
+const (
+    a byte = 100
+    b int = 1e20
+)
+
+const (
+    Sunday = iota
+    Monday
+    Tuesday
+    Wednesday
+    Thursday
+    Friday
+    Saturday
+)
+
+const (
+    _ = iota
+    KB int64 = 1 << (10 * iota)
+    MG
+    GB
+    TB
+)
+
+const (
+    A, B = iota, iota << 10
+    C, D
+)
+
+const (
+    A = iota
+    B 
+    C = "c"
+    D
+    E = iota
+    F
+)
+
+type Color int
+const (
+    Black Color = iota
+    Red
+    Bule
+)
+
+func test(c Color) {}
+
+func main() {
+    c := Black
+    test(c)
+    x := 1
+    test(x)
+    test(1)
+}
+
+.基本类型
+Type            Bytes   Default
+bool              1      false
+byte              1        0         unit8
+rune              4        0         Unicode Code Point, int32
+int               4 / 8    0         32Bits / 64Bits
+unit              4 / 8    0         32Bits / 64Bits
+int8              1        0         -128 ~ 127, 0 ~ 255
+unit8             1        0         -128 ~ 127, 0 ~ 255
+int16             2        0         -32768 ~ 32767
+unit16            2        0         0 ~ 65535
+int32             4        0         -21亿 ~ 21亿
+unit32            4        0         0 ~ 42亿
+int64             8        0         9百万亿亿
+unut64            8        0         1千8万亿亿
+float32           4       0.0
+float64           8       0.0
+complex64         8       0.0
+complex128        16
+unitptr           4/8
+struct
+string
+
+slice                     nil
+map                       nil
+channel                   nil
+
+interface                 nil
+function                  nil
+
+.
+new 计算类型大小， 为其分配零值内存，返回指针
+make 被编译器翻译成具体的创建函数，由其分配内存和初始化成员结构，返回对象而非指针
+
+a := []int{0,0,0}
+a[1] = 10
+
+b := make([]int, 3)
+b[1] = 10
+
+c := new([]int)
+c[1] = 10     // Error
+
+.
+var b byte = 100
+var n int = int(b)
+
+*Point(p)  <==>  *(Point(p))
+(*Point)(p)
+
+<-chan int(c)   <===>  <-(chan int(c))
+(<-chan int)(c)
+
+a := 100
+if a == 100 {
+    print("true")
+}
+
+a.h
+struct String {
+    byte* str;
+    intgo len;
+}
+
+s := `
+  xxx
+  ddd
+  \r\n
+`
+
+s := "a"+"b"
+s := "xxxxxxxxxxxx"
+s1 := s[:5]
+s2 := s[4:]
+s3 := s[1:4]
+
+s := "xxx"
+bs := []byte(s)
+
+s2 : = string(bs)
+
+us := []rune(u)
+us[1] = "c"
+println(string(us))
+
+func main() {
+    s := "xxxxxxxx"
+    for i := 0; i < len(s); i++ {
+        fmt.Printf("%c ", s[i])
+    }
+
+    for _, v := range s {
+        fmt.Printf("%c, ", v)
+    }
+}
+
+type data string{a int}
+
+var d = data{1234}
+var p *data
+p = &d
+
+fmt.Printf("%p, %v\n", p, p.a)
+
+func test() *int {
+    x := 100
+    return &x
+}
+
+d := struct {
+    s string
+    x int
+} {"abc", 100}
+
+var a struct { x int `a`}
+var b struct { x int `ab`}
+
+type bigint int64
+var x bigint = 200
+
+x : = 1234
+var b bigint = bigint(x)
+var b2 int64 = int64(b)
+
+var s myslice = []int{1,2,3}
+var s2 []int = s
+
+break default func interface select case defer go map
+struct chan else goto package switch
+const fallthrough if range type 
+continue for import return var
+
++ - * / % & | ^ << >> &^ += -= *= /= %= &= |= ^= <<= >>= 
+&^= && || <- ++ -- == < > = ! != <= >= := .. ( ) [ ] {} , ; . :
+
+var a = struct{x int}{100}
+var b = []int{1,2,3}
+
+a := []int{1,2,3}
+
+a := []int{
+    1,
+    2,
+}
+
+if n:="abc"; x>0 {
+
+} else if x<0 {
+    println(n[1])
+} else {
+    println(x)
+}
+
+for i,n := 0, len(s); i<n; i++ {
+    println(s[i])
+}
+
+n := len(s)
+
+for n>0 {
+    println(s[n])
+    n--
+}
+
+for {
+    println(s)
+}
+
+func length(s string) int {
+    println("xxx")
+    return len(s)
+}
+
+fnction main() {
+    s := "xxx"
+
+    for i,n :=0, length(s); i<n; i++ {
+        println(s,s[i])
+    }
+}
+
+s := "xxxxxx"
+for i := range s {
+    println(s[i])
+}
+
+for _, c := range s {
+    println(c)
+}
+
+for range s {
+    ...
+}
+
+m := map[string]int{"a":1, "b":2}
+
+for k, v := range m {
+    println(k,v)
+}
+
+a := [3]int{0,1,2,3}
+
+for i,v := range a {
+    println(v)
+}
+

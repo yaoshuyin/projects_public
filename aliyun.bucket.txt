@@ -1,0 +1,97 @@
+1)创建bucket
+
+2)访问控制
+  https://ram.console.aliyun.com/users
+  
+  a)新建用户 https://ram.console.aliyun.com/users/new , 
+       勾选 编程访问 
+	   
+	   复制  AccessKey ID 和 AccessKey Secret
+  
+3)配置权限 
+  a) 新建权限策略  https://ram.console.aliyun.com/policies
+  
+  
+  策略名称 hd2-backup-serve
+  
+{
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "oss:*",
+            "Resource": [
+                "acs:oss:*:*:hd2-backup-server",
+                "acs:oss:*:*:hd2-backup-server/*"
+            ]
+        }
+    ],
+    "Version": "1"
+}
+
+   b) 给用户授权 https://ram.console.aliyun.com/users/hd2-backup-server
+
+4)操作命令
+   ./ossutil64 --config-file=ossutil_config ls oss://hd2-backup-server/
+	
+   ./ossutil64 --config-file=ossutil_config ls oss://hd2-backup-server/test/  
+   
+   ./ossutil64 --config-file=ossutil_config cp 2.txt oss://hd2-backup-server/test/
+ 
+   ./ossutil64 --config-file=ossutil_config mkdir oss://hd2-backup-server/test2 
+   ./ossutil64 --config-file=ossutil_config cp 3.txt oss://hd2-backup-server/test2/
+   ./ossutil64 --config-file=ossutil_config ls oss://hd2-backup-server/test2/
+   
+   ./ossutil64 --config-file=ossutil_config mkdir oss://hd2-backup-server/dir1/dir2/dir3
+   
+   ./ossutil64 lifecycle --method put oss://bucket local_xml_file 
+
+   
+ root@aliyun:/data/scripts# cat lifecycle.xml 
+ <?xml version="1.0" encoding="UTF-8"?>
+  <LifecycleConfiguration>
+      <Rule>
+          <ID>d10a1335-87d9-4bdc-a36f-270bb03e02fb</ID>
+          <Prefix>backup-</Prefix>
+          <Status>Enabled</Status>
+          <Tag>
+              <Key>backup</Key>
+              <Value>180days</Value>
+          </Tag>
+          <Expiration>
+              <Days>180</Days>
+          </Expiration>
+      </Rule>
+ </LifecycleConfiguration> 
+ 
+ f=oss://hd2-backup-server/HD2-CIL-MONGODB-TRANS-01/trans.sp.2019-09-21.2019-10-01.tar.gz
+  ./ossutil64 --config-file=ossutil64_config lifecycle --method get $f  
+   
+  ./ossutil64 --config-file=ossutil64_config lifecycle --method put $f  lifecycle.xml 
+  
+ 打包压缩/usr并加密 
+ tar -zcvf - /usr/ |openssl des3 -pbkdf2 -salt -k secretpassword | dd of=stuff.des3 
+ 
+ 解密解压
+ dd if=stuff.des3 |openssl des3 -pbkdf2 -d -k secretpassword|tar zxf - 
+
+ 分割
+ split -b 30M -d -a 1   stuff.des3 stuff.des3-
+  
+ 合并
+ cat ../stuff.des3-* > stuff.des3
+ 
+ 打包压缩/usr并加密
+ tar -cvpj /usr/ | openssl  des3 -pbkdf2 -salt -k secretpassword | split -d -b 30m - user.tar.bz2-
+ 
+ 解密并解压
+ cat ../user.tar.bz2-* | openssl  des3 -pbkdf2 -d -k secretpassword | tar xvjf -
+
+
+mongodump -h 172.18.0.15 --port 27017 -u trans -p transtrans  -gzip -o trans.20191022 -d trans -c trans.sp -q "$q" -o $dump_path/${i}.${ids}.${ide} 
+
+
+ tar -zcvf - /mongodb/backup/trans.sp.2019-09-21.2019-10-01 | openssl des3 -salt -pbkdf2 -k $compress_passwd | dd of=/mongodb/backup/trans.sp.2019-09-21.2019-10-01.des3
+
+
+
+tar -zcvf -   lifecycle.xml | openssl des3 -salt -pbkdf2 -k 123456 | dd of=lifecycle.xml.des3

@@ -76,7 +76,3 @@ root@tyo-evo-mini-demo-01:~# timedatectl
        System clock synchronized: yes
 systemd-timesyncd.service active: yes
                  RTC in local TZ: no
-
-
-
-
