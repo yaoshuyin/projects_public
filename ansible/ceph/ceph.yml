@@ -1,0 +1,130 @@
+---
+    - hosts: ceph
+      become: yes
+      become_user: root
+      vars:
+         max_clients: 200
+      tasks:
+         - name: install python2.7
+           apt: name="python2.7" state="present"
+    
+         #- name: hosts
+         #  shell:
+         #     cmd: |
+         #       grep '192.168.1.210 ceph-master' /etc/hosts || cat >> /etc/hosts <<_EOF_
+         #       192.168.1.210 ceph-master
+         #       192.168.1.211 ceph-node1 ceph-osd1
+         #       192.168.1.212 ceph-node2 ceph-osd2
+         #       192.168.1.213 ceph-node3 ceph-osd3
+         #       192.168.1.214 ceph-client
+         #       _EOF_
+       
+         #- name: enverionment
+         #  shell: 
+         #     cmd: |
+         #       grep -E '^http_proxy=' /etc/{{ item }} || cat >>/etc/{{ item }} <<_EOF_
+         #       http_proxy=http://192.168.1.88:8889
+         #       https_proxy=http://192.168.1.88:8889
+         #       ftp_proxy=http://192.168.1.88:8889
+         #       no_proxy=localhost,192.168.0.0/16,10.0.0.0/8,127.0.0.0,127.0.1.1,127.0.1.1,local.home,*aliyuncs.com
+         #       _EOF_
+         #  with_items:
+         #     - environment
+         #     - wgetrc
+    
+    
+         #- name: sudoers keep proxy
+         #  shell:
+         #     cmd: |
+         #       grep -E '^Defaults env_keep += "ftp_porxy http_proxy' /etc/sudoers || echo 'Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"' >> /etc/sudoers
+    
+         #- name: ntpdate
+         #  shell: |
+         #       apt -y install ntpdate
+         #       crontab -l > /tmp/cron.txt
+         #       grep 'ntpdate ntp.api.bz' /tmp/cron.txt || echo '*/10 * * * * /usr/sbin/ntpdate ntp.api.bz && /sbin/hwclock -w' >> /tmp/cron.txt
+         #       crontab /tmp/cron.txt 
+    
+         #- name: init ceph
+         #  shell: |
+         #      apt -y update
+         #      apt -y upgrade
+         #      wget -q -O- 'https://download.ceph.com/keys/release.asc' | apt-key add -
+         #      wget -q -O- 'https://download.ceph.com/keys/autobuild.asc' |  apt-key add -
+         #      echo deb https://download.ceph.com/debian-mimic/ $(lsb_release -sc) main > /etc/apt/sources.list.d/ceph.list
+         #      apt -y update
+         #      apt -y upgrade
+    
+         #- name: ceph deploy install
+         #  become: true
+         #  become_user: user
+         #  shell: | 
+         #      cd ~
+         #      mkdir cluster
+         #      cd cluster
+    
+         #      apt -y install ceph ceph-deploy libunwind-dev 
+    
+         #      ceph-deploy new ceph-osd1 ceph-osd2 ceph-osd3 
+         #      ceph-deploy install ceph-master ceph-osd1 ceph-osd2 ceph-osd3           ceph-deploy mon create-initial
+         #      chown -R user:user /etc/ceph
+         #      cp * /etc/ceph
+     
+         #      ceph-deploy --overwrite-conf config ceph-osd1 ceph-osd1 ceph-osd3 
+    
+         #      systemctl enable ceph.target
+         #      systemctl enable ceph-mds.target
+         #      systemctl enable ceph-mon.target
+         #      systemctl enable ceph-osd.target 
+    
+         #  when: inventory_hostname == '192.168.1.210'
+    
+         #- name: ceph osd disks
+         #  become: true
+         #  become_user: root
+         #  shell: |
+         #      lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
+         #      resize2fs /dev/ubuntu-vg/ubuntu-lv
+    
+         #      vgcreate vg-data /dev/sdb
+         #      lvcreate -l 100%FREE -n lv-data vg-data
+    
+         - name: ntpdate
+           become: true
+           become_user: root
+           shell: |
+              /usr/sbin/ntpdate ntp.api.bz && /sbin/hwclock -w 
+        
+         - name: resolve
+           become: true
+           become_user: root
+           shell: |
+              grep 8.8.8.8 /etc/resolv.conf || sed -i '/nameserver/inameserver 8.8.8.8' /etc/resolv.conf
+    
+         - name: ceph install osd
+           become: true
+           become_user: user
+           shell: |
+             cd ~/cluster
+             grep 'public network' /etc/ceph/ceph.conf || echo 'public network = 192.168.1.0/24' >> /etc/ceph/ceph.conf
+             cp /etc/ceph/ceph.conf ./
+             ceph-deploy --overwrite-conf config push {{ item }}
+    
+             ceph-deploy --overwrite-conf mgr create {{ item }}:{{ item }}
+             ceph-deploy --overwrite-conf osd create {{ item }} --data /dev/vg-data/lv-data
+             ceph-deploy --overwrite-conf mon create {{ item }}
+             ceph-deploy --overwrite-conf mon add {{ item }}
+           with_items: 
+             #- ceph-osd1
+             - ceph-osd2
+             - ceph-osd3
+           when: inventory_hostname == '192.168.1.210'
+
+        - name: osd disk init
+          shell: |
+             lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
+            resize2fs /dev/ubuntu-vg/ubuntu-lv
+
+            vgcreate vg-data /dev/sdb
+            lvcreate -l 100%FREE -n lv-data vg-data
+          when: inventory_hostname != '192.168.1.210' and inventory_hostname != '192.168.1.214'

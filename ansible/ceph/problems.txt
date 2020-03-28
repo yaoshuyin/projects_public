@@ -1,0 +1,278 @@
+.所有节点
+vim /etc/enverionment
+http_proxy=http://192.168.1.88:8889
+https_proxy=http://192.168.1.88:8889
+ftp_proxy=http://192.168.1.88:8889
+no_proxy=localhost,192.168.0.0/16,10.0.0.0/8,127.0.0.0,127.0.1.1,127.0.1.1,local.home,*aliyuncs.com
+
+vim /etc/wgetrc (不要有引号)
+ftp_proxy=http://192.168.1.88:8889
+http_proxy=http://192.168.1.88:8889
+https_proxy=http://192.168.1.88:8889
+no_proxy=localhost,192.168.0.0/16,10.0.0.0/8,127.0.0.0,127.0.1.1,127.0.1.1,local.home,*aliyuncs.com
+
+......................
+
+vim /etc/hosts (所有节点)
+192.168.1.210 ceph-master
+192.168.1.211 ceph-node1 ceph-osd1
+192.168.1.212 ceph-node2 ceph-osd2
+192.168.1.213 ceph-node3 ceph-osd3 
+192.168.1.214 ceph-client
+
+......................
+
+.cephuser 用于安装ceph
+
+a) master
+useradd -m -d /var/lib/ceph -s /bin/bash ceph
+su - ceph
+ssh-keygen
+cd .ssh
+cat id_rsa.pub >> authorized_keys
+chmod 600 authorized_keys
+cat id_rsa.pub
+
+b) node1 node2
+useradd -m -d /var/lib/ceph -s /bin/bash ceph
+su - ceph
+mkdir .ssh
+cd .ssh
+vim authorized_keys
+chmod 600 authorized_keys
+
+c) master node1 node2
+vim /etc/sudoers
+Defaults env_keep += "ftp_proxy http_proxy https_proxy no_proxy"
+#Defaults       env_reset
+...
+ceph    ALL=(ALL:ALL) NOPASSWD:ALL
+
+...............
+
+apt update 
+apt upgrade
+
+apt install openssh-server  python2.7
+ln -s /usr/bin/python2.7 /usr/bin/python2
+
+/etc/init.d/ssh start
+
+....................
+
+wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
+wget -q -O- 'https://download.ceph.com/keys/autobuild.asc' | sudo apt-key add -
+
+#最新版
+apt-add-repository 'deb http://download.ceph.com/debian-firefly/ $(lsb_release -sc) main'
+
+#ubuntu18.04
+echo deb https://download.ceph.com/debian-mimic/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list
+
+apt-get update 
+apt-get install ceph-deploy libunwind-dev
+
+firewall-cmd --zone=public --add-port=6789/tcp --permanent
+sudo iptables -A INPUT -i {iface} -p tcp -s {ip-address}/{netmask} --dport 6789 -j ACCEPT
+setenforce 0
+yum install yum-plugin-priorities --enablerepo=rhel-7-server-optional-rpms
+
+/etc/hosts
+192.168.64.6 ceph-master
+192.168.64.7 ceph-node1 ceph-osd1
+192.168.64.8 ceph-node2 ceph-osd2
+
+
+
+[报错]
+[ceph-node1][DEBUG ] dpkg: error processing package ceph-common (--configure):
+[ceph-node1][DEBUG ]  installed ceph-common package post-installation script subprocess returned error exit status 8
+
+[解决]
+apt --fix-broken  install
+apt -y remove  *ceph* ceph-common ceph-base radosgw
+apt --fix-broken  install
+rm -f  /var/lib/dpkg/info/*ceph*
+apt update
+apt upgrade
+
+
+ceph-deploy mon create-initial
+报错
+hostnamectl set-hostname ceph-master
+hostnamectl set-hostname ceph-node1
+hostnamectl set-hostname ceph-node2
+hostnamectl set-hostname ceph-node3
+
+sudo pkill ceph (各节点，含master)
+
+ceph-deploy mon create-initial (master)
+
+$ ls
+ceph-deploy-ceph.log        ceph.bootstrap-rgw.keyring
+ceph.bootstrap-mds.keyring  ceph.client.admin.keyring
+ceph.bootstrap-mgr.keyring  ceph.conf
+ceph.bootstrap-osd.keyring  ceph.mon.keyring
+
+
+.
+ceph-deploy --overwrite-conf config push ceph-node1 ceph-node2 ceph-node3
+
+
+.ceph -s
+ auth: unable to find a keyring on /etc/ceph/ceph.client.admin.keyring
+
+[解决]
+sudo cp /data/ceph/cluster/ceph.client.admin.keyring  /etc/ceph/
+sudo chmod +r /etc/ceph/ceph.client.admin.keyring
+
+$ ceph -s
+  cluster:
+    id:     e8e32890-8ae6-4a20-9c3c-17041d8fe9ff
+    health: HEALTH_OK
+
+  services:
+    mon: 2 daemons, quorum ceph-node2,ceph-node3
+    mgr: no daemons active
+    osd: 0 osds: 0 up, 0 in
+
+  data:
+    pools:   0 pools, 0 pgs
+    objects: 0  objects, 0 B
+    usage:   0 B used, 0 B / 0 B avail
+    pgs:     
+
+$ ceph health
+   HEALTH_WARN clock skew detected on mon.ceph-node3
+
+[解决] （所有节点)
+  apt install ntp ntpdate
+  /etc/init.d/ntp stop
+  ntpdate  ntp.api.bz
+  /etc/init.d/ntp start
+
+
+
+root@k8s-node3:~# ntpq -p
+     remote           refid      st t when poll reach   delay   offset  jitter
+==============================================================================
+ 0.ubuntu.pool.n .POOL.          16 p    -   64    0    0.000    0.000   0.008
+ 1.ubuntu.pool.n .POOL.          16 p    -   64    0    0.000    0.000   0.008
+ 2.ubuntu.pool.n .POOL.          16 p    -   64    0    0.000    0.000   0.008
+ 3.ubuntu.pool.n .POOL.          16 p    -   64    0    0.000    0.000   0.008
+ ntp.ubuntu.com  .POOL.          16 p    -   64    0    0.000    0.000   0.008
+ ntp6.flashdance 194.58.202.20    2 u    -   64    1  308.464  -488.42   3.533
+ ntp8.flashdance .STEP.          16 u  822   64    0    0.000    0.000   0.008
+ ntp1.ams1.nl.le .STEP.          16 u   51   64    0    0.000    0.000   0.008
+ ntp5.flashdance 192.36.143.153   2 u    2   64    1  329.257  -24.681  78.078
+
+ ceph -s
+ ceph health
+
+ $ ceph -s
+  cluster:
+    id:     e8e32890-8ae6-4a20-9c3c-17041d8fe9ff
+    health: HEALTH_OK
+ 
+  services:
+    mon: 2 daemons, quorum ceph-node2,ceph-node3
+    mgr: no daemons active
+    osd: 0 osds: 0 up, 0 in
+ 
+  data:
+    pools:   0 pools, 0 pgs
+    objects: 0  objects, 0 B
+    usage:   0 B used, 0 B / 0 B avail
+    pgs:     
+
+....................
+
+#on ceph-node1
+~# mkdir -p /data/ceph/disks
+~# chown -R ceph:ceph /data/ceph
+~# cd /data/ceph/disks 
+~# sudo dd if=/dev/zero of=disk01.img bs=1M  count=1000
+~# sudo losetup /dev/loop0 /data/ceph/disks/disk01.img 或
+~# sudo losetup -Pf --show /data/ceph/disks/disk01.img
+~# fdisk -l
+    Disk /dev/loop0: 200 MiB, 209715200 bytes, 409600 sectors
+
+
+# 卸载:
+# ~# sudo losetup -d /dev/loop0 
+# ~# lsblk
+
+pvcreate /dev/loop0
+vgcreate vgloop0 /dev/loop0
+lvcreate -l 100%FREE -n lvloop0 vgloop0
+sgdisk --zap-all /dev/vgloop0/lvloop0
+
+
+$ ceph -s
+  cluster:
+    id:     69235400-c2dd-4222-891d-abdaa82e574c
+    health: HEALTH_WARN
+            application not enabled on 1 pool(s)
+
+  services:
+    mon: 3 daemons, quorum ceph-osd1,ceph-osd2,ceph-osd3
+    mgr: ceph-osd1(active), standbys: ceph-osd2, ceph-osd3
+    osd: 3 osds: 3 up, 3 in
+
+  data:
+    pools:   1 pools, 128 pgs
+    objects: 6  objects, 3.4 MiB
+    usage:   3.0 GiB used, 57 GiB / 60 GiB avail
+    pgs:     128 active+clean
+
+...................................
+
+.挂载端
+
+# 创建pool
+$ ceph osd pool create pool0 128 128
+
+# 创建一个rado block device 分区
+$ rbd  create rbd0 --pool pool0 --size 10  --image-feature=layering
+
+# 映射 pool0/rbd0  到 /dev/rbd0
+$ sudo rbd map pool0/rbd0
+
+$ sudo mkfs.ext4 /dev/rbd0
+
+$ sudo mkdir /mnt/rbd0
+$ sudo mount -t ext4 /dev/rbd0 /mnt/rbd0
+
+$ sudo chown -R user:user /mnt/rbd0
+$ touch /mnt/rbd0/123
+
+$ rbd info rbd0 -p pool0
+  rbd image 'rbd0':
+        size 10 MiB in 3 objects
+        order 22 (4 MiB objects)
+        id: 3aee6b8b4567
+        block_name_prefix: rbd_data.3aee6b8b4567
+        format: 2
+        features: layering
+        op_features: 
+        flags: 
+        create_timestamp: Sat Mar 28 15:39:45 2020
+
+.
+$ ceph -s
+ health: HEALTH_WARN
+            application not enabled on 1 pool(s)
+
+$ ceph health detail
+HEALTH_WARN application not enabled on 1 pool(s)
+POOL_APP_NOT_ENABLED application not enabled on 1 pool(s)
+    application not enabled on pool 'pool0'
+    use 'ceph osd pool application enable <pool-name> <app-name>', where <app-name> is 'cephfs', 'rbd', 'rgw', or freeform for custom applications.
+
+$ ceph osd pool application enable pool0 rgw
+  enabled application 'rgw' on pool 'pool0'
+
+$ ceph -s
+  cluster:
+    id:     69235400-c2dd-4222-891d-abdaa82e574c
+    health: HEALTH_OK

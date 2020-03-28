@@ -1,0 +1,14 @@
+     #最后一行_EOF_必须与grep对齐,不能顶出去
+     #所有的行都对齐，缩进去会产生空格，顶出来会出错
+     - name: enverionment
+       shell:
+          cmd: |
+            grep -E '^http_proxy=' /etc/{{ item }} || cat >>/etc/{{ item }} <<_EOF_
+            http_proxy=http://192.168.1.88:8889
+            https_proxy=http://192.168.1.88:8889
+            ftp_proxy=http://192.168.1.88:8889
+            no_proxy=localhost,192.168.0.0/16,10.0.0.0/8,127.0.0.0,127.0.1.1,127.0.1.1,local.home,*aliyuncs.com
+            _EOF_
+       with_items:
+          - environment
+          - wgetrc
