@@ -88,12 +88,13 @@
     
          #      vgcreate vg-data /dev/sdb
          #      lvcreate -l 100%FREE -n lv-data vg-data
-    
+
+        # 配置192.168.1.210为ntp server
          - name: ntpdate
            become: true
            become_user: root
            shell: |
-              /usr/sbin/ntpdate ntp.api.bz && /sbin/hwclock -w 
+              /usr/sbin/ntpdate 192.168.1.210 && /sbin/hwclock -w
         
          - name: resolve
            become: true
