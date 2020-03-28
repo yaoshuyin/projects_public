@@ -63,7 +63,7 @@
          #      mkdir cluster
          #      cd cluster
     
-         #      apt -y install ceph ceph-deploy libunwind-dev 
+         #      apt -y install ceph ceph-common ceph-deploy libunwind-dev
     
          #      ceph-deploy new ceph-osd1 ceph-osd2 ceph-osd3 
          #      ceph-deploy install ceph-master ceph-osd1 ceph-osd2 ceph-osd3           ceph-deploy mon create-initial
