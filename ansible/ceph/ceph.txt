@@ -1,4 +1,5 @@
 .使用cephfs供多机共享挂载
+   1) on ceph master
    ~/cluster$  ceph-deploy --overwrite-conf mds create ceph-master
 
    ~/cluster$  ceph osd pool create pool1 10
@@ -7,14 +8,17 @@
 
    ~/cluster$  ceph fs ls
    ~/cluster$  ceph mds stat
-
-   ~/cluster$  sudo mkdir /mnt/test1
    ~/cluster$  grep 'key =' /etc/ceph/ceph.client.admin.keyring | awk -F '=' '{print $2}' > admin.secret
+
+   2) on ceph client
+   a) mount
+   ~/cluster$  sudo mkdir /mnt/test1
    ~/cluster$  sudo mount -t ceph 192.168.1.213:6789:/ /mnt/test1 -o name=admin,secretfile=admin.secret
 
    ~/cluster$  sudo mkdir /mnt/test2
    ~/cluster$  sudo mount -t ceph 192.168.1.212:6789:/ /mnt/test2 -o name=admin,secretfile=admin.secret
 
+   b) test
    ~/cluster$  sudo touch /mnt/test1/999
    ~/cluster$  ls -l /mnt/test1/999
                16:26 /mnt/test1/999
