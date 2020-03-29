@@ -1,3 +1,36 @@
+.使用cephfs供多机共享挂载
+   ~/cluster$  ceph-deploy --overwrite-conf mds create ceph-master
+
+   ~/cluster$  ceph osd pool create pool1 10
+   ~/cluster$  ceph osd pool create pool1_metadata 10
+   ~/cluster$  ceph fs new cephfs pool1_metadata pool1
+
+   ~/cluster$  ceph fs ls
+   ~/cluster$  ceph mds stat
+
+   ~/cluster$  sudo mkdir /mnt/test1
+   ~/cluster$  grep 'key =' /etc/ceph/ceph.client.admin.keyring | awk -F '=' '{print $2}' > admin.secret
+   ~/cluster$  sudo mount -t ceph 192.168.1.213:6789:/ /mnt/test1 -o name=admin,secretfile=admin.secret
+
+   ~/cluster$  sudo mkdir /mnt/test2
+   ~/cluster$  sudo mount -t ceph 192.168.1.212:6789:/ /mnt/test2 -o name=admin,secretfile=admin.secret
+
+   ~/cluster$  sudo touch /mnt/test1/999
+   ~/cluster$  ls -l /mnt/test1/999
+               16:26 /mnt/test1/999
+
+   ~/cluster$  ls -l /mnt/test2/999
+               16:26 /mnt/test2/999
+
+   ~/cluster$  sudo touch /mnt/test2/888
+   ~/cluster$  ls -l /mnt/test1/888
+               16:27 /mnt/test1/888
+
+   ~/cluster$  ls -l /mnt/test2/888
+               16:27 /mnt/test2/888
+
+..........................................
+
 .libceph-common.so.0: cannot map zero-fill pages
  服务器内存不足，需要添加内存
 
@@ -35,7 +68,7 @@ c)在master上
 ~/cluster$  ceph-deploy osd create --bluestore ceph-osd2 --data /dev/vg-data/lv-data
 
 d)查看现在状态
-~/cluster$ $ ceph osd tree
+~/cluster$ $ ceph osd treecep
  0   hdd 0.01949    osd.0    up    1.00000  1.00000
  1   hdd 0.01949    osd.1    up    1.00000  1.00000
  2   hdd 0.01949    osd.2    up    1.00000  1.00000
