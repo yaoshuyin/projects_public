@@ -8,7 +8,7 @@
 
    ~/cluster$  ceph fs ls
    ~/cluster$  ceph mds stat
-   ~/cluster$  grep 'key =' /etc/ceph/ceph.client.admin.keyring | awk -F '=' '{print $2}' > admin.secret
+   ~/cluster$  grep 'key =' /etc/ceph/ceph.client.admin.keyring | awk -F '=' '{gsub(" ","",$2);print $2}' > admin.secret
 
    2) on ceph client
    a) mount
