@@ -123,6 +123,12 @@ root@k8s-master:~# kubectl delete -f admin-user-role-binding.yaml
 #创建dashborad
 root@k8s-master:~# kubectl apply -f recommended.yaml
 
+
+
+
+
+..................登陆用户配置.............................
+
 #启动
 root@k8s-master:~# kubectl proxy --address='0.0.0.0' --port=8001 --accept-hosts='^*$' &
    http://192.168.64.6:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
@@ -592,3 +598,510 @@ root@k8s-master:~/k8s/apps# curl 10.99.201.195:8081
 
 root@k8s-master:~/k8s/apps# curl localhost:31585
   Hello World!
+
+
+..........................................................
+1、service资源实现模型
+（1）service资源
+
+       Service资源基于标签选择器将一组pod定义成一个逻辑组合，并通过自己的IP地址和端口调度代理请求至组内的对象上。并对客户端隐藏了真实的处理用户请求的pod资源。Service资源会通过API Service持续监视着标签选择器匹配到的后端pod对象，并实时跟踪个对象的变动；但是service并不直接连接至pod对象，它们直接还有一个中间层（Endpoint）资源对象，创建Service资源对象时，其关联的Endpoint对象会自动创建。
+
+（2）service实现方式
+
+       一个service对象就是工作节点上的一些iptables或ipvs规则，用于将到达service对象的IP地址的流量调度转发至相应的Endpoint对象制定的IP地址和端口上。Service ip就是用于生成iptables或ipvs规则时使用的IP地址。Kube-proxy将请求代理至相应端点的方式主要有三种：
+
+       1）userspace代理模型
+
+       这种代理模型为kubernetes1.1版本之前默认的代理模型；这种代理模型中，请求在内核空间和用户空间来回转发导致效率不高。
+
+       2）iptables代理模型
+
+       这种调度模型为kubernetes1.2版本至1.11版本之间的默认调度模型；默认算法是随机调度；iptables代理模型不会再背挑选中的后端pod资源无响应时自动进行重定向。
+
+       3）ipvs调度模型
+
+       Ipvs调度模型从1.11版本开始成为默认的调度模型；这种模型中，ipvs构建于netfilter的钩子函数之上，使用hash表作为底层数据结构并工作与内核空间，具有流量转发速度快，规则同步性能好等特性。IPvs支持支持众多调度算法，如rr、lc、dh、sh、sed、nq等。
+
+2、service资源的使用
+       Service资源的定义与其他资源的定义方式基本相同，spec字段经常嵌套的的字段有selector（定义标签选择器）ports（定义要暴露的端口）。
+
+# 为前面创建的deployment控制器创建定义service资源
+[root@master01 test03]# cat test01.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-svc
+spec:
+  selector:
+    app: test-deploy
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+# 创建service资源
+[root@master01 test03]# kubectl apply -f test01.yaml 
+service/test-svc created
+# 查看创建的service
+[root@master01 test03]# kubectl get svc test-svc
+NAME       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+test-svc   ClusterIP   10.100.249.83   <none>        80/TCP    3m6s
+# 查看endpoint资源端点列表
+[root@master01 test03]# kubectl get endpoints test-svc
+NAME       ENDPOINTS                                                  AGE
+test-svc   10.244.1.38:80,10.244.1.39:80,10.244.2.37:80 + 2 more...   4m24s
+3、服务发现
+       在kubernetes集群中，service为pod中的服务类应用提供了一个稳定的访问入口，pod中的应用是通过服务发现机制来得知某个特定service资源的IP和端口的。
+
+（1）服务发现
+
+       根据服务发现的实现方式，可将服务发现分为客户端发现（由客户端到服务注册中心发现其依赖到的服务的相关信息）和服务端发现（通过中央路由器或者服务均衡器组件实现）两类。
+
+       在kubernetes中，1.3版本开始服务发现是由kubeDNS实现的，从1.11版本后，服务发现功能是由CoreDNS组件实现的。
+
+（2）服务发现的方式
+
+       1）环境变量方式
+
+       在创建pod资源时，kubelet会将其所属名称空间内的每个活动的Service对象以一系列环境变量的方式注入其中，支持使用kubernetes service环境变量及与docker的links兼容的变量。
+
+       2）DNS的方式
+
+       ClusterDNS是kubernetes系统中用于服务解析和名称发现的服务，集群中创建的每个service对象，都会由其生成相关的资源记录；默认集群内的各pod资源会自动配置其作为名称解析服务器，并在其DNS搜索列表中包含它所属名称空间的域名后缀。
+
+       在创建service资源对象时，ClusterDNS会为它自动创建资源记录用于名称解析和服务注册，pod资源可直接使用标准的DNS名称来访问这些“servie”资源。
+
+4、服务暴露
+       Service的IP地址仅在集群内可达，而有些服务需要暴露到外部网络中接受各类客户端的访问，此时就需要在集群的边缘为其添加一层转发机制，以实现将外部请求接入到集群service资源之上，及将集群中的服务发布到外部网络中。Kubernetes中service共有四种类型，分别如下：
+
+（1）ClusterIP
+
+通过集群内部的IP地址暴露服务，地址仅在集群内部可达，无法被集群外部的客户端访问。
+
+（2）NodePort
+
+       NodePort类型建立在ClusterIP类型之上，用其所在的每个节点的IP地址的某静态端口暴露服务，它依然会为service分配集群IP地址，并将此作为NodePort的路由目标。
+
+       Kubernetes集群在安装部署时通常会预留一个端口范围用于NodePort，默认为30000-322767之间的端口。而在使用NodePort类型的service时，需要通过” service.spec.type”字段指定service类型名称。
+
+# 定义NodePort类型的service资源，并指定端口（一般不建议指定端口）
+[root@master01 test03]# cat test02.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-nodportsvc
+spec:
+  type: NodePort
+  selector:
+    app: test-deploy
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30033
+# 查看创建好的service，依然创建了clusterIP，并将容器内的端口映射到了node节点上
+[root@master01 test03]# kubectl get svc test-nodportsvc
+NAME              TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+test-nodportsvc   NodePort   10.111.192.243   <none>        80:30033/TCP   6m20s
+（3）LoadBalancer
+
+LoadBalancer类型建立在NodePort类型之上，其通过cloud provider提供的负载均衡器将服务暴露到集群外部。LoadBalancer类型的service与NodePort类型的service的使用方法基本类似。
+
+（4）ExternalName
+
+       ExternalNamel类型的service资源用于将集群外部的服务发布到集群中以供Pod中的应用程序访问，因此，不需要使用标签选择器关联任何的pod对象，但必须要用spec.externalName属性定义一个CNAME记录用于返回外部真正提供服务的主机的别名，而后通过CHAME记录获取到相关主机的IP地址。
+
+5、Headless类型的Service资源
+如果客户端需要直接访问Service资源后端的所有Pod资源，这时就应该向客户端暴露每个Pod资源的IP地址，而不再是中间层Service对象的ClusterIP，这种类型的service称为headless service。这种类型的service也没有使用负载均衡代理它的需要。
+
+如何为Headless类型的Service资源配置IP地址取决于它的标签选择器的定义；如果具有标签选择器，则端点控制器会在API中为其创建Endpoint记录，并将ClusterDns服务中的A记录直接解析到此Service后端的各Pod对象的IP地址对象上；如果没有标签选择器，则端点控制器不会在API中为其创建Endpoints记录。
+
+（1）创建Headless Service资源
+
+       定义Headless Service类型的资源时，只需将ClusterIP字段的至设置为“None”即可。
+
+# 定义Headless Service类型
+[root@master01 test03]# cat test03.yaml 
+kind: Service
+apiVersion: v1
+metadata: 
+  name: test-headless-svc
+spec:
+  clusterIP: None
+  selector:
+    app: test-deploy
+  ports:
+  - name: httpport
+    port: 80
+    targetPort: 80
+# 查看创建的headless service资源
+[root@master01 test03]# kubectl get svc test-headless-svc
+NAME                TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+test-headless-svc   ClusterIP   None         <none>        80/TCP    62s
+[root@master01 test03]# kubectl describe test-headless-svc
+error: the server doesn't have a resource type "test-headless-svc"
+[root@master01 test03]# kubectl describe svc test-headless-svc
+. . . . . . 
+Endpoints:         10.244.1.38:80,10.244.1.39:80,10.244.2.37:80 + 2 more...
+（2）pod资源发现
+
+       Headless Service通过标签选择器关联到所有pod资源的IP地址之上，客户端向此service对象发起的请求将通过dns查询时返回的IP地址（多个IP地址则以轮询方式返回）直接接入到Pod资源中的应用之上，而不再由Service资源进行代理转发。
+
+# 查看dns对此service名称的解析
+[root@master01 test03]# kubectl exec -it cirros-58cc4cdc59-2f4s6 -- sh
+/ # nslookup test-headless-svc
+Server:    10.96.0.10
+Address 1: 10.96.0.10 kube-dns.kube-system.svc.cluster.local
+ 
+Name:      test-headless-svc
+Address 1: 10.244.2.39 10-244-2-39.test-headless-svc.default.svc.cluster.local
+Address 2: 10.244.2.38 10-244-2-38.test-headless-svc.default.svc.cluster.local
+Address 3: 10.244.2.37 10-244-2-37.test-headless-svc.default.svc.cluster.local
+Address 4: 10.244.1.38 10-244-1-38.test-headless-svc.default.svc.cluster.local
+Address 5: 10.244.1.39 10-244-1-39.test-headless-svc.default.svc.cluster.local
+6、Ingress资源
+       Kubernetes提供了两种负载均衡机制，一种是工作与传输层的Service资源，实现“TCP负载均衡器”，另一种是Ingress资源，实现“HTTP(S)负载均衡器”。
+
+（1）Ingress和Ingress控制器
+
+       Ingress是kubernetes API的标准类型资源之一，它其实是一组基于DNS名称或URL路劲把请求转发至指定的Service资源的规则，用于将集群外部的请求转发至集群内部完成服务的发布。
+
+       Ingre资源并不能进行“能量穿透”，它仅是一组路由规则的集合，而能够为Ingress资源监听套接字并转发流量的组件称为Ingress控制器（Ingress Controller）。
+
+       Ingress控制器可以由任何具有反向代理功能的服务程序实现，Ingress也是运行于集群中的Pod资源，应与被代理的pod运行与同一网络中。
+
+（2）Ingress资源的定义
+
+       Ingress资源是基于HTTP虚拟主机或URL的转发规则，Ingress.spec资源是定义Ingress资源的核心组成部分，它主要由以下嵌套字段组成：
+
+           rules：用于定义当前Ingress资源的转发规则列表，未定义的rule规则或者匹配不到  任何规则时，所有的流量都会转发到backend定义的默认后端。
+
+           backend：默认的后端用于服务那些没有匹配到任何规则的请求。Backend对象的   定义由两个必选的内嵌字段serviceName和servicePort组成。
+
+           tls：目前仅支持通过默认端口443提供服务，tls也有以下两个内嵌字段组成，仅     在定义TLS的转发规则时才需要定义此类对象：
+
+              hosts：包含于使用的TLS证书之内的主机名称字符串列表
+
+             secretName：用于引用SSL回话的secret对象名称，在基于SNI实现多主机路由的场景中，此字段为可选。
+
+# 定义ingress资源
+[root@master01 test03]# cat test04.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata: 
+  name: test-ingress
+  annotations:
+    kubernetes.io/ingress: “nginx test”
+spec:
+  rules:
+  - host: www.dayi123.com
+    http:
+      paths:
+      - backend:
+          serviceName: test-headless-svc
+          servicePort: 80
+（3）Ingress资源的类型
+
+       1）单service资源型ingress
+
+        暴露单个服务的方法可以使用service的NodePort、LoadBalancer类型；也可使用Ingress,使用Ingress时，只需指定ingress的default backend即可。
+
+# 定义一个单Service资源型的ingress
+[root@master01 test03]# cat test05.yaml 
+apiVersion: extensions/v1beat1
+kind: Ingress
+metadata:
+  name: test-ingress02
+spec:
+  backend:
+    serviceName: nginx-svc
+    serviceName: 80
+       2）基于URL路劲进行流量分发的ingress
+
+        基于URL路径转发是根据客户端请求不同的URL路径转发到不同的后端服务中。
+
+# 定义一个多路径的ingress资源
+[root@master01 test03]# cat test06.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata: 
+  name: test-ingress05
+  annotations:
+    kubernetes.io/ingress: “nginx test path”
+spec:
+  rules:
+  - host: www.dayi123.com
+    http:
+      paths: 
+      - path: /nginx
+        backend:
+          serviceName: nginx-svc
+          servicePort: 80
+      - path: /tomcat
+        backend:
+          serviceName: test-svc
+          servicePort: 80
+       3）基于主机名称的ingress虚拟主机
+
+         基于主机名的ingress虚拟主机是将每个应用分别以独立的FQDN主机名进行输出。
+
+# 定义一个基于主机名的service
+[root@master01 test03]# cat test07.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata: 
+  name: test-ingress06
+spec:
+  rules:
+  - host: blog.dayi123.com
+    http:
+      paths:
+      - backend:
+          serviceName: nginx-svc
+          servicePort: 80
+  - host: doc.dayi123.com
+    http:
+      paths:
+      - backend:
+          serviceName: test-svc
+          servicePort: 80
+       4）TLS类型的Ingress资源
+
+         TLS类型的Ingress资源用于以HTTPS发布Service资源，基于一个含有私钥和证书的Secret对象即可配置TLS协议的Ingress资源。Ingress资源目前仅支持单TLS端口，并且还会卸载TLS回话。
+
+（4）部署基于nginx的Ingress控制器
+
+         Ingress是自身运行于Pod中的容器应用，一般是nginx或Envoy一类的具有代理及负载均衡功能的守护进程，它监视着来自于API Service的Ingress对象状态，并以其规则生
+
+       相应的应用程序专有格式的配置文件并通过重载或重启守护进程而使新配置生效。运行Pod资源的Ingress控制器接入外部请求有以下两种方法：
+
+       1）以Deployment控制器管理Ingress控制器的Pod资源，并通过NodePort或LoadBalancer类型的Service对象为其接入集群外部的请求流量
+
+       2）借助于DaemonSet控制器，将Ingress控制器的Pod资源各自以单一实力的方式运行于集群的所有或部分工作节点，并配置该类pod以hostPort或hostNetwork的方式在当前节点接入外部流量。
+
+# 在线创建nginx ingress控制器
+[root@master01 ~]# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/mandatory.yaml
+# 查看创建的nginx ingress控制器是否运行正常
+[root@master01 ~]# kubectl get pods -n ingress-nginx
+NAME                                       READY   STATUS    RESTARTS   AGE
+nginx-ingress-controller-c595c6896-6xcd5   1/1     Running   0          92m
+       在线的nginx ingress配置清单中采用了基于deployment控制器部署方式，因此接入外部流量之前需要通过NodePort或LoadBalancer类型的service资源对象。
+
+# 为nginx ingress定义service资源配置清单
+[root@master01 test03]# cat test-nginx-ingress.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-ingress-controller
+  namespace: ingress-nginx
+spec:
+  type: NodePort
+  ports: 
+    - name: http
+      port: 80
+    - name: https
+      port: 443
+  selector:
+     app.kubernetes.io/name: ingress-nginx
+# 为nginx ingress控制器创建service
+[root@master01 test03]# kubectl apply -f test-nginx-ingress.yaml 
+service/nginx-ingress-controller created
+# 查看创建的service
+[root@master01 test03]# kubectl get svc -n ingress-nginx
+NAME                       TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+nginx-ingress-controller   NodePort   10.105.134.97   <none>        80:30409/TCP,443:31235/TCP   16s
+ 
+
+7、使用ingress发布Tomcat
+       实验的拓扑如下
+
+
+
+（1）创建名称空间
+
+# 定义名称空间的资源配置清单
+[root@master01 ingress-tomcat]# cat ingress-tomcat.yaml 
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-ingress
+  labels:
+    env: test-ingress
+# 创建名称空间
+[root@master01 ingress-tomcat]# kubectl apply -f ingress-tomcat.yaml 
+namespace/test-ingress created
+（2）部署tomcat实例
+
+# 定义基于deployment的tomcat资源配置清单
+[root@master01 ingress-tomcat]# cat tomcat-deployment.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tomcat-deployment
+  namespace: test-ingress
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ingress-tomcat
+  template:
+    metadata:
+      labels:
+        app: ingress-tomcat
+    spec:
+      containers:
+      - name: tomcat
+        image: tomcat
+        ports:
+        - name: httport
+          containerPort: 8080
+        - name: ajpport
+          containerPort: 8009
+# 创建tomcat的pod控制器
+[root@master01 ingress-tomcat]# kubectl apply -f tomcat-deployment.yaml 
+deployment.apps/tomcat-deployment created
+# 查看创建的tomcat pod
+[root@master01 ingress-tomcat]# kubectl get pods -n test-ingress
+NAME                                 READY   STATUS    RESTARTS   AGE
+tomcat-deployment-67f5dcbdb4-7mmhz   1/1     Running   0          96s
+tomcat-deployment-67f5dcbdb4-km5q8   1/1     Running   0          96s
+（3）创建Service资源
+
+        Ingress资源仅能通过Service资源识别相应的Pod资源，获取其IP地址和端口，然后Ingress控制器即可直接使用各Pod对象的IP地址与Pod内的服务直接进行通信，不经过Service的代理和调度，因此Service资源的ClusterIP对Ingress控制器来说存不存在无所谓。
+
+# 定义service的资源配置清单文件
+[root@master01 ingress-tomcat]# cat tomcat-service.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: tomcat-svc
+  namespace: test-ingress
+  labels:
+    app: tomcat-svc
+spec:
+  selector:
+    app: ingress-tomcat
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+# 创建并查看service
+[root@master01 ingress-tomcat]# kubectl apply -f tomcat-service.yaml 
+service/tomcat-svc created
+[root@master01 ingress-tomcat]# kubectl get svc -n test-ingress
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+tomcat-svc   ClusterIP   10.106.153.248   <none>        80/TCP    15s
+（4）创建Ingress资源
+
+# 定义ingress资源配置清单
+[root@master01 ingress-tomcat]# cat tomcat-ingress.yaml 
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: tomcat
+  namespace: test-ingress
+  annotations:
+    kubernetes.io/ingress: "nginx"
+spec:
+  rules:
+  - host: tomcat.dayi123.com
+    http:
+      paths:
+      - path:
+        backend:
+          serviceName: tomcat-svc
+          servicePort: 80
+# 创建并查看Ingress
+[root@master01 ingress-tomcat]# kubectl apply -f tomcat-ingress.yaml 
+ingress.extensions/tomcat created
+[root@master01 ingress-tomcat]# kubectl get ingress -n test-ingress
+NAME     HOSTS                ADDRESS   PORTS   AGE
+tomcat   tomcat.dayi123.com             80      14s
+        上面的配置完成后，在本地主机的hosts中添加tomcat.dayi123.com对应node节点的解析后，就可在本地通过http://tomcat.dayi123.com:30409去访问tomcat服务。而各node节点的30409端口是在前面为nginx类型的ingress控制器创建的service中定义的。
+
+（5）配置TLS Ingress资源
+
+         互联网中的服务基本都是以https的方式提供服务的，如果希望ingress控制器接受客户端的请求时又希望它能够提供https服务，就应该配置tls类型的ingress资源。
+
+# 生成用于测试的私钥和自签证书
+[root@master01 ingress-tomcat]# openssl genrsa -out tls.key 2048
+[root@master01 ingress-tomcat]# openssl req -new -x509 -key tomcat.key -out tomcat.crt -subj /C=CN/ST=Shanghai/L=Shanghai/O/dev/CN=tomcat.dayi123.com -days 736
+        在ingress控制器上配置HTTPS主机时，是不能直接使用私钥和证书文件的，而是要使用Secret资源对象来传递相关的数据。
+
+# 创建一个TLS类型名为tomcat-ingress-secret的secret资源
+[root@master01 ingress-tomcat]# kubectl create secret tls tomcat-ingress-secret --cert=tomcat.crt --key=tomcat.key -n test-ingress
+secret/tomcat-ingress-secret created
+# 查看创建的secret资源
+[root@master01 ingress-tomcat]# kubectl get secrets tomcat-ingress-secret -n test-ingress
+NAME                    TYPE                DATA   AGE
+tomcat-ingress-secret   kubernetes.io/tls   2      109s
+        secret资源创建完成后，就可以将创建的secret应用到ingress资源的配置清单中。
+
+# 定义TLS类型的Ingress资源的配置清单
+[root@master01 ingress-tomcat]# cat tomcat-ingress-tls.yaml 
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: tomcat-ingress-tls
+  namespace: test-ingress
+  annotations:
+    kubernetes.io/ingress: "nginx"
+spec:
+  tls:
+  - hosts:
+    - tomcat.dayi123.com
+    secretName: tomcat-ingress-secret
+  rules:
+  - host: tomcat.dayi123.com
+    http:
+      paths:
+      - path:
+        backend:
+          serviceName: tomcat-svc
+          servicePort: 80
+# 创建并查看tls类型的ingress资源
+[root@master01 ingress-tomcat]# kubectl apply -f tomcat-ingress-tls.yaml 
+ingress.extensions/tomcat-ingress-tls created
+[root@master01 ingress-tomcat]# kubectl get ingress tomcat-ingress-tls -n test-ingress
+NAME                 HOSTS                ADDRESS   PORTS     AGE
+tomcat-ingress-tls   tomcat.dayi123.com             80, 443   3m35s
+（6）测试
+
+        在前面为基于nginx的ingress控制器创建的service中已将443端口映射到了node节点的31235端口，在本地对域名tomcat.dayi123.com做了解析就可以通过https://tomcat.dayi123.com: 31235进行测试。
+
+# 查看ingress控制器中映射到本地的端口
+[root@master01 ingress-tomcat]# kubectl get svc -n ingress-nginx
+NAME                       TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+nginx-ingress-controller   NodePort   10.105.134.97   <none>        80:30409/TCP,443:31235/TCP   167m
+# 在linux客户端进行测试（测试前要做hosts解析）
+[root@master01 ingress-tomcat]# curl -k -v https://tomcat.dayi123.com:31235
+————————————————
+版权声明：本文为CSDN博主「dayi_123」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/dayi_123/article/details/89703961
+
+想要访问到pod中的服务, 最简单的方式就是通过端口转发, 执行如下命令, 将宿主机的9999端口与nginx-pod的80端口绑定:
+[root@nas-centos1 ~]$ kubectl port-forward --address 0.0.0.0 nginx-pod 9999:80
+Forwarding from 0.0.0.0:9999 -> 80
+Handling connection for 9999 
+
+
+# 定义一个多路径的ingress资源
+[root@master01 test03]# cat test06.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata: 
+  name: test-ingress05
+  annotations:
+    kubernetes.io/ingress: “nginx test path”
+spec:
+  rules:
+  - host: www.dayi123.com
+    http:
+      paths: 
+      - path: /nginx
+        backend:
+          serviceName: nginx-svc
+          servicePort: 80
+      - path: /tomcat
+        backend:
+          serviceName: test-svc 

@@ -1,0 +1,40 @@
+.libceph-common.so.0: cannot map zero-fill pages
+ 服务器内存不足，需要添加内存
+
+........................................
+
+.ceph osd tree 出现  osd.2  down
+a)在master上执行./remove.sh
+#!/bin/sh
+
+osd_id=`ceph osd tree | grep down| awk '{print $1}'`
+for var in ${osd_id}
+do
+        echo "deleting osd.$var"
+        ceph osd out osd.$var 
+        ceph osd rm osd.$var 
+        ceph osd crush rm osd.$var 
+        ceph auth del osd.$var
+        sleep 5
+        echo "umount /var/lib/ceph/osd/ceph-$var "
+        sudo umount /var/lib/ceph/osd/ceph-$var
+done
+
+b)在osd.2上
+$ sudo ls -1 /var/lib/ceph/osd/
+ceph-2
+
+$ umount /var/lib/ceph/osd/ceph-2
+
+$ wipefs -af /dev/vg-data/lv-data
+$ sudo reboot
+$ ceph-volume lvm zap /dev/vg-data/lv-data
+
+c)在master上
+~/cluster$  ceph-deploy osd create --bluestore ceph-osd2 --data /dev/vg-data/lv-data
+
+d)查看现在状态
+~/cluster$ $ ceph osd tree
+ 0   hdd 0.01949    osd.0    up    1.00000  1.00000
+ 1   hdd 0.01949    osd.1    up    1.00000  1.00000
+ 2   hdd 0.01949    osd.2    up    1.00000  1.00000
