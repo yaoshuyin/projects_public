@@ -1,7 +1,3 @@
-Multipass is billed as a “mini-cloud” for Mac and Windows machines. . 
-It’s ubuntu’s play at a small virtual machine environment akin to Docker.  
-How well does it perform and can we run Rancher’s k3s or perhaps even a full Kubernetes on it?
-
 .Installing
 ...................................
 

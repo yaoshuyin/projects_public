@@ -1,0 +1,122 @@
+.安装服务
+1)升级
+apt update
+apt upgarade
+
+2)去掉apparmor
+apt remove apparmor
+apt purge apparmor
+
+3)安装cluster
+apt install percona-toolkit percona-xtradb-cluster-server
+
+4)停止mysql
+上面安装后会自动启动，所以必须先关掉，否则配置不生效
+/etc/init.d/mysql stop
+netstat -tnlp
+
+..............................................
+..............................................
+
+.配置 vim /etc/mysql/percona-xtradb-cluster.conf.d/mysqld.cnf
+1)pxc1
+[mysqld]
+wsrep_cluster_name="mycluster"
+
+#第一次启动就先注释掉，启动后，再加上，这样以后可用
+#172.16.90.131,172.16.90.132,172.16.90.133
+wsrep_cluster_address=gcomm://
+
+server_id = 1
+wsrep_node_name=pxc1
+wsrep_node_address=172.16.90.131          #本机IP
+wsrep_sst_method=xtrabackup-v2            #第一个节点为 xtrabackup-v2， 其它节点都要是 rsync
+#wsrep_sst_auth="sstuser:sstpass"
+
+
+2)pxc2
+[mysqld]
+wsrep_cluster_name="mycluster"
+wsrep_cluster_address=gcomm://172.16.90.131,172.16.90.132,172.16.90.133   #所有节点IP
+
+server_id = 2
+wsrep_node_name=pxc2
+wsrep_node_address=172.16.90.132          #本机IP
+wsrep_sst_method=rsync                    #第一个节点为 xtrabackup-v2， 其它节点都要是 rsync
+#wsrep_sst_auth="sstuser:sstpass"
+
+
+3)pxc3
+[mysqld]
+wsrep_cluster_name="mycluster"
+wsrep_cluster_address=gcomm://172.16.90.131,172.16.90.132,172.16.90.133   #所有节点IP
+
+server_id = 3
+wsrep_node_name=pxc3
+wsrep_node_address=172.16.90.133
+wsrep_sst_method=rsync
+#wsrep_sst_auth="sstuser:sstpass"
+
+............................................
+............................................
+
+.启动
+1)先启动主节点
+a)
+   主节点(第一次启动):
+   pxc1> /etc/init.d/mysql bootstrap-pxc  --wsrep-cluster-address="gcomm://"
+
+b)
+   然后 修改配置，把
+#172.16.90.131,172.16.90.132,172.16.90.133
+wsrep_cluster_address=gcomm://
+
+改成
+
+wsrep_cluster_address=gcomm://172.16.90.131,172.16.90.132,172.16.90.133
+
+以后维护,本次不操作:
+a)
+   主节点(以后启动):
+   pxc1> /etc/init.d/mysql bootstrap-pxc
+
+b)
+   主节点重启
+   pxc1> /etc/init.d/mysql restart-bootstrap
+
+2)
+   其它节点:
+   pxc2> /etc/init.d/mysql start
+   pxc3> /etc/init.d/mysql start
+
+.查看
+mysql> show status like 'wsrep%';
++----------------------------------+----------------------------------------------------------+
+| Variable_name                    | Value                                                    |
++----------------------------------+----------------------------------------------------------+
+| wsrep_local_state_uuid           | d4b1ef14-747d-11ea-9c87-47d9683a537d                     |
+| wsrep_local_state_comment        | Synced                                                   |
+| wsrep_incoming_addresses         | 172.16.90.131:3306,172.16.90.133:3306,172.16.90.132:3306 |
+| wsrep_cluster_size               | 3                                                        |
+| wsrep_cluster_state_uuid         | d4b1ef14-747d-11ea-9c87-47d9683a537d                     |
+| wsrep_cluster_status             | Primary                                                  |
+| wsrep_connected                  | ON                                                       |
+| wsrep_provider_name              | Galera                                                   |
+| wsrep_provider_version           | 3.24(r)                                                  |
+| wsrep_ready                      | ON                                                       |
++----------------------------------+----------------------------------------------------------+
+68 rows in set (0.01 sec)
+
+.权限配置wsrep_sst_auth (可选)
+grant usage on *.* to 'sstuser''@'%' identified by 'sstpass';
+
+..........................................
+..........................................
+
+验证:
+1)关掉pxc1
+  shutdown -h now
+
+2)在pxc2 pxc3节点上进行 status查看，或进行数据插入，查询操作
+
+3)再启动pxc1， 看pxc1是不是自动接入进来

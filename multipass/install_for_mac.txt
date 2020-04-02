@@ -17,9 +17,10 @@ snapcraft:core18                          20200221         Snapcraft builder for
  $ /private/var/root/Library/Caches/multipassd/vault/images/
 
 3) create a vm ubuntu1604
+$ multipass launch --name k8s-node3 --cpus 2 --mem 1G --disk 60G 18.04
 $ multipass launch --name ubuntu1604 --cpus 2 --mem 2G --disk 60G 16.04
-$ 
-Retrieving image: 2%   
+$
+Retrieving image: 2%
 
 4) start
 $ multipass start --all
