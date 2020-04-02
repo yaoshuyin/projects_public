@@ -1,3 +1,7 @@
+............................................................................................................
+...................................................Ubuntu PXC...............................................
+............................................................................................................
+
 .安装服务
 1)升级
 apt update
@@ -131,3 +135,90 @@ a) > create database test;
 2)在pxc2 pxc3节点上进行 status查看，或进行数据插入，查询操作
 
 3)再启动pxc1， 看pxc1是不是自动接入进来
+
+
+............................................................................................................
+...................................................DOCKER PXC...............................................
+............................................................................................................
+$ ifconfig en0:
+  en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+        inet 192.168.10.53 netmask 0xffffff00 broadcast 192.168.10.255
+
+$ docker volume create mysql_var_lib_1
+$ docker volume create mysql_var_lib_2
+$ docker volume create mysql_var_lib_3
+
+$ docker pull percona/percona-xtradb-cluster
+
+$ docker network create --subnet=172.30.0.0/24 pxcnet
+
+$ docker create -p 13306:3306 -v /tmp/mysql_var_lib_1:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc --name=pxc1 --net=pxcnet --ip=172.30.0.6 percona/percona-xtradb-cluster
+
+$ docker create -p 13307:3306 -v mysql_var_lib_2:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --name=pxc2 --net=pxcnet --ip=172.30.0.7 percona/percona-xtradb-cluster
+
+$ docker create -p 13308:3306 -v mysql_var_lib_3:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --name=pxc3 --net=pxcnet --ip=172.30.0.8 percona/percona-xtradb-cluster
+
+
+$ docker ps -a
+tom@mac ~/data/projects]$ docker ps -a
+63309fce71b8        percona/percona-xtradb-cluster   "/entrypoint.sh mysq…"   26 minutes ago      Exited (1) 25 minutes ago                                            pxc3
+e0c5f34b6ada        percona/percona-xtradb-cluster   "/entrypoint.sh mysq…"   26 minutes ago      Created                                                              pxc2
+8b58d3c8eba4        percona/percona-xtradb-cluster   "/entrypoint.sh mysq…"   27 minutes ago      Up 25 minutes               4567-4568/tcp, 0.0.0.0:13306->3306/tcp   pxc1
+
+#启动docker pxc1 ............................
+$ docker start 8b58d3c8eba4
+
+$ mysql -h 192.168.10.53 -u root -P 13306 -p
+pxc1> show status like 'wsrep%';
++----------------------------------+--------------------------------------+
+| Variable_name                    | Value                                |
++----------------------------------+--------------------------------------+
+| wsrep_incoming_addresses         | 172.30.0.6:3306                      |
+| wsrep_cluster_weight             | 1                                    |
+| wsrep_local_state_comment        | Synced                               |
+| wsrep_evs_state                  | OPERATIONAL                          |
+| wsrep_cluster_conf_id            | 1                                    |
+| wsrep_cluster_size               | 1                                    |
+| wsrep_cluster_status             | Primary                              |
+| wsrep_connected                  | ON                                   |
+| wsrep_ready                      | ON                                   |
++----------------------------------+--------------------------------------+
+
+
+#启动docker pxc2 ............................
+$ docker start e0c5f34b6ada
+$ mysql -h 192.168.10.53 -u root -P 13306 -p
+pxc1> show status like 'wsrep%';
++----------------------------------+--------------------------------------+
+| Variable_name                    | Value                                |
++----------------------------------+--------------------------------------+
+| wsrep_incoming_addresses         | 172.30.0.6:3306                      |
+| wsrep_cluster_weight             | 2                                    |
+| wsrep_local_state_comment        | Synced                               |
+| wsrep_evs_state                  | OPERATIONAL                          |
+| wsrep_cluster_conf_id            | 2                                    |
+| wsrep_cluster_size               | 2                                    |
+| wsrep_cluster_status             | Primary                              |
+| wsrep_connected                  | ON                                   |
+| wsrep_ready                      | ON                                   |
++----------------------------------+--------------------------------------+
+
+
+
+#启动docker pxc3 ............................
+$ docker start 63309fce71b8
+$ mysql -h 192.168.10.53 -u root -P 13306 -p
+pxc1> show status like 'wsrep%';
++----------------------------------+--------------------------------------+
+| Variable_name                    | Value                                |
++----------------------------------+--------------------------------------+
+| wsrep_incoming_addresses         | 172.30.0.6:3306                      |
+| wsrep_cluster_weight             | 3                                    |
+| wsrep_local_state_comment        | Synced                               |
+| wsrep_evs_state                  | OPERATIONAL                          |
+| wsrep_cluster_conf_id            | 3                                    |
+| wsrep_cluster_size               | 3                                    |
+| wsrep_cluster_status             | Primary                              |
+| wsrep_connected                  | ON                                   |
+| wsrep_ready                      | ON                                   |
++----------------------------------+--------------------------------------+
