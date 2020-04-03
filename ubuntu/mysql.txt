@@ -1,5 +1,17 @@
 .install
 $ sudo apt install mysql-server
+.apt install mysql-server
+mysql> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> use mysql
+mysql> alter user 'root'@'localhost' identified with mysql_native_password by '123456';
+mysql> grant all on *.* to 'root'@'%' identified by '123456' with grant option;
+mysql> flush privileges;
+
+..............................................................
+..............................................................
+
 
 .
 $ sudo mysql_secure_installation

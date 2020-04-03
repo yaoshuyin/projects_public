@@ -1,0 +1,12 @@
+.proxy
+echo >>~/.bashrc <<EOF
+export http_proxy=http://172.16.90.1:8889
+export https_proxy=http://172.16.90.1:8889
+export ftp_proxy=http://172.16.90.1:8889
+EOF
+
+echo >>/etc/environment <<EOF
+export http_proxy=http://172.16.90.1:8889
+export https_proxy=http://172.16.90.1:8889
+export ftp_proxy=http://172.16.90.1:8889
+EOF

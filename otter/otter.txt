@@ -1,0 +1,32 @@
+.proxy
+echo >>~/.bashrc <<EOF
+export http_proxy=http://172.16.90.1:8889
+export https_proxy=http://172.16.90.1:8889
+export ftp_proxy=http://172.16.90.1:8889
+EOF
+
+echo >>/etc/environment <<EOF
+export http_proxy=http://172.16.90.1:8889
+export https_proxy=http://172.16.90.1:8889
+export ftp_proxy=http://172.16.90.1:8889
+EOF
+
+.apt install mysql-server maven
+mysql> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> use mysql
+mysql> alter user 'root'@'localhost' identified with mysql_native_password by '123456';
+mysql> grant all on *.* to 'root'@'%' identified by '123456' with grant option;
+mysql> flush privileges;
+
+.
+wget https://raw.githubusercontent.com/alibaba/otter/master/manager/deployer/src/main/resources/sql/otter-manager-schema.sql
+mysql> source /home/user/otter-manager-schema.sql;
+
+.download
+1)jdk
+
+2)otter
+git clone https://github.com/alibaba/otter.git
+

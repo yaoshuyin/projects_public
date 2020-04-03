@@ -1,0 +1,14 @@
+1)
+$ multipass launch --name mycluster-sql1 --cpus 1 --mem 512m --disk 60G 18.04
+$ multipass launch --name mycluster-sql2 --cpus 1 --mem 512m --disk 60G 18.04
+$ multipass launch --name mycluster-ndb1 --cpus 1 --mem 512m --disk 60G 18.04
+$ multipass launch --name mycluster-ndb2 --cpus 1 --mem 512m --disk 60G 18.04
+$ multipass launch --name mycluster-ndb-mng --cpus 1 --mem 512m --disk 60G 18.04
+
+$ multipass ls
+Name                    State             IPv4             Image
+mycluster-ndb-mng       Running           192.168.64.16    Ubuntu 18.04 LTS
+mycluster-ndb1          Running           192.168.64.14    Ubuntu 18.04 LTS
+mycluster-ndb2          Running           192.168.64.15    Ubuntu 18.04 LTS
+mycluster-sql1          Running           192.168.64.12    Ubuntu 18.04 LTS
+mycluster-sql2          Running           192.168.64.13    Ubuntu 18.04 LTS

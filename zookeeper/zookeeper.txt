@@ -1,0 +1,35 @@
+.install
+apt -y install zookeeper zookeeperd zookeeper-bin
+
+.配置
+1)/etc/hosts (所有节点)
+172.16.90.151 zookeeper-node1
+172.16.90.151 zookeeper-node2
+172.16.90.151 zookeeper-node3
+
+2)/etc/zookeeper/conf/zoo.cfg 所有节点
+server.1=zookeeper-node1:2888:3888
+server.2=zookeeper-node2:2888:3888
+server.3=zookeeper-node3:2888:3888
+
+3) myid
+a) node1
+echo 1 > /var/lib/zookeeper/myid
+
+b) node2
+echo 2 > /var/lib/zookeeper/myid
+
+c) node3
+echo 3 > /var/lib/zookeeper/myid
+
+
+.启动 (所有节点)
+/etc/init.d/zookeeper restart
+
+
+.ports 2181/2888/3888/40773
+$ netstat -tnlp
+tcp6       0      0 172.16.90.153:3888      :::*                    LISTEN      5835/java
+tcp6       0      0 :::2181                 :::*                    LISTEN      5835/java
+tcp6       0      0 :::40773                :::*                    LISTEN      5835/java
+tcp6       0      0 172.16.90.153:2888      :::*                    LISTEN      5835/java
