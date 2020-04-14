@@ -1,0 +1,48 @@
+apt install linux-openvz vzctl vzquota
+
+vim /etc/sysctl.conf
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.icmp_echo_ignore_broadcasts = 1
+net.ipv4.conf.default.forwarding = 1
+net.ipv4.conf.default.proxy_arp = 0
+net.ipv4.ip_forward = 1
+kernel.sysrq = 1
+net.ipv4.conf.default.send_redirects = 1
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.eth0.proxy_arp = 1
+
+vim /etc/vz/vz.conf
+NEIGHBOUR_DEVS = all
+
+.创建虚拟机
+vzctl create 100 --ostemplate xx --config ccc --private xx --root /var/lib/vz/root/$VEID --ipaddr addr --hostname hname
+vzctl create 100 --ostemplate ubuntu-18.0.4-minial
+vzctl set 100 --hostname a.com --save
+vzctl set 100 --ipadd 192.168.1.200 --save
+vzctl set 100 --numothersock 480 --save
+vzctl set 100 --nameserver 8.8.8.8 --nameserver 8.8.4.4 --save
+vzctl start 100
+vzctl restart 100
+vzctl mount 100
+默认是从/var/lib/vz/private/100挂载到/var/lib/vz/root/100
+vzctl umount
+vzctl status 100
+vzctl enter 100
+vzctl stop 100
+vzctl destroy 100
+vzctl set 100 --onboot yes|no
+vzctl set 100 --root path
+vzctl set 100 --userpasswd user:passwrd
+vzctl set 100 --ipdel addr|all
+vzctl set 100 --hostname name
+添加虚拟网卡
+vzctl set 100 --veth_add dev_name,dev_addr,dev_name_ve,dev_addr_ve
+vzctl set 100 --veth_del dev_name
+vzctl set 100 --numproc items[:items] 配置最大里程数
+vzctl set 100 --numtcpsock items[:items] 配置最大tcp socket数量
+--cpus num 配置ve可以使用的cpu数量
+
+
+
+
+

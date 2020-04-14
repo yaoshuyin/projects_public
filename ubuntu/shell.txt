@@ -1,0 +1,57 @@
+.
+$#     参数个数
+$* $@  所有参数
+"$*"   "a b c"
+"$@"   "a" "b" "c"
+
+c=$(( a+b ))
+c=$[ $+ $b ]
+
+.数组切片
+${arr[@]:m:n}    获取m到n索引的items
+${arr[@]:m}      获取m以后的所有的items
+${arr[@]::2}     获取索引0到2的所有items
+${arr[@]:(-3)}   获取从尾部开始的3个元素
+
+${arr[@]/from/xxx}  把arr中的元素的from转为xxx
+${arr[@]//from/xxx}  把arr中的元素的from转为xxx
+${arr[@]/from/}  把arr中的元素的from转为xxx
+${arr[@]//from/}  把arr中的元素的from转为xxx
+
+[[ "abcde" = abc* ]]
+
+
+case "$var" in
+  "abc" )
+     ...
+     ;;
+  "efd" )
+     ..
+     ;;
+      * )
+     ...
+     ;;
+esac
+
+$i=0
+while (($i <= 5))
+do
+  echo $i
+  (( i++ ))  或 i=$[$i+1] 或 let "i=i+1" 或 let "i++"
+done
+
+select v in "a" "b" "c"
+do
+   echo $v
+done
+
+.signal
+获取信号2,并执行echo操作
+trap "echo 2"  2
+
+function abc() {
+
+}
+
+获取信号2并执行函数abc
+trap "abc" 2

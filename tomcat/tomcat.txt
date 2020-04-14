@@ -1,0 +1,66 @@
+.
+apt install oracle-java14-installer  tomcat9 tomcat9-admin tomcat9-user
+
+./etc/default/tomcat9
+JAVA_HOME=/usr/lib/jvm/java-14
+
+./var/lib/tomcat9/conf/tomcat-users.xml
+<tomcat-users>
+ <role rolename="manager"/>
+ <role rolename="admin"/>
+ <user username="tom" password="xxx" roles="admin,manager"/>
+</tomcat-user>
+
+.apache的mod_jk
+ 用于对tomcat做负载均衡
+ 把对apache的访问转发给tomcat(使用AJP协议)
+
+.apt install libapche2-mod-jk
+
+.vim /etc/apache2/apache.conf
+JkWorkersFile /etc/libapache2-mod-jk/workers.properties
+JkLogFile /var/log/apache2/mod_jk.log
+JkLogLevel info
+JkLogStampFormat "[%a %b %d %H:%M:%S %Y]"
+JkOptions +ForwardKeySize +ForwardURICompat -ForwardDirectories
+JkRequestLogFormat "%w %V %T"
+
+.vim /etc/libapach2-mod-jk/workers.properties
+wokers.tomcat_home=/usr/share/tomcat9
+workers.java_home=/usr/lib/jvm/java-14
+ps=/
+worker.list-worker1
+worker.ajp13_worker.port=8180
+worker.ajp13_worker.host=localhost
+worker.ajp13_worker.type=ajp13
+worker.ajp13_worker.lbfactor=1
+worker.loadbalancer.type=lb
+worker.loadbalancer.balance_worker=ajp13_worker
+
+./etc/apache2/sites-available/default
+jkMount /* worker1
+
+.tomcat安全（可以关闭或只对特定IP开放)
+/etc/tomcat5.5/server.xml
+<Server port="8005" shutdown="SHUTDOWN">
+
+/etc/tomcat5.5/web.xml
+<error-page>
+   <exception-type>java.lang.Throwable</exception-type>
+   <location>/error.jsp</location>
+</error-page>
+
+删除样例文件
+/usr/share/tomcat5.5-webapps/ROOT/
+/usr/share/tomcat5.5-webapps/balancer/
+/usr/share/tomcat5.5-webapps/jsp-examples/
+/usr/share/tomcat5.5-webapps/servlet-examples/
+/usr/share/tomcat5.5-webapps/tomcat-docs/
+/usr/share/tomcat5.5-webapps/webdav/
+
+.只允许某个子网的主机访问
+/etc/tomcat5.5/Catalina/localhost/manager.xml
+<Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="192.168.1.*" />
+<Valve className="org.apache.catalina.valves.RemoteHostsValve" allow="*.a.com" />
+
+

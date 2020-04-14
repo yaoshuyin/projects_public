@@ -1,0 +1,56 @@
+.后面必须有/或目录
+$ ab -n 100 -c 10 https://koo5.com/
+Benchmarking koo5.com (be patient).....done
+
+Server Software:        nginx
+Server Hostname:        koo5.com
+Server Port:            443
+SSL/TLS Protocol:       TLSv1.2,ECDHE-RSA-AES128-GCM-SHA256,2048,128
+Server Temp Key:        ECDH P-256 256 bits
+TLS Server Name:        koo5.com
+
+Document Path:          /
+Document Length:        12867 bytes
+
+#并发数
+Concurrency Level:      10
+#测试时间
+Time taken for tests:   22.541 seconds
+#完成的总数
+Complete requests:      100
+
+#错误请求数
+Failed requests:        99
+   (Connect: 0, Receive: 0, Length: 99, Exceptions: 0)
+
+#总共传输的字节数
+Total transferred:      1296410 bytes
+#总共传输的HTML的字节数
+HTML transferred:       1283410 bytes
+#每秒处理的请求数
+Requests per second:    4.44 [#/sec] (mean)
+#每个请求所花的时间
+Time per request:       2254.078 [ms] (mean)
+#每个请求实际运行所需要的CPU的平均时间
+Time per request:       225.408 [ms] (mean, across all concurrent requests)
+#每秒收到的KB数
+Transfer rate:          56.17 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:      330  741 587.5    412    3449
+Processing:   230  924 920.4    589    6514
+Waiting:      228  915 917.3    584    6514
+Total:        580 1665 1213.8   1250    7814
+
+Percentage of the requests served within a certain time (ms)
+  50%   1250
+  66%   1759
+  75%   2082
+  80%   2449
+  90%   3335
+  95%   4213
+  98%   5658
+  99%   7814
+ 100%   7814 (longest request)
+[tom@mac ~/data/projects]$

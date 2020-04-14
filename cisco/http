@@ -1,0 +1,8 @@
+#conf t
+config# ip http server
+config# ip domain-name a.com
+config# ip http secure-server
+config# ip max-connections 16
+config# ip http timeout-policy idle 30 life 120 requests 100
+config# do copy running-config startup-config
+

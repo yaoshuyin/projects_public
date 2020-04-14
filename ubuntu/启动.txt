@@ -1,0 +1,68 @@
+.开电
+.执行存储在闪存等介质上面的BIOS
+.完成芯片组和内存的初始化
+.加电自检
+   即是对硬件部分的检测
+    CPU、内存、主板、CMOS存存储器、串并口、显卡、磁盘、键盘
+.初始化
+   创建中断向量、设置寄存器、对一些外部设备进行初始化和检测
+   很重要的一部分是读取CMOS中保存的配置信息和硬件设置进行比较
+.加载引导程序
+   BIOS将相应启动设备的第一个扇区，也就是主引导记录扇区读入内存，根据主引导记录中的引导 代码启动引导程序
+.引导程序阶段
+   磁盘两面都可以记录数据
+   每个盘片被分成许多扇形的区域，即扇区
+   一个扇区的大小为512字节
+   盘片以中心为圆心，不同半径的同心圆称为磁道
+   不同盘片相同半径的磁道所组成的圆柱称为柱面d
+   0磁道0柱面1扇区 称为引导扇区
+      446字节的MBR主引导记录
+      64字节的DPT磁盘分区表，其中每个磁盘分区项需要占用16字节来描述，所以最多可有4个分区
+      最后2个字节为十六进制的55AA，表示是MBR
+   引导程序是用来加载操作系统的程序
+      引导程序包含主引导记录和位于其它分区的NTLDR,BOOTMGR,GRUB
+      BIOS位于主板上面的EEPROM或闪存内
+      引导程序MBR/NTLDR,GRUB位于磁盘上面
+.GRUB是目前绝大部分的引导程序
+     search
+     linux    加载指定的linux内核
+     initrd   加载initrd镜像文件
+     boot     引导通过linux命令加载的系统内核
+
+     vmlinuz 是压缩后的linux系统内核
+
+     grub> search --set root --filex /vmlinuz
+
+     /vmlinuz       为内核的绝对路径
+     /vmlinuz       是一个符号连接，指向/boot中的内核文件
+     root=/dev/sda1 为传递给内核的参数，指定根分区
+     实际上linux内核位于/boot目录中，而且同时存在多个内核文件
+     grub> linux /vmlinuz root=/dev/sda1
+     grub> initrd /initrd
+     加载initrd镜像文件,/initrd为initrd镜像文件的绝对路径，其文件的扩展名为.img
+     grub> boot 引导
+
+.grub的配置文件为grub.cfg, 由grub -mkconfig自动生成
+
+设备名称中的分区编号从1开始，而不是0
+
+/etc/profile ==>
+   /etc/bash.bashrc
+   /etc/profile.d/
+
+~/.bash_profile
+~/.bash_login
+
+如果~/.bash_profile或~/.bash_login存在，则~/.profile不会被执行
+~/.profile ==>
+   ~/.bashrc
+   PATH=$HOME/bin:$PATH
+
+
+
+
+
+
+
+
+

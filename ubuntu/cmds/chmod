@@ -1,0 +1,10 @@
+chmod a+x a.txt
+chomd g+x a.txt
+chmod u+x a.txt
+chmod o+x a.txt
+
+chmod g=rw a.txt
+chmod u=rwx,g=rw,o=r a.txt
+chmod u+x,g+w a.txt
+
+

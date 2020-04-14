@@ -1,0 +1,89 @@
+.squid是一个著名的代理服务器、Web缓存服务器
+./etc/squid/squid.conf
+http_port 8888
+visible_hostname mysquid
+
+创建ACL名称列表
+acl myAclName src 192.168.1.0/24, 192.168.2.0/24
+acl myAclName src 192.168.1.0/24
+acl myAclName src 192.168.2.0/24
+acl myAclName2 src 192.168.1.0-192, 192.168.2.0/24
+
+应用ACL名称列表
+http_access deny myAclName
+http_access deny myAclName2
+
+.时间段的acl
+acl myAclName3 src 192.168.1.0/24
+acl myAclNameHours time D 12:00-13:00
+#只允许192.168.1.0/24在12:00-13:00时点之间，访问网络
+#即禁止12-13点之外的时间上网
+http_access deny !myAclNameHours myAclName3
+或
+http_access allow myAclName3 myAclNameHours
+
+./etc/squid/allow.list
+a.com
+b.com
+
+acl myAclName4 src 192.168.1.0/24
+acl allowLists dstdomain "/etc/squid/allow.list"
+http_access allow myAclName4 network allowLists
+
+./etc/squid/deny.list
+c.com
+d.com
+
+acl myAclName5 dstdomain "/etc/squid/deny.list"
+http_access deny myAclName5
+
+.auth
+1)
+vim /etc/squid/auth-password
+chmod o+r /etc/squid/auth-password
+
+2)
+httpasswd /etc/squid/auth-password tom
+
+3) /usr/lib/squid/ncsa_auth
+
+4) vim /etc/squid/squid.conf
+auth_param basic program /usr/lib/squid/ncsa_auth /etc/squid/auth-password
+auth_param basic children 5
+auth_param basic realm Please Login First
+auth_param basic credentialsttl 2 hours
+auth_param basic casesensitive off
+alc ncsa_users proxy_auth REQUIRED
+http_access allow ncsa_users
+
+.透明代理
+把网络中所有的HTTP/HTTPS请求转发到squid服务器3128端口处理
+可以由iptables防火墙设置
+客户机的网关要设置为squid服务器的eth1 IP地址
+
+透明代理服务器需要两块网卡
+ eth0: 连接外网
+ eht1: 连接内网 192.168.1.1
+
+ vim /etc/squid/squid.conf
+ http_port 192.168.1.1:3128 transparent
+
+ iptables把对80的请求轩发到3128
+ iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 80 -j REDIRECT --to-port 3128
+ iptables -t INPUT -m state --state NEW,ESTABLISHED,RELATED -i eth1 -p tcp --dport 3128 -j ACCEPT
+ iptables -A OUTPUT -j ACCEPT -m state --state NEW,ESTABLISHED,RELATED -o eth0 -p tcp --dport 80
+ iptables -A INPUT -j ACCEPT -m state --state ESTABLISHED,RELATED -i eth0 -p tcp --sport 80
+ iptables -A OUTPUT -j ACCEPT -m state --state ESTABLISHED,RELATED -o eth1 -p tcp --sport 80
+
+.反向代理
+squid 监听 80
+apache 监听 81
+
+http_port 80 vhost vport
+cache_peer 127.0.0.1 parent 81 0 no-query originserver
+
+.
+http_port 80 vhost vport
+cache_peer 192.168.1.100 parent 80 0 no-query originserver
+
+.squid反向代理多台web服务器

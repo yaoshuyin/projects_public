@@ -1,0 +1,180 @@
+.允许多cname
+options {
+    multiple-cnames yes;
+};
+
+cname1 IN A x.x.x.x
+cname2 IN A x.x.x.y
+cname3 IN A x.x.x.z
+
+www IN CNAME cname1.a.com.
+    IN CNAME cname2.a.com.
+    IN CNAME cname3.a.com.
+
+.多个A记录
+TTL 设置的短一些，可以避免DNS长时间被缓存在其他的DNS服务器或客户主机上
+    如果被长时间缓存，不利于负载均衡
+
+www 60 IN A x.x.x.x
+    60 IN A x.x.x.y
+    60 IN A x.x.x.z
+
+.named.conf
+acl "acl-name" {
+   "acl2";
+   10.0.0.1;
+   192.168.1.0/24;
+   !172.16.0.0/16;  非172.16.0.0/16
+   localhost;
+};
+
+zone "a.com" {
+    type slave;
+    file "slave.a.com";
+    allow-notify {"acl-name"};
+};
+
+key "test_key" {
+    algorithm hmac-md5;
+    secret "xxxxx=";
+}
+
+.masters用来定义主域服务器列表
+masters "mymasters" {
+    192.168.1.2 port 1053;
+    192.168.1.4;
+};
+
+.server 用来为某个特定的服务器设置参数
+server ip-addr {
+   bogus yes|no;  #是否忽略来自此服务器的消息
+   edns yes|no;   #决定本服务器是否与远端服务器通信时是否使用edns
+   keys "key-name";  #安全key
+   provide-ixfr yes|no;  #决定本地服务器是否作为主域名服务器
+   request-ixfr yes|no;  #决定本地服务器是否作为从域服务器
+   transfers number;     #用来限定同时从特定服务器进行并发数据传输的区域的数量
+   transfer-format (one-answer|many-answers);  #指定数据传输格式
+}
+
+用来设定全局配置选项和默认值
+options {
+
+}
+
+#用来定义一个远程控制通道
+#用户可以通过如rndc远程管理工具来进行远程管理
+controls {
+
+}
+
+如果想要禁用远程管理功能，可以定义一个空的controls{}语句
+
+.zone 用来定义一个区域
+zone "zone_name" [class] {
+
+};
+
+常见的区域类型
+master
+slave
+forward
+hint
+delegation-only
+
+.view
+用来定义视图
+通过视图，可以使用域名服务器在响应请求时，根据不同的请求返回不同的数据
+
+view “vname” [class] {
+   match-clients {address_match_list};
+   match-destinations {address_match_list};
+   match_recursive-only {yes|no};
+   view statements
+   zone clauses
+};
+
+view "trusted" {
+    match-clients {
+        192.168.2.0/24;
+    };
+    recursion yes;
+
+    zone "a.com" {
+        type master;
+        file "internal/a.com";
+    };
+};
+
+
+.zone
+$ORIGIN  a.com.;
+$TTL 1h;
+a.com. IN SOA ns.a.com.
+a.com. IN NS ns;
+a.com. IN NS ns.x.com.;
+a.com. IN MX 10 mail.a.com.;
+a.com. IN MX 20 mail2.a.com.;
+a.com. IN A 192.168.1.100;
+       IN AAAA 2001:db8:10::1;
+ns     IN A 192.168.2.2;
+       IN AAAA xxx:xxx::xx::3;
+www    IN CNAME a.com.;
+mail   IN CNAME a.com.;
+mail2  IN A 192.168.1.101;
+
+.$TTL
+为记录的生存时间，即此记录被其它域名服务器缓存的时间
+单位: d天 w周 h小时 默认为秒
+如果为0，则表示当前域名服务器的资源记录不可以被缓存, 只在极端情况下可以设置为0
+
+.$ORIGIN
+域名
+
+.SOA
+表示域名区域开始
+
+.NS
+a.com. IN NS ns1.a.com.
+
+www  IN  A  1.1.1.1
+
+ftp  IN CNAME www
+
+
+.................
+$TTL 1800;
+$ORIGIN a.com.;
+@   IN   SOA   ns1.a.com. master.a.com. (
+       2020030408;
+       3h;
+       15M;
+       2W12;
+       2h20M;
+    )
+    IN MX 10 mail;
+    IN MX 20 mail2.a.com.;
+mail  IN A 192.168.1.100;
+mail2 IN A 192.168.1.100;
+
+................
+zone "a.com" IN {
+    type master;
+    file "a.com";
+    allow-update {none};
+    allow-transfer {192.168.1.121;};
+}
+
+#a.com
+$TTL 1800
+$ORIGIN a.com.
+@ IN SOA ns.a.com. admin.a.com. (
+      20180923;  #serial
+      120;       #refresh
+      3600;      #retry
+      3600;      #expiry
+      3600;      #minimum
+    )
+    IN NS ns
+master IN A 192.168.1.100
+slave  IN A 192.168.1.101
+ns     IN A 172.16.0.1

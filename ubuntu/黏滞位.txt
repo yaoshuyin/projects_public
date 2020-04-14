@@ -1,0 +1,15 @@
+同时设置了黏滞位和执行权限
+rw-rw-rwt
+
+只有黏滞位
+rw-rw-rwT
+
+用数字表示
+420420421
+
+
+位于 other权限最后一位
+chmod o+t a.txt
+
+... ... ..t  a.txt
+... ... ..T  b.txt

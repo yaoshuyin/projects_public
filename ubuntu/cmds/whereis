@@ -1,0 +1,3 @@
+whereis find
+#-b 只查找二进制文件
+whereis -b fsck

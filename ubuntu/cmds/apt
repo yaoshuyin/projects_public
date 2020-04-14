@@ -1,0 +1,8 @@
+apt --purge remove mysql-server
+apt update
+apt upgrade
+apt full-upgrade
+apt search
+apt autoremove
+apt list
+apt show

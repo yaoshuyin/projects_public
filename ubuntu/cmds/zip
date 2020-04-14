@@ -1,0 +1,9 @@
+-d 从压缩文件中删除指定的文件
+m  压缩后删除原始文件
+-r 递归处理
+
+
+zip  a.zip  a.txt b.txt
+zip -d a.zip a.txt
+zip -r a.zip /tmp/a/
+

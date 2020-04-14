@@ -1,0 +1,47 @@
+ip addr flush eth0
+清除IP地址配置信息
+
+ip link list
+ip -s link list
+
+ip link set ens33 down
+ip link set ens33 up
+
+修改mac地址
+ip link set dev ens33 address 08:00:27:58:35:df
+
+为ens33添加新IP
+ip address add 192.168.1.22/24 dev ens33
+
+删除ens33的ip
+ip addr delete 192.168.1.22/24 dev ens33
+
+显示ens33的ip
+ip addr show dev ens33
+ip addr ls ens33
+
+清除ens33的IP地址
+ip -4 addr flush ens33
+
+
+显示路由表
+ip route show
+
+显示local路由表的记录
+ip route show table local
+
+删除默认路由
+ip route del default
+
+显示路由表
+ip route list
+
+为ens33添加缺省路由192.168.1.1
+ip route add default via 192.168.1.1 dev ens33
+
+获取通向8.8.8.8的路由
+ip route get 8.8.8.8
+
+ip route add default via 192.168.1.1 dev ens33 table localnet
+ip rule add from 192.168.1.0/24 table localnet
+ip rule del from 192.168.1.0/24 table localnet

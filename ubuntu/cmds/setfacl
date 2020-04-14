@@ -1,0 +1,43 @@
+-b
+删除所有的扩展ACL规则，所有者，组，其它用户的基本ACL规则会被保留
+
+-k
+删除默认的ACL规则
+
+-m
+修改文件的ACL规则
+
+-n
+不重新计算有效权限掩码
+
+--mask
+重新计算有效权限掩码
+
+-d
+指定默认的ACL规则
+
+-R
+对指定的目录和文件递归处理
+
+-L
+跟踪符号链接，包括符号链接目录
+
+-P
+跳过符号链接
+
+-x
+删除文件的ACL规则
+
+-M
+从磁盘文件读取访问控制列表条目，并按此条目对文件的ACL规则进行更改
+
+让用户joe对文件a.sh拥有读写权限
+setfacl -m u:joe:rw- a.sh
+setfacl -m u:joe:rw-,g::rwx a.sh
+
+删除文件的ACL规则
+setfacl -x u:joe a.sh
+
+查看acl
+getfacl a.sh
+

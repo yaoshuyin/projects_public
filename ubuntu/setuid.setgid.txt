@@ -1,0 +1,38 @@
+如果 同时有 s权限与x可执行权限，则使用S
+则
+setuid
+rws    rwx     rwx
+
+数字
+4777
+
+setgid
+rwx     rws    rwx
+
+数字
+2777
+
+
+chmod u+s a.txt
+chmod g+s a.txt
+
+
+chmod 4751 a.txt
+
+
+~# touch a.txt
+
+~# ls -l a.txt
+-rw-r--r-- 1 root root 0 Apr  5 02:49 a.txt
+
+~# chmod 4644 a.txt
+
+~# ls -l a.txt
+-rwSr--r-- 1 root root 0 Apr  5 02:49 a.txt
+
+~# touch b.txt
+
+~# chmod 2644 b.txt
+
+~# ls -l b.txt
+-rw-r-Sr-- 1 root root 0 Apr  5 02:49 b.txt

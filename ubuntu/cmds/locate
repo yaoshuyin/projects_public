@@ -1,0 +1,9 @@
+updatedb
+locate passwd
+locate ls
+
+精确匹配
+locate -b '\passwd'
+
+locate /etc/*.txt
+

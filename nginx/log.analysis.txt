@@ -1,0 +1,4 @@
+.webalizer
+免费的日志分析软件，可分析web日志、FTP日志，产生HTML报告
+
+.awstats (advanced web statistics)

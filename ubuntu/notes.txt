@@ -1,0 +1,176 @@
+.locale
+.blkid
+./etc/apt/sources.list (deb-src 源码包)
+  deb或deb-src 网络地址 主版本号 软件仓库1 软件仓库2 ...
+
+  main        自由软件
+  restricted  广泛被使用的不完全自由的包
+  universe    ubuntu官方不提供安全补丁支持，依赖社区提供
+
+.apt update     更新软件包列表
+ apt upgrade    更新并安装软件包的最新版
+ apt remove     卸载软件
+ apt autoremove 删除不再需要的包
+ apt purge      彻底删除软件包及其配置文件
+ apt source     下载源码
+ apt build-dep  自动下载安装编译软件所需的软件包
+ apt dselect-upgrade 安装dselect的选择进行升级
+ apt clean      删除本地缓存的所有软件包
+ apt autoclean  删除本地缓存的所有无用的软件包
+ apt check      检查是否存在有问题的依赖关系
+ apt-cache search mysql
+
+ apt -y         仅下载，不安装
+ apt -f         修复依赖
+ apt -s         模拟测试，不做实际操作
+ apt -u         显示已经升级的软件包
+ apt -V         显示已安装过的软件包的完整版本号
+ apt -
+
+ /etc/apt/apt.conf
+ /etc/apt/apt.conf.d/
+ /var/cache/apt/archives/
+ /var/lib/apt/lists
+
+.tasksel
+ apt aptitude dpkg dselect
+
+ root@idc-otter-sync:~# tasksel --list-tasks
+ ...
+ u mail-server   Mail server
+ ...
+ i server        Basic Ubuntu server
+
+ tasksel --task-packages lamp-server
+
+ tasksel install lamp-server
+ tasksel install dns-server
+
+ tasksel remove dns-server
+
+root@idc-otter-sync:~# dpkg -l net-tools
+||/ Name           Version      Architecture Description
++++-==============-============-============-=================================
+ii  net-tools      1.60+git2016 amd64        NET-3 networking toolkit
+
+root@idc-otter-sync:~# dpkg -L net-tools
+/bin
+/bin/netstat
+/sbin
+/sbin/ifconfig
+/sbin/ipmaddr
+/sbin/iptunnel
+/sbin/mii-tool
+/sbin/nameif
+/sbin/plipconfig
+/sbin/rarp
+/sbin/route
+/sbin/slattach
+/usr
+/usr/sbin
+/usr/sbin/arp
+/usr/share
+/usr/share/doc
+/usr/share/doc/net-tools
+/usr/share/man
+
+$ dpkg -S /bin/ls
+  coreutils: /bin/ls
+
+.dpkg-reconfigure postfix
+
+.apt-cache search net-tools
+root@idc-otter-sync:~# apt-cache show net-tools
+Package: net-tools
+Architecture: amd64
+Version: 1.60+git20161116.90da8a0-1ubuntu1
+Multi-Arch: foreign
+Priority: optional
+Section: net
+Origin: Ubuntu
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Original-Maintainer: net-tools Team <pkg-net-tools-maintainers@lists.alioth.debian.org>
+Bugs: https://bugs.launchpad.net/ubuntu/+filebug
+Installed-Size: 784
+Depends: libc6 (>= 2.14), libselinux1 (>= 1.32)
+Conflicts: ja-trans (<= 0.8-2)
+Replaces: ja-trans (<= 0.8-2), netbase (<< 4.00)
+Filename: pool/main/n/net-tools/net-tools_1.60+git20161116.90da8a0-1ubuntu1_amd64.deb
+Size: 194236
+
+.dpkg-reconfigure locales
+.apt update
+.apt upgrade
+
+.proxy set
+vim /etc/apt/apt.conf
+Acquire::http::Proxy "http://xxx:8889"
+
+.nano
+ctrl+o 保存
+ctrl+x 退出
+ctrl+k 剪切行
+ctrl+u 粘贴
+ctrl+w 搜索
+ctrl+\ 替换
+
+。dpkg -C
+
+.find
+find . -name *.txt
+find . -name *.tmp -delete
+find . -perm 644
+
+.updatedb
+.locate xxx
+
+./etc/network/interfaces
+
+auto eth0
+iface eth0 inet dhcp
+
+auto eth1
+  address 192.168.1.10
+  netmask 255.255.255.0
+  gateway 192.168.1.1
+
+./etc/init.d/networking restart
+
+.ifup eth0
+ ifdown eth0
+
+./etc/resolv.conf
+search localdomain
+
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+
+.
+/etc/cron.d
+/etc/cron.daily
+/etc/cron.hourly
+/etc/cron.monthly
+/etc/crontab
+/etc/cron.weekly
+
+./etc/ssh/sshd_config
+
+.创建CA签名的证书
+1）创建server.key
+需要输入密码的方式
+openssl genrsa -des3 -out a.com.key 1024
+
+不需要输入密码的方式
+openssl genrsa -out a.com.key 1024
+
+2)创建csr (certificate signing request)
+openssl req -new -key a.com..key -out a.com.csr
+
+3)创建自己签名的证书
+openssl x509 -req -days 365 -in a.com.csr -signkey a.com.key -out a.com.crt
+
+4) cp a.com.crt a.com.key /etc/nginx/ssl/
+
+5)配置crt与key到apache或nginx
+
+

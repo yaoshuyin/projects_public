@@ -1,0 +1,4 @@
+find /tmp -name *.tmp -delete
+find /tmp -name *.tmp -print0 | xargs -0 -I {} ls -l {}
+find . \( -name "*.txt" -o -name "*.tmp" \)
+find . -regex ".*\.\(txt\|pdf\)$"

@@ -1,0 +1,20 @@
+atime
+noatime
+diratime
+nodiratime
+exec
+noexec
+suid
+nosuid
+ro
+rw
+
+
+/dev/hdx   IDE设备
+/dev/sdx   SCSI设备
+/dev/mdx   软RAID
+/dev/ttyX  虚拟终端设备
+/dev/lpX   并口
+/dev/console 控制台
+/dev/random 随机数设备
+

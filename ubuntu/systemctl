@@ -1,0 +1,8 @@
+systemctl list-units
+systemctl list-units --all
+systemctl list-units --state=inactive
+systemctl list-units --type=service
+systemctl is-enabled mysql.service
+systemctl list-dependencies mysql.service
+systemctl list-dependencies mysql.service --all
+systemctl daemon-reload

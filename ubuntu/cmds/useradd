@@ -1,0 +1,13 @@
+-d /home/username 指定HOME目录
+-c "comment"      指定注释
+-e "2020-04-10"   指定失效日期
+-f  -1            密码过期不禁用用户
+-f  0             密码过期后则禁用用户
+-u 1000           指定UID
+-g 100            指定用户所属的GID
+-g  groupname     指定用户所属的组名
+-G group1,group2  指定用户所属的附属组名
+-m                自动创建HOME目录
+-r                创建UID为100 ~ 999之间的系统用户，且不自动创建HOME目录
+-s /bin/bash      指定SHELL程序
+

@@ -1,0 +1,4 @@
+mkdir /tmp/a
+
+依次创建不存在的中间目录
+mkdir -p /tmp/a/b/c/d

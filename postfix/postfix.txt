@@ -1,0 +1,38 @@
+.postfix 、 qmail
+支持虚拟用户、虚拟域、pop3、imap、smtp、tsl、垃圾邮件过滤、病毒防护
+
+使用mysql存储虚拟域名和用户信息
+使用dovecot来实现pop3/imap
+使用clamav反病毒,spamas-sassin来过滤垃圾邮件， amavisd在postfix与内容过滤软件之间架起桥梁
+磁盘限额功能需要安装是指定，默认不带
+使用squirrelmail 实现webmail
+
+
+.安装
+apt install postfix-mysql mysql-server dovecot-pop3d dovecot-imapd amavisd-new libclass-dbi-mysql-perl
+
+.
+apt install SpamAssassin clamav-daemon razor pyzor cpio arj zoo nomarch lzop cabextract pax lha unrar
+
+spamassassin是基于文本分析的垃圾邮件管理程序
+razor和pyzor是客户端/服务器架构的垃圾邮件过滤程序
+
+.安装squirrel mail用作webmail界面
+apt install openssl squirrelmail squirrelmail-locales php5-imap telnet mutt mailx
+
+.创建maildb
+MySQL> create database maildb;
+MySQL> grant select,insert,update,delete on maildb.* to 'mailman'@'localhost' identified by 'xxxx';
+MySQL> grant select,insert,update,delete on maildb.* to 'mailman'@'localhost.localdomain' identified by 'xxxx';
+MySQL> flush privileges;
+
+MySQL> use maildb;
+MySQL> craete table virtual_domains (
+   id int  not null  auto_increment  primary key,
+   name varchar(50) not null
+) TYPE-MyISAM;
+
+MySQL> insert into virtual_domains (name) values ('a.com'),('b.com');
+
+
+
