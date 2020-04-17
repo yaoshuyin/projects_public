@@ -1,3 +1,50 @@
+apt install sqlmap wapity nikto
+
+代码审计： checkmax fortify
+
+WebUI:
+https://www.arachni-scanner.com/download/
+
+GUI: linux / macos /win
+   https://subgraph.com/vega/download/
+   https://www.zaproxy.org/download/
+
+Nessus: macos / linux/ windows
+  https://www.tenable.com/downloads/nessus?loginAttempted=true
+  wget -c "https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/10852/download?i_agree_to_tenable_license_agreement=true" -O nessus-8.10.0-ubuntu1110_amd64.deb
+
+国内做渗透测试的公司也就是SINESAFE,绿盟，鹰盾安全，启明星辰做的比较专业
+
+
+............................
+
+系统安全与威胁分析协助:
+   系统与应用与Web安全加固
+   数据本地与异地备份与恢复
+   IDS/IPS入侵检测系统使用
+   日志与审计与分析
+   病毒木马检查与分析
+   系统安全扫描
+   威胁分析模型 STRIDE模型,PDCA模型
+   加强安全意识管理
+   网络防火墙应用防火墙WAF的应用
+   暴力破解防护
+   云环境网络VPC/安全组/WAF安全防护
+   堡垒机增加系统访问的安全性
+   DDOS/CC分布式拒绝服务攻击的防护措施
+   局域网/互联网安全防护
+   网络异常流量分析与追踪
+   系统漏洞、注入漏洞、跨站脚本漏洞、信息泄露、文件解析漏洞
+
+  Linux系统文件完整性检查
+   最小权限法则
+   白名单机制
+   帐号密码复杂度
+   禁止使用破解版软件
+VPN虚拟专用网络的使用
+   利用TCP Wrappers构建应用访问控制列表
+   利用fail2ban,DenyHosts
+
 .数据泄露
 .入侵
 .安全意识、法律法规、能用技术
@@ -232,3 +279,267 @@ HTMLPurify
   单向散列函数算法
   密文存储
   在不同网站不同的密码，防止被撞库
+
+.md5时添加一个随机的salt，使彩虹表失效
+ md5(md5(md5(username)+md5(password)+md5(salt)))
+
+  手机动态口令
+  数字证书
+  宝令
+  支付盾
+  第三方证书
+
+.token中包含源端IP，每次请求都进行这个IP验证，防止token被盗，失效时间
+
+.XSS跨站脚本攻击
+ 对用户输入进行检查， 对Web展示进行输出编码
+.CSRF
+ 跨站请求伪造
+ 场景：对数据进行增删改的场景，而不是读数据
+ 可使用token解决
+ 使用POST，不可以解决CSRF, 但对请求参数友好
+ FORM中自动加入token字段
+ <input type="hidden" name="anti_csrf_token" value="$token">
+
+ Django
+  ('django.middleware.common.CommonMiddleware',
+  'django.contrib.sessions.middleware.SessionMiddleware',
+  'django.middleware.csrf.CsrfViewMiddleware',
+  'django.contrib.auth.middleware.AuthenticationMiddleware',
+  'django.contrib.messages.middleware.MessageMiddleware'
+  )
+
+  X-Frame-Options: SAMEORIGIN
+
+.网络sniff
+.本地木马
+.SSO
+ OpenID 是一个开放的单点登录框架
+
+.RBAC 基于角色的访问控制
+
+.用户绑定权限，禁止访问未授权或不属于他的资源
+
+.OAuth
+  在不提供用户名和密码的情况下，授权第三方应用访问Web资源的安全协议
+  Client
+  OAuth Server
+  ResourceOwner
+
+.随机数
+php > echo mt_rand(1,8999999999999999999);
+  7353523659951187835
+
+php > echo mt_rand(1,8999999999999999999);
+  7686599259074551272
+
+php > echo mt_rand(1,8999999999999999999);
+  3693201041760406658
+
+php > echo mt_rand(1,8999999999999999999);
+  2424486556257913778
+
+.DDOS
+  SYN Flood
+    C  ---        SYNc        ---> S
+    C  <--- SYNs+ACK(=SYNc+1) ---  S
+    C  ---      ACK(=SYNs+1)  ---> S
+
+   1) 伪造大量源IP
+   2）发送大量SYN
+   3) 服务器返回 SYN + ACK
+      服务器未收到Client端的ACK
+      重试发送SYN+ACK 3到5次
+      等待30秒到2分钟，超过这个时间则丢弃这个连接
+
+      客户端发送大量的SYN,消耗服务器大量的CPU和内存资源，导致最后无能力处理正常连接，导致拒绝服务...
+
+      对搞方法:
+        SYN Cookie: 为每个IP分配一个Cookie, 并统计每个IP地址的访问频率，如果短时间内收到大量的来自同一个IP地址的数据包，则认为受到攻击，之后来自这个IP的地址被丢弃
+
+        当流量超过了网络带宽，设备最大负荷时，网络将瘫痪
+
+        在攻击中，DDOS的流量可到几十Gb,这种情况只能请求运营商协助
+
+  UDP Flood
+  ICMP Flood
+
+  CC攻击:
+    Challenge Coolapasr, 在有黑洞防护下仍能有效完成拒绝服务攻击
+    在完成网络层三次握手以后，对应用进行攻击
+    对一些消耗资源较大的页面不断发起请求，以达到消耗服务端资源的目的
+
+    限制每个客户端的请求频率
+    平时收集有效IP，被攻击时只允许以前的有效IP访问，同时禁止当下新IP访问
+
+.PHP安全
+  include、require、fopen、readfile文件包含漏洞
+  使用open_basedir= 限制可包含的文件的根目录
+  open_basedir=/tmp/:/tmp/abc(会匹配所有以/tmp/abc开头的目录):/data/www/htdocs/www.a.com/
+
+  远程文件包含
+  allow_url_include = ON / OFF
+
+  data://
+  php://input
+
+  register_globals=OFF
+
+  危险函数
+  display_errors
+  log_errors
+  cgi.fix_pathinfo=0
+  magic_quotes_gpc = OFF
+  session.cookie_httponly = 1
+  safe_mode=
+  disable_functions=exec,proc_nice,proc_open,proc_close,passthru
+
+.nginx
+  events {
+      worker_connections 50000;
+  }
+
+.安全测试
+.代码审计
+.skipfish 是Google的web安全扫描器
+.bug管理系统
+  backtracker
+.安全监控
+
+.开源的WAF
+ ModSecurity
+   非常成熟的WAF
+   是apache的模块
+   包括了所有的web攻击行为
+
+ PHPIDS
+   是为PHP应用程序设计的一套入侵检测系统
+   需要嵌入到php程序中
+
+   require_once 'IDS/init.php';
+   $request = [
+    'REQUEST' => $_REQUEST,
+    'GET' => $_GET,
+    'POST' => $_POST,
+    'COOKIE' => $_COOKIE
+   ];
+
+   $init = IDS_Init::init('IDS/Config/Config.ini');
+   $ids=new IDS_Monitor($request, $init);
+   $request = $ids->run();
+   if($request->isEmpty()) {
+       echo $request;
+   }
+
+.源码泄露、备份文件泄露、目录列出漏洞
+.phpinfo()
+.测试网站外露
+.页面报错关键信息泄露
+.pixy软件进行污点传播分析
+   检测PHP的SQL注入、XSS
+   检测效率高、误报率低
+
+.动态检测技术
+ 渗透测试
+   常用工具： Burp/ Suite/ Paros/ Nikto
+   测试人员通过模拟攻击方式对软件系统进行安全性测试
+   检测逻辑与设计及安全漏洞
+   配置管理测试
+   业务逻辑测试
+   认证测试
+   授权测试
+   会话管理测试
+   数据验证测试
+   拒绝服务测试
+   Web服务测试
+   AJAX测试
+
+   Web应用系统进行渗透测试的步骤:
+     测试目标定义
+       确定测试范围
+       建立测试规则
+       明确测试对象及测试目的
+
+     背景知识研究
+       搜索测试目标的所有背景资料
+         设计文档
+         源代码
+         用户手册
+         单元测试
+         集成测试
+
+     漏洞猜测
+       猜测可能存在的漏洞，形成漏洞列表
+       对列表进行分析和过滤
+       排列出优先级
+
+     漏洞测试:
+       生成测试用例
+       使用测试工具进行测试
+
+     修补漏洞:
+        提出修改完善源代码的方法
+        对发现的漏洞进行修补
+
+     Web请求:
+        GET/POST URL 参数 及 表单
+        发送请求
+        观察分析返回的信息
+        推测出Web应用程序可能存在的安全漏洞与弱点
+
+     软件版本探测
+        针对每个服务及软件特定版本检测已知漏洞
+
+ 模糊测试
+ 错误注入
+ 补丁比对
+
+.模糊测试
+ 自动产生大量的随机的或经过变异的输入值，进行测试
+ 如果发生异常，说明系统中存在薄弱环节或漏洞
+ 与墨盒测试相近，但侧重于任何可能引发未定义或不安全行为的输入
+ 是Web应用安全漏洞检测中常用的测试技术
+ 模拟攻击者行为，产生大量异常、非法、包含攻击载荷的模糊测试数据
+ 常用工具WebScarab / WSFuzzer / SPIKE Proxy / WebFuzz / WebInspect
+
+.源代码复查
+ 并发问题
+ 业务逻辑缺陷
+ 访问控制问题
+ 加密弱点
+ 后门
+ 木马
+
+.人工检查
+ 软件威胁建模
+ 源代码复查
+ 渗透测试
+
+.漏洞扫描
+ CERT/CVE/CNVD
+ 网络漏洞
+ Web漏洞
+ 数据库漏洞
+
+.
+ 正报
+ 误报
+ 漏报
+ 真实漏洞
+
+.注入漏洞
+ SQL注入
+   添加 '
+        and 1=1
+        and 1=2
+        and 1=1 union select * from users;
+ LDAP注入
+ ORM注入
+ XML注入
+ SSI注入
+ 邮件服务器注入
+ 代码注入
+ OS命令注入
+ HTTP注入
+ XSS
+
