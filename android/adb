@@ -1,0 +1,15 @@
+.首选项
+   ---  偏好设定
+     --- 启用Android Debug Bridge(ADB)
+
+.
+$ adb connect localhost:55555
+$ adb devices
+
+$ adb uninstall com.nd.android.smarthome
+
+$ adb install ~/Downloads/anzhuozhuomian_8199.apk
+$ adb shell dumpsys|grep com.nd.android.smarthome|grep -i activity
+$ adb shell am start -n com.nd.android.smarthome/com.nd.hilauncherdev.app.activity.X5Launcher
+
+$ adb shell

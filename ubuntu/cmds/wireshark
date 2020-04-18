@@ -1,0 +1,11 @@
+.wireshark
+   -- Capture
+     -- eth0
+
+.过滤
+ icmp
+ arp
+ ip.src == 192.168.1.100
+ tcp.srcport != 80
+
+.Expression

@@ -1,0 +1,10 @@
+.Samsung Galaxy 56  7.1 - API25  1440x2560 640-XXXHDPI
+
+.修改virtrualbox里面虚拟机的显存大小为128MB
+
+.下开ARM包
+  https://raw.githubusercontent.com/m9rco/Genymotion_ARM_Translation/master/package/Genymotion-ARM-Translation_for_7.X.zip
+
+  拖动Genymotion-ARM-Translation_for_7.X.zip到Android桌面就可以安装，然后重启后就可以拖动apk去安装了
+
+.

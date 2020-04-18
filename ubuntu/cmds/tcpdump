@@ -1,0 +1,7 @@
+.监听eth0的所有流量
+$ tcpdump -v -i eth0
+
+.保存成a.pcap
+$ tcpdump -v -i eth0 -w /tmp/a.pcap
+
+.

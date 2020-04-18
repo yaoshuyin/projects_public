@@ -543,3 +543,8 @@ php > echo mt_rand(1,8999999999999999999);
  HTTP注入
  XSS
 
+.实战
+..漏洞扫描
+...Rapid7 Nexpose（收费)
+...Tenable nessus (收费)
+...OpenVas (免费)
