@@ -92,3 +92,829 @@ ubuntu@tyo-evo-mini-demo-01:~$ mysql -uroot -h localhost -p
 Enter password: 
    ....
 MySQL root@[(none)]>
+
+.MySQL
+ Client
+ connector
+ query cache  解析器
+ 优化器
+ 存储引擎
+
+ 查询解析、分析、优化、缓存、内置函数、存储过程、触发器、视图
+
+ 每个连接在服务器进程中都会拥有一个线程，这个连接的查询只会在这个单独的线程中执行，此线程只能在某个CPU核心或CPU中运行
+ 服务器会缓存线程，所以不需要为每个新建立的连接创建或销毁线程
+
+ 共享锁(shared lock) 也叫 读锁(read lock)
+ 排他锁(exclusive lock) 也叫 写锁(write lock), 写锁会阻塞其他的写锁和读锁，出于安全策略的考虑，确保在给定的时间里，只有一个用户能执行写入，并防止其他用户读取正在写入的同一资源
+
+ 获得锁、检查锁、锁、解放锁
+
+ 表锁: table lock
+   一个用户在对表进行写操作（插入、删除、更新）前，需要先获得写锁，这会阻塞其它用户对表的读与写操作。只有没有写锁时，其它读取的用户才能获得读锁，读锁之间互不阻塞
+
+   特定场景中，表锁也可有较好的性能，如read local表锁支持某些类型的并发写操作。
+
+   写锁有比读锁更高的优先级，因此一个写锁请求可能会被插入到读锁队列的前面。
+
+   MySQL本身会有各种有效的表锁来实现不同的目的，如MYSQL本身会为alter table之类的语句使用表锁，而忽略存储引擎的锁机制。
+
+ 行锁: row-level lock
+   行锁可以最大程度支持并发处理（也带来了最大的锁开销).
+   InnoDB和XtraDB实现了行级锁
+   行级锁只在存储引擎中实现了行级锁
+   MySQL服务器层未实现
+
+ACID:
+   A (愿) 原子性 atomicity
+   C (意) 一致性 consistency
+   I (哥) 隔离性 isolation
+   D (吃) 持久性 durability
+
+ 事务:
+   start transaction
+   从卡号A取钱到卡号B
+   卡号A减少100元
+   添加100元到卡号B
+   commit
+   rollback
+
+ MySQL事务:
+   InnoDB和NDB Cluster 、 XtraDB、PBXT
+
+ > show variables like 'AUTOCOMMIT';
+     autocommit  ON
+
+   设置隔离级别
+ > set transaction isolation level
+ > set session transaction isolation level READ COMMITTED;
+
+   select ... lock in share mode
+   select ... for update
+
+ > show table status like 'user' \G;
+
+ Row_format  行的格式,MyISAM: Dynamic/Fixed/Compressed
+    Name
+    Engine
+    Row_format
+    Avg_row_length
+    Rows: 表中的行数
+    Data_length:  B字节，表数据的大小
+    Max_data_length: 表数据的最大容量， 此值和存储引擎有关
+    Index_length: 索引的大小，B字节
+    Data_free: 表已经分配但目前没有使用的空间，这部分空间包括了之前删除的行，以及后续可以被insert利用到的空间
+    Collation: 表的默认字符集和字符列排序规则
+
+.innodb 热备份(在业务读写时进行备份)
+    Oracle: MySQL Enterprise Backup
+    Percona: XtraBackup
+    其他存储引擎，则需要停止写入或读写才可获取一致性视图
+
+.MyISAM
+    全文索引
+    压缩
+    空间函数GIS
+    不支持事务和行级锁
+    崩溃后无法安全恢复
+
+.MyISAM
+    5.0  默认只能处理256TB的单表
+    >5.0 默认只能处理4GB的单表
+
+.MYISAM延迟索引
+    DELAY_KEY_WRITE
+    修改完成后，不会立刻把修改的索引数据写入磁盘，而是会写到内存中的键缓冲区(in-memory key buffer), 只有在清理键缓冲区或关闭表的时候才会将对应的索引块写入磁盘。
+    可以极大提升写入性能 ，但在数据库或主机崩溃时会造成索引损坏，需要修复
+
+> alter table a engine=InnoDB;
+
+> insert into a select * from b;
+mysql> show full processlist;
++----+------+-----------+----------+---------+------+----------+-----------------------+
+| Id | User | Host      | db       | Command | Time | State    | Info                  |
++----+------+-----------+----------+---------+------+----------+-----------------------+
+|  7 | root | localhost | caicheng | Query   |    0 | starting | show full processlist |
++----+------+-----------+----------+---------+------+----------+-----------------------+
+
+
+.性能剖析profiling
+ mysql> set profiling = 1;
+ mysql> select ...
+ mysql> show profiles;
++----------+------------+--------------------+
+| Query_ID | Duration   | Query              |
++----------+------------+--------------------+
+|        1 | 0.00193675 | select * from user |
++----------+------------+--------------------+
+
+mysql> show profile for query 1;
++----------------------+----------+
+| Status               | Duration |
++----------------------+----------+
+| starting             | 0.000053 |
+| checking permissions | 0.000008 |
+| Opening tables       | 0.000016 |
+| init                 | 0.000038 |
+| System lock          | 0.000009 |
+| optimizing           | 0.000005 |
+| statistics           | 0.000011 |
+| preparing            | 0.000011 |
+| executing            | 0.000003 |
+| Sending data         | 0.001733 |
+| end                  | 0.000007 |
+| query end            | 0.000006 |
+| closing tables       | 0.000007 |
+| freeing items        | 0.000016 |
+| cleaning up          | 0.000016 |
++----------------------+----------+
+15 rows in set, 1 warning (0.01 sec)
+
+mysql> show profiles;
+     ...
+     45 | 0.03297750 | select * from v9_log order by data
+     ...
+
+mysql> set @query_id=45;
+
+mysql> select state,sum(duration) as total_r, round(100*sum(duration)/(select sum(duration) from information_schema.profiling where query_id = @query_id),2) as pct_r, count(*) as calls, sum(duration)/count(*) as "r/call" from information_schema.profiling where query_id=@query_id group by state order by total_r desc;
+
++----------------------+----------+-------+-------+--------------+
+| state                | total_r  | pct_r | calls | r/call       |
++----------------------+----------+-------+-------+--------------+
+| Creating sort index  | 0.016934 | 51.35 |     1 | 0.0169340000 |
+| freeing items        | 0.015818 | 47.96 |     1 | 0.0158180000 |
+| starting             | 0.000061 |  0.18 |     1 | 0.0000610000 |
+| cleaning up          | 0.000026 |  0.08 |     1 | 0.0000260000 |
+| init                 | 0.000024 |  0.07 |     1 | 0.0000240000 |
+| statistics           | 0.000018 |  0.05 |     1 | 0.0000180000 |
+| Opening tables       | 0.000017 |  0.05 |     1 | 0.0000170000 |
+| end                  | 0.000012 |  0.04 |     1 | 0.0000120000 |
+| Sending data         | 0.000011 |  0.03 |     1 | 0.0000110000 |
+| preparing            | 0.000010 |  0.03 |     1 | 0.0000100000 |
+| System lock          | 0.000010 |  0.03 |     1 | 0.0000100000 |
+| closing tables       | 0.000009 |  0.03 |     1 | 0.0000090000 |
+| query end            | 0.000008 |  0.02 |     1 | 0.0000080000 |
+| checking permissions | 0.000008 |  0.02 |     1 | 0.0000080000 |
+| optimizing           | 0.000005 |  0.02 |     1 | 0.0000050000 |
+| Sorting result       | 0.000004 |  0.01 |     1 | 0.0000040000 |
+| executing            | 0.000004 |  0.01 |     1 | 0.0000040000 |
++----------------------+----------+-------+-------+--------------+
+
+mysql> show global status  like '%slow%';
++---------------------+-------+
+| Variable_name       | Value |
++---------------------+-------+
+| Slow_launch_threads | 0     |
+| Slow_queries        | 0     |
++---------------------+-------+
+2 rows in set (0.00 sec)
+
+mysql> show global status  like '%quer%';
++-------------------------+-------+
+| Variable_name           | Value |
++-------------------------+-------+
+| Com_empty_query         | 0     |
+| Qcache_queries_in_cache | 0     |
+| Queries                 | 501   |
+| Slow_queries            | 0     |
++-------------------------+-------+
+4 rows in set (0.00 sec)
+
+mysql> show global status where Variable_name like 'Handler%' or Variable_name like 'Created%';
++----------------------------+-------+
+| Variable_name              | Value |
++----------------------------+-------+
+| Handler_read_rnd           | 3335  |
+| Handler_read_rnd_next      | 54238 |
+| Handler_write              | 45745 |
++----------------------------+-------+
+
+mysql> explain select * from v9_tag \G;
+           id: 1
+  select_type: SIMPLE
+        table: NULL
+   partitions: NULL
+         type: NULL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: NULL
+     filtered: NULL
+        Extra: no matching row in const tables
+
+$ mysqladmin ext | awk '/connect/' |sed 's/\s\+/ /g'
+| Aborted_connects | 0 |
+| Connection_errors_max_connections | 0 |
+| Locked_connects | 0 |
+| Max_used_connections | 2 |
+| Max_used_connections_time | 2020-04-19 03:58:00 |
+| Performance_schema_session_connect_attrs_lost | 0 |
+| Ssl_client_connects | 0 |
+| Ssl_connect_renegotiates | 0 |
+| Ssl_finished_connects | 0 |
+| Threads_connected | 2 |
+
+
+$ mysqladmin ext | sed 's/\s\+/ /g'
+| Aborted_clients | 0 |
+| Aborted_connects | 0 |
+| Binlog_cache_disk_use | 0 |
+| Binlog_cache_use | 0 |
+| Binlog_stmt_cache_disk_use | 0 |
+| Binlog_stmt_cache_use | 0 |
+| Bytes_received | 18648 |
+| Bytes_sent | 1546522 |
+| Com_admin_commands | 2 |
+| Com_assign_to_keycache | 0 |
+| Com_alter_db | 0 |
+| Com_alter_db_upgrade | 0 |
+| Com_alter_event | 0 |
+| Com_alter_function | 0 |
+| Com_alter_instance | 0 |
+| Com_alter_procedure | 0 |
+| Com_alter_server | 0 |
+| Com_alter_table | 0 |
+| Com_alter_tablespace | 0 |
+| Com_alter_user | 0 |
+| Com_analyze | 0 |
+| Com_begin | 0 |
+| Com_binlog | 0 |
+| Com_call_procedure | 0 |
+| Com_change_db | 6 |
+| Com_change_master | 0 |
+| Com_change_repl_filter | 0 |
+| Com_check | 0 |
+| Com_checksum | 0 |
+| Com_commit | 0 |
+| Com_create_db | 0 |
+| Com_create_event | 0 |
+| Com_create_function | 0 |
+| Com_create_index | 0 |
+| Com_create_procedure | 0 |
+| Com_create_server | 0 |
+| Com_create_table | 0 |
+| Com_create_trigger | 0 |
+| Com_create_udf | 0 |
+| Com_create_user | 0 |
+| Com_create_view | 0 |
+| Com_dealloc_sql | 0 |
+| Com_delete | 0 |
+| Com_delete_multi | 0 |
+| Com_do | 0 |
+| Com_drop_db | 0 |
+| Com_drop_event | 0 |
+| Com_drop_function | 0 |
+| Com_drop_index | 0 |
+| Com_drop_procedure | 0 |
+| Com_drop_server | 0 |
+| Com_drop_table | 0 |
+| Com_drop_trigger | 0 |
+| Com_drop_user | 0 |
+| Com_drop_view | 0 |
+| Com_empty_query | 0 |
+| Com_execute_sql | 0 |
+| Com_explain_other | 0 |
+| Com_flush | 0 |
+| Com_get_diagnostics | 0 |
+| Com_grant | 0 |
+| Com_ha_close | 0 |
+| Com_ha_open | 0 |
+| Com_ha_read | 0 |
+| Com_help | 0 |
+| Com_insert | 0 |
+| Com_insert_select | 0 |
+| Com_install_plugin | 0 |
+| Com_kill | 0 |
+| Com_load | 0 |
+| Com_lock_tables | 0 |
+| Com_optimize | 0 |
+| Com_preload_keys | 0 |
+| Com_prepare_sql | 0 |
+| Com_purge | 0 |
+| Com_purge_before_date | 0 |
+| Com_release_savepoint | 0 |
+| Com_rename_table | 0 |
+| Com_rename_user | 0 |
+| Com_repair | 0 |
+| Com_replace | 0 |
+| Com_replace_select | 0 |
+| Com_reset | 0 |
+| Com_resignal | 0 |
+| Com_revoke | 0 |
+| Com_revoke_all | 0 |
+| Com_rollback | 0 |
+| Com_rollback_to_savepoint | 0 |
+| Com_savepoint | 0 |
+| Com_select | 39 |
+| Com_set_option | 9 |
+| Com_signal | 0 |
+| Com_show_binlog_events | 0 |
+| Com_show_binlogs | 0 |
+| Com_show_charsets | 0 |
+| Com_show_collations | 0 |
+| Com_show_create_db | 0 |
+| Com_show_create_event | 0 |
+| Com_show_create_func | 0 |
+| Com_show_create_proc | 0 |
+| Com_show_create_table | 0 |
+| Com_show_create_trigger | 0 |
+| Com_show_databases | 8 |
+| Com_show_engine_logs | 0 |
+| Com_show_engine_mutex | 0 |
+| Com_show_engine_status | 0 |
+| Com_show_events | 0 |
+| Com_show_errors | 0 |
+| Com_show_fields | 403 |
+| Com_show_function_code | 0 |
+| Com_show_function_status | 0 |
+| Com_show_grants | 0 |
+| Com_show_keys | 0 |
+| Com_show_master_status | 0 |
+| Com_show_open_tables | 0 |
+| Com_show_plugins | 0 |
+| Com_show_privileges | 0 |
+| Com_show_procedure_code | 0 |
+| Com_show_procedure_status | 0 |
+| Com_show_processlist | 0 |
+| Com_show_profile | 1 |
+| Com_show_profiles | 4 |
+| Com_show_relaylog_events | 0 |
+| Com_show_slave_hosts | 0 |
+| Com_show_slave_status | 0 |
+| Com_show_status | 50 |
+| Com_show_storage_engines | 0 |
+| Com_show_table_status | 3 |
+| Com_show_tables | 13 |
+| Com_show_triggers | 0 |
+| Com_show_variables | 0 |
+| Com_show_warnings | 0 |
+| Com_show_create_user | 0 |
+| Com_shutdown | 0 |
+| Com_slave_start | 0 |
+| Com_slave_stop | 0 |
+| Com_group_replication_start | 0 |
+| Com_group_replication_stop | 0 |
+| Com_stmt_execute | 0 |
+| Com_stmt_close | 0 |
+| Com_stmt_fetch | 0 |
+| Com_stmt_prepare | 0 |
+| Com_stmt_reset | 0 |
+| Com_stmt_send_long_data | 0 |
+| Com_truncate | 0 |
+| Com_uninstall_plugin | 0 |
+| Com_unlock_tables | 0 |
+| Com_update | 1 |
+| Com_update_multi | 0 |
+| Com_xa_commit | 0 |
+| Com_xa_end | 0 |
+| Com_xa_prepare | 0 |
+| Com_xa_recover | 0 |
+| Com_xa_rollback | 0 |
+| Com_xa_start | 0 |
+| Com_stmt_reprepare | 0 |
+| Connection_errors_accept | 0 |
+| Connection_errors_internal | 0 |
+| Connection_errors_max_connections | 0 |
+| Connection_errors_peer_address | 0 |
+| Connection_errors_select | 0 |
+| Connection_errors_tcpwrap | 0 |
+| Connections | 14 |
+| Created_tmp_disk_tables | 11 |
+| Created_tmp_files | 8 |
+| Created_tmp_tables | 160 |
+| Delayed_errors | 0 |
+| Delayed_insert_threads | 0 |
+| Delayed_writes | 0 |
+| Flush_commands | 1 |
+| Handler_commit | 5 |
+| Handler_delete | 0 |
+| Handler_discover | 0 |
+| Handler_external_lock | 345 |
+| Handler_mrr_init | 0 |
+| Handler_prepare | 0 |
+| Handler_read_first | 14 |
+| Handler_read_key | 134 |
+| Handler_read_last | 0 |
+| Handler_read_next | 26 |
+| Handler_read_prev | 0 |
+| Handler_read_rnd | 3335 |
+| Handler_read_rnd_next | 85750 |
+| Handler_rollback | 0 |
+| Handler_savepoint | 0 |
+| Handler_savepoint_rollback | 0 |
+| Handler_update | 41 |
+| Handler_write | 61502 |
+| Innodb_buffer_pool_dump_status | Dumping of buffer pool not started |
+| Innodb_buffer_pool_load_status | Buffer pool(s) load completed at 200312 8:04:42 |
+| Innodb_buffer_pool_resize_status | |
+| Innodb_buffer_pool_pages_data | 274 |
+| Innodb_buffer_pool_bytes_data | 4489216 |
+| Innodb_buffer_pool_pages_dirty | 0 |
+| Innodb_buffer_pool_bytes_dirty | 0 |
+| Innodb_buffer_pool_pages_flushed | 42 |
+| Innodb_buffer_pool_pages_free | 7918 |
+| Innodb_buffer_pool_pages_misc | 0 |
+| Innodb_buffer_pool_pages_total | 8192 |
+| Innodb_buffer_pool_read_ahead_rnd | 0 |
+| Innodb_buffer_pool_read_ahead | 0 |
+| Innodb_buffer_pool_read_ahead_evicted | 0 |
+| Innodb_buffer_pool_read_requests | 1537 |
+| Innodb_buffer_pool_reads | 240 |
+| Innodb_buffer_pool_wait_free | 0 |
+| Innodb_buffer_pool_write_requests | 535 |
+| Innodb_data_fsyncs | 7 |
+| Innodb_data_pending_fsyncs | 0 |
+| Innodb_data_pending_reads | 0 |
+| Innodb_data_pending_writes | 0 |
+| Innodb_data_read | 4493824 |
+| Innodb_data_reads | 322 |
+| Innodb_data_writes | 59 |
+| Innodb_data_written | 722944 |
+| Innodb_dblwr_pages_written | 2 |
+| Innodb_dblwr_writes | 1 |
+| Innodb_log_waits | 0 |
+| Innodb_log_write_requests | 0 |
+| Innodb_log_writes | 2 |
+| Innodb_os_log_fsyncs | 4 |
+| Innodb_os_log_pending_fsyncs | 0 |
+| Innodb_os_log_pending_writes | 0 |
+| Innodb_os_log_written | 1024 |
+| Innodb_page_size | 16384 |
+| Innodb_pages_created | 35 |
+| Innodb_pages_read | 239 |
+| Innodb_pages_written | 42 |
+| Innodb_row_lock_current_waits | 0 |
+| Innodb_row_lock_time | 0 |
+| Innodb_row_lock_time_avg | 0 |
+| Innodb_row_lock_time_max | 0 |
+| Innodb_row_lock_waits | 0 |
+| Innodb_rows_deleted | 0 |
+| Innodb_rows_inserted | 12 |
+| Innodb_rows_read | 22 |
+| Innodb_rows_updated | 0 |
+| Innodb_num_open_files | 24 |
+| Innodb_truncated_status_writes | 0 |
+| Innodb_available_undo_logs | 128 |
+| Key_blocks_not_flushed | 0 |
+| Key_blocks_unused | 13389 |
+| Key_blocks_used | 7 |
+| Key_read_requests | 39 |
+| Key_reads | 7 |
+| Key_write_requests | 0 |
+| Key_writes | 0 |
+| Locked_connects | 0 |
+| Max_execution_time_exceeded | 0 |
+| Max_execution_time_set | 0 |
+| Max_execution_time_set_failed | 0 |
+| Max_used_connections | 2 |
+| Max_used_connections_time | 2020-04-19 03:58:00 |
+| Not_flushed_delayed_rows | 0 |
+| Ongoing_anonymous_transaction_count | 0 |
+| Open_files | 305 |
+| Open_streams | 0 |
+| Open_table_definitions | 211 |
+| Open_tables | 326 |
+| Opened_files | 543 |
+| Opened_table_definitions | 211 |
+| Opened_tables | 334 |
+| Performance_schema_accounts_lost | 0 |
+| Performance_schema_cond_classes_lost | 0 |
+| Performance_schema_cond_instances_lost | 0 |
+| Performance_schema_digest_lost | 0 |
+| Performance_schema_file_classes_lost | 0 |
+| Performance_schema_file_handles_lost | 0 |
+| Performance_schema_file_instances_lost | 0 |
+| Performance_schema_hosts_lost | 0 |
+| Performance_schema_index_stat_lost | 0 |
+| Performance_schema_locker_lost | 0 |
+| Performance_schema_memory_classes_lost | 0 |
+| Performance_schema_metadata_lock_lost | 0 |
+| Performance_schema_mutex_classes_lost | 0 |
+| Performance_schema_mutex_instances_lost | 0 |
+| Performance_schema_nested_statement_lost | 0 |
+| Performance_schema_prepared_statements_lost | 0 |
+| Performance_schema_program_lost | 0 |
+| Performance_schema_rwlock_classes_lost | 0 |
+| Performance_schema_rwlock_instances_lost | 0 |
+| Performance_schema_session_connect_attrs_lost | 0 |
+| Performance_schema_socket_classes_lost | 0 |
+| Performance_schema_socket_instances_lost | 0 |
+| Performance_schema_stage_classes_lost | 0 |
+| Performance_schema_statement_classes_lost | 0 |
+| Performance_schema_table_handles_lost | 0 |
+| Performance_schema_table_instances_lost | 0 |
+| Performance_schema_table_lock_stat_lost | 0 |
+| Performance_schema_thread_classes_lost | 0 |
+| Performance_schema_thread_instances_lost | 0 |
+| Performance_schema_users_lost | 0 |
+| Prepared_stmt_count | 0 |
+| Qcache_free_blocks | 1 |
+| Qcache_free_memory | 16760152 |
+| Qcache_hits | 0 |
+| Qcache_inserts | 0 |
+| Qcache_lowmem_prunes | 0 |
+| Qcache_not_cached | 31 |
+| Qcache_queries_in_cache | 0 |
+| Qcache_total_blocks | 1 |
+| Queries | 563 |
+| Questions | 560 |
+| Select_full_join | 0 |
+| Select_full_range_join | 0 |
+| Select_range | 0 |
+| Select_range_check | 0 |
+| Select_scan | 147 |
+| Slave_open_temp_tables | 0 |
+| Slow_launch_threads | 0 |
+| Slow_queries | 0 |
+| Sort_merge_passes | 1 |
+| Sort_range | 0 |
+| Sort_rows | 3335 |
+| Sort_scan | 8 |
+| Ssl_accept_renegotiates | 0 |
+| Ssl_accepts | 0 |
+| Ssl_callback_cache_hits | 0 |
+| Ssl_cipher | |
+| Ssl_cipher_list | |
+| Ssl_client_connects | 0 |
+| Ssl_connect_renegotiates | 0 |
+| Ssl_ctx_verify_depth | 18446744073709551615 |
+| Ssl_ctx_verify_mode | 5 |
+| Ssl_default_timeout | 0 |
+| Ssl_finished_accepts | 0 |
+| Ssl_finished_connects | 0 |
+| Ssl_server_not_after | Feb 1 13:12:53 2030 GMT |
+| Ssl_server_not_before | Feb 4 13:12:53 2020 GMT |
+| Ssl_session_cache_hits | 0 |
+| Ssl_session_cache_misses | 0 |
+| Ssl_session_cache_mode | SERVER |
+| Ssl_session_cache_overflows | 0 |
+| Ssl_session_cache_size | 128 |
+| Ssl_session_cache_timeouts | 0 |
+| Ssl_sessions_reused | 0 |
+| Ssl_used_session_cache_entries | 0 |
+| Ssl_verify_depth | 0 |
+| Ssl_verify_mode | 0 |
+| Table_locks_immediate | 163 |
+| Table_locks_waited | 0 |
+| Table_open_cache_hits | 460 |
+| Table_open_cache_misses | 334 |
+| Table_open_cache_overflows | 1 |
+| Tc_log_max_pages_used | 0 |
+| Tc_log_page_size | 0 |
+| Tc_log_page_waits | 0 |
+| Threads_cached | 0 |
+| Threads_connected | 2 |
+| Threads_created | 2 |
+| Threads_running | 1 |
+| Uptime | 3268574 |
+| Uptime_since_flush_status | 3268574 |
+| validate_password_dictionary_file_last_parsed | 2020-03-12 08:04:42 |
+| validate_password_dictionary_file_words_count | 0 |
+
+root@CaichengMySQL:/data# mysql -e "show processlist\G"
+*************************** 1. row ***************************
+     Id: 7
+   User: root
+   Host: localhost
+     db: caicheng
+Command: Sleep
+   Time: 619
+  State:
+   Info: NULL
+
+*************************** 2. row ***************************
+     Id: 14
+   User: root
+   Host: localhost
+     db: NULL
+Command: Query
+   Time: 0
+  State: starting
+   Info: show processlist
+
+MySQL> rename table a to b;
+
+创建触发器:
+DELIMITER //
+create TRIGER p_crc_insert insert on tableA for each row BEGIN
+   set tableB.url_crc = crc32(tableB.url);
+END;
+//
+
+DELIMITER //
+create TRIGER p_crc_update before update on tableA for each row BEGIN
+   set tableB.url_crc = crc32(tableB.url);
+END;
+//
+
+.前缀索引
+   使用city字段的前7个字符做为索引
+   但前缀索引无法做order by 和 group by
+
+MySQL> alter table a add key(city(7));
+
+.多列索引: 创建索引的顺序需要依赖于where中的列的顺序
+1) alter table a add key(name);
+   alter table a add key(age);
+ ==>
+
+ select name,age from a where name='tom'
+ union all
+ select name,age from a where age > 20;
+
+2) alter table a add key(name,age);
+  ===>
+
+  select name,age from a where name='tom' or age > 20;
+
+  select count(distinct name)/count(*) as name_d,
+         count(distinct age)/count(*) as age_d
+  from a;
+
+  name_d     age_d
+  0.0001     0.0373
+
+  可见age_d即age的选择性更高， 所以应把索引改为
+  alter table a add key(age,name);
+
+  select count(*), sum(name='tom'), sum(age>20) from a;
+  count: 4142217
+  name:  4092654
+  age:   1288496
+
+.
+alter table a add uniqe key mobile_uniqe (mobile);
+
+alter table a add primary key(id);
+
+.
+show index from tableA;
+
+
+.查询优化、索引优化、表结构优化
+ 1）CPU/内存/IO/网络性能优化
+ 2）增加系统文件打开数，从而加大临时表
+ 2）读写分离、分布式多库
+ 3）添加合适的索引
+ 4）开启查询缓存
+ 5）表结构优化，适当的增加冗余数据，使用触发器或程序进行同步更改，而减少查询时表的关联
+ 6) 只select需要的字段而不是*
+ 7) limit只需要的行数
+ 8) 使用程序配合，把复杂语句分解成多步多个小一些的语句（这需要权衡)
+ 9）确保任何的group by和order by中的表达式只涉及到一个表中的列，而且使用了索引
+ 9）确保on或using子句中的列上有索引
+    创建索引时考虑到关联的顺序
+
+ 9）分解JOIN关联查询，分解成多步骤，每个表进行一次查询 然后把结果在应用程序中进行关联
+    可以减少锁的时间，从而提高并发率
+    可以减少单次查询的结果集数量，避免join表带来的笛卡尔积的数据量，会更加高效
+    这样可以让缓存效率更高，数据库可以方便地缓存单表查询对应的结果对象
+    执行单个查询可以减少锁的竞争
+    可以更容易对数据库进行拆分，更容易做到高性能和可扩展
+    查询本身效率也会有所提升
+    可以减少冗余记录的查询，即在应用层做关联查询，只需要对某条记录做一次查询，而在数据库中做关联Join查询，则可能需要重复地访问很多多余数据
+    可以减少CPU/内存/IO
+    这样相当于在应用中实现了哈希关联，效率会高的多
+ 10) 清理旧的数据或归档
+ 11）备份程序放到单独的从库去执行，从而不影响业务
+ 12）小结果集合驱动大结果集
+ 13）查询语句很长的时候，加大max_allowed_packet参数
+ 14）group by
+    使用索引
+    如果无法使用索引时，会使用临时表或文件排序来做分组
+ 14）
+     $q=mysql_query("select * from a");  //已经获取了所有的数据到内存
+     while($row=mysql_fetch_array($q)) { //从内存中分步获取数据
+        //
+     }
+
+     $q=mysql_unbuffered_query("select * from a"); //php不会缓存所有数据
+     while($row=mysql_fetch_array($q)){
+        //
+     }
+
+.查询的过程
+ 客户端发送一条查询
+ 服务器检查查询缓存，命中则返回，否则
+ 服务器进行SQL解析、预处理、再由优化器生成对应的执行计划
+ 调用存储引擎的API来执行查询
+ 将查询结果返回给客户端
+
+.explain
+ type:
+    all   全表扫描
+
+ extra:
+    using where  通过where条件来筛选存储引擎返回的记录
+       在索引中使用where条件来过滤不匹配的记录，在存储引擎层完成
+       从表中返回数据，然后过滤不满足条件的记录(using where)
+
+    using index
+       使用索引覆盖扫描(在extra列中出现了using index)来返回记录，在MySQL服务器层完成，无须去表里查询
+
+    using filesort
+       order by子句中的所有列都来自关联的第一个表
+
+    using temporary; using filesort;
+       有关联且无法有效使用索引时，把查询结果放到临时表，有join/union情况下在关联结束后，再进行文件排序
+
+. limit时，mysql会抛弃不满足条件的部分数据，再进行排序
+
+.优化in (select ...)
+.优化union
+ (select a,b from tA order a) union all (select a,b from tB order b) limit 20;
+ MySQL会把两个表的数据都放到同一个临时表中，然后再取出前20行记录
+
+ (select a,b from tA order a limit 20) union all (select a,b from tB order b limit 20) limit 20;
+ 在两个select中都添加limit 20 来减小临时表的大小
+
+. select name,age from a order by name limit 50,5;
+==>
+ select name,age from a inner join (select id from a order by name limit 50,5) as lim using(id);
+
+.limit总页数
+ select count(*) from a;
+ ==比下面效果更高==>
+ select SQL_CALC_FOUND_ROWS name, age from a limit 10,10;
+
+.union all 不会给临时表加上distinct, 所以比union效率更高
+
+.view
+ create view a_view as select * from a where age>20 with check option;
+
+ create temporary table a_tmp as select * from a where age>20;
+
+.有时对性能进行剖析时发现外键约束就是瓶颈所在，删除外键后性能可大幅提升
+
+.存储过程 (不可复杂的存储过程逻辑，简单为好，复杂的交给应用处理)
+ 功能函数有限
+ 给服务器增加额外压力
+ 不如应用服务器扩展性强
+ 无法控制资源消耗
+ 慢查询调试困难
+ 和复制合作不友好
+ 把应用逻辑放在数据库服务器，大降低了系统的性能和灵活性
+
+ 优化器无法使用关键字deterministic来优化单个查询中多次调用存储函数的情况
+ 优化器无法评估存储函数的执行成本
+ 多个连接需要调用同一个存储过程时，会浪费缓存空间来反复缓存同样的执行计划
+
+ 存储程序越小越简单越好，把复杂的处理逻辑交给应用层实现，会提高效率、易于维护
+
+.触发器
+
+   有可能导致死锁和锁等待
+   MyISAM 如果触发器失败，无法检测，从而造成数据的不一致
+   InnoDB表上的触发器是在同一个事务中完成的，所以它们的执行是原子的，一同成功，一同回滚
+
+
+ drop procedure if exists procedure_a;
+ DELIMITER //
+ create procedure procedure_a(IN argVar INT)
+ BEGIN
+   declare v1 INT;
+   set v1 = argVar;
+   WHILE v1 > 0 DO
+     insert into test_table values (NULL,0,11,'xxxx');
+     set v1 = v1 - 1;
+   END WHILE;
+END;
+//
+DELIMITER ;
+
+.事件
+ create event evant_a on schedule every 1 week
+ do call optimize_tables('somedb');
+
+.
+declare cursor_a  cursor for selrct id from a;
+open cursor_a;
+fetch cursor_a into var_id;
+close cursor_a;
+
+.MySQL服务器配置
+ buffer pool
+ 日志缓存大小
+
+ 全局变量:
+   query_cache_size
+   sort_buffer_size
+   join_buffer_size
+
+   show global variables;
+
+   key_buffer_size  是索引(key)缓冲区, 分配后不会立即申请指定大小，而是用多少分配多少，这是一个最大值。
+
+   table_cache_size
+   thread_cache_size
+   query_cache_size, 在MYSQL启动时一次性申请配置的大小
+   read_buffer_size
+   read_rnd_buffer_size
+   sort_buffer_size
+
+   max_connections
+
+. LVCREATE --size 16G --snapshot --name lv_snap_mysql /dev/vgmysql/lvmysql
+mount /dev/mapper/vgmysql-lv_snap_mysql
