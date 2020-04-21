@@ -144,19 +144,19 @@ $ ifconfig en0:
   en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
         inet 192.168.10.53 netmask 0xffffff00 broadcast 192.168.10.255
 
-$ docker volume create mysql_var_lib_1
-$ docker volume create mysql_var_lib_2
-$ docker volume create mysql_var_lib_3
+$ docker volume create pxc_var_lib_mysql_1
+$ docker volume create pxc_var_lib_mysql_2
+$ docker volume create pxc_var_lib_mysql_3
 
 $ docker pull percona/percona-xtradb-cluster
 
 $ docker network create --subnet=172.30.0.0/24 pxcnet
 
-$ docker create -p 13306:3306 -v /tmp/mysql_var_lib_1:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc --name=pxc1 --net=pxcnet --ip=172.30.0.6 percona/percona-xtradb-cluster
+$ docker create -p 13306:3306 -v pxc_var_lib_mysql_1:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc --name=pxc1 --net=pxcnet --ip=172.30.0.6 percona/percona-xtradb-cluster
 
-$ docker create -p 13307:3306 -v mysql_var_lib_2:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --name=pxc2 --net=pxcnet --ip=172.30.0.7 percona/percona-xtradb-cluster
+$ docker create -p 13307:3306 -v pxc_var_lib_mysql_2:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --name=pxc2 --net=pxcnet --ip=172.30.0.7 percona/percona-xtradb-cluster
 
-$ docker create -p 13308:3306 -v mysql_var_lib_3:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --name=pxc3 --net=pxcnet --ip=172.30.0.8 percona/percona-xtradb-cluster
+$ docker create -p 13308:3306 -v pxc_var_lib_mysql_3:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --name=pxc3 --net=pxcnet --ip=172.30.0.8 percona/percona-xtradb-cluster
 
 
 $ docker ps -a
