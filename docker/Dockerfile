@@ -4,12 +4,11 @@
 #2)create
 # Centos: /usr/sbin/init Ubuntu: /sbin/init
 #
-# dname=gitlab; ip=172.18.0.108; 
+# dname=gitlab; ip=172.18.0.108; data=~/data/docker/disks/spiders_data;
 # docker run -it -d \
 #     --name $dname \
 #     --net=dockernet \
 #     --ip=$ip \
-#     -v data=/data/docker/disks/gitlab/data \
 #     -v "$data:/data" \
 #     -w /data -h $dname \
 #     --restart=always \
@@ -20,6 +19,11 @@
 #     --tmpfs /run \
 #     ubuntu:16.04 /sbin/init
 #
+# cname=Spiders; ip=172.18.0.11; data=~/data/docker/disks/spiders_data;
+# docker run -it -d --privileged --ip=$ip --net=dockernet \
+#   -v "$data:/data" -w /data -h $cname --name $cname \
+#   --restart=always myubuntu:20.04 /bin/bash
+#
 #3)run
 #  dockerin
 #或
@@ -28,28 +32,21 @@
 # access docker host: curl http://host.docker.internal
 
 FROM ubuntu:20.04
+
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get -y update && apt-get -y upgrade && \
-apt-get -y install apt-utils cron openssl \
-   openssh-server net-tools git \
-   locales vim curl wget dnsutils iputils-ping \
-   iproute2 telnet netcat elinks whois dbus rsyslog language-pack-en-base nmap & \
+
+RUN apt -y update && apt-get -y upgrade && \
+    apt -y install apt-utils dialog cron openssl openssh-server net-tools git vim curl wget dnsutils iputils-ping iproute2 telnet netcat elinks whois nmap locales && \
+    locale-gen en_US.UTF-8 && \
 #
+    echo '#!/bin/bash' > /usr/local/bin/init.sh && \
+    echo '[ -f /etc/init.d/cron ] && /etc/init.d/cron start' >> /usr/local/bin/init.sh && \
+    echo '[ -f /etc/init.d/ssh ] && /etc/init.d/ssh start' >> /usr/local/bin/init.sh && \
+    echo '[ -f /data/init.sh ] && /data/init.sh' >> /usr/local/bin/init.sh && \
 #
-echo '#!/bin/bash' > /usr/local/bin/init.sh && \
+    echo '/bin/bash' >> /usr/local/bin/init.sh && \
 #
-#
-echo '[ -d /data ] || mkdir /data' >> /usr/local/bin/init.sh && \
-#
-#
-echo '[ -f /data/init.sh ] || echo -e "#!/bin/bash\\n[ -f /etc/init.d/cron ] && /etc/init.d/cron start\\n[ -f /etc/init.d/ssh ] && /etc/init.d/ssh start" > /data/init.sh' >> /usr/local/bin/init.sh && \
-echo 'chmod +x /data/init.sh' >> /usr/local/bin/init.sh && \
-echo '/data/init.sh' >> /usr/local/bin/init.sh && \
-#
-#
-echo '/bin/bash' >> /usr/local/bin/init.sh && chmod +x /usr/local/bin/init.sh && \
-#
-locale-gen en_US.UTF-8
+    chmod +x /usr/local/bin/init.sh
 
 ENV LC_ALL=en_US.UTF-8
 ENTRYPOINT ["/usr/local/bin/init.sh"]

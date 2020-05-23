@@ -32,4 +32,4 @@ https://signin.aws.amazon.com/switchrole?roleName=admin/GLink-DevStg-Infrastruct
 https://signin.aws.amazon.com/switchrole?roleName=admin/GLink-Prod-Infrastructure-Expert&account=gfg-glink-prod
 
 
-dname=Spiders; ip=172.18.0.11; data=~/data/docker/disks/spiders_data; docker run -it -d --privileged --ip=$ip --net=dockernet -v "$data:/data" -w /data -h $dname --name $dname --restart=always myubuntu:20.04 /bin/bash
+ 
