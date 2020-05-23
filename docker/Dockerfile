@@ -19,7 +19,7 @@
 #     --tmpfs /run \
 #     ubuntu:16.04 /sbin/init
 #
-# cname=Spiders; ip=172.18.0.11; data=~/data/docker/disks/spiders_data;
+# cname=testtmp; ip=172.18.0.111; data=~/data/docker/disks/testtmp_data;
 # docker run -it -d --privileged --ip=$ip --net=dockernet \
 #   -v "$data:/data" -w /data -h $cname --name $cname \
 #   --restart=always myubuntu:20.04 /bin/bash
@@ -40,13 +40,13 @@ RUN apt -y update && apt-get -y upgrade && \
     locale-gen en_US.UTF-8 && \
 #
     echo '#!/bin/bash' > /usr/local/bin/init.sh && \
-    echo '[ -f /etc/init.d/cron ] && /etc/init.d/cron start' >> /usr/local/bin/init.sh && \
-    echo '[ -f /etc/init.d/ssh ] && /etc/init.d/ssh start' >> /usr/local/bin/init.sh && \
-    echo '[ -f /data/init.sh ] && /data/init.sh' >> /usr/local/bin/init.sh && \
+    chmod +x /usr/local/bin/init.sh && \
 #
-    echo '/bin/bash' >> /usr/local/bin/init.sh && \
+    echo '[ -d /data ] || mkdir /data' >> /usr/local/bin/init.sh && \
+    echo '[ -f /data/init.sh ] || echo -e "#!/bin/bash\\n/etc/init.d/cron status || /etc/init.d/cron start\\n/etc/init.d/ssh status || /etc/init.d/ssh start" > /data/init.sh' >> /usr/local/bin/init.sh && \
+    echo 'chmod +x /data/init.sh && /data/init.sh' >> /usr/local/bin/init.sh && \
 #
-    chmod +x /usr/local/bin/init.sh
+    echo '/bin/bash' >> /usr/local/bin/init.sh
 
 ENV LC_ALL=en_US.UTF-8
 ENTRYPOINT ["/usr/local/bin/init.sh"]
