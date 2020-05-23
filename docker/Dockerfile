@@ -42,7 +42,7 @@ echo '#!/bin/bash' > /usr/local/bin/init.sh && \
 echo '[ -d /data ] || mkdir /data' >> /usr/local/bin/init.sh && \
 #
 #
-echo '[ -f /data/init.sh ] || echo "#!/bin/bash\\n[ -f /etc/init.d/cron ] && /etc/init.d/cron start\\n[ -f /etc/init.d/ssh ] && /etc/init.d/ssh start" > /data/init.sh' >> /usr/local/bin/init.sh && \
+echo '[ -f /data/init.sh ] || echo -e "#!/bin/bash\\n[ -f /etc/init.d/cron ] && /etc/init.d/cron start\\n[ -f /etc/init.d/ssh ] && /etc/init.d/ssh start" > /data/init.sh' >> /usr/local/bin/init.sh && \
 echo 'chmod +x /data/init.sh' >> /usr/local/bin/init.sh && \
 echo '/data/init.sh' >> /usr/local/bin/init.sh && \
 #
