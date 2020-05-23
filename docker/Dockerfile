@@ -24,6 +24,8 @@
 #  dockerin
 #或
 # docker exec -it gitlab /bin/bash
+#
+# access docker host: curl http://host.docker.internal
 
 FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND noninteractive
