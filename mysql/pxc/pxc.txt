@@ -144,19 +144,22 @@ $ ifconfig en0:
   en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
         inet 192.168.10.53 netmask 0xffffff00 broadcast 192.168.10.255
 
-$ docker volume create pxc_var_lib_mysql_1
-$ docker volume create pxc_var_lib_mysql_2
-$ docker volume create pxc_var_lib_mysql_3
+$ docker volume create vol_mylib_1
+$ docker volume create vol_mylib_2
+$ docker volume create vol_mylib_3
+$ docker volume create vol_mylib_4
+$ docker volume create vol_mylib_5
 
 $ docker pull percona/percona-xtradb-cluster
 
 $ docker network create --subnet=172.30.0.0/24 pxcnet
 
-$ docker create -p 13306:3306 -v pxc_var_lib_mysql_1:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc --name=pxc1 --net=pxcnet --ip=172.30.0.6 percona/percona-xtradb-cluster
-
-$ docker create -p 13307:3306 -v pxc_var_lib_mysql_2:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --name=pxc2 --net=pxcnet --ip=172.30.0.7 percona/percona-xtradb-cluster
-
-$ docker create -p 13308:3306 -v pxc_var_lib_mysql_3:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --name=pxc3 --net=pxcnet --ip=172.30.0.8 percona/percona-xtradb-cluster
+#-e XTRABACKUP_PASSWORD=123456
+$ docker create -p 13301:3306 -v vol_mylib_1:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc --name=pxc1 --net=pxcnet --ip=172.30.0.10 percona/percona-xtradb-cluster
+$ docker create -p 13302:3306 -v :/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --privileged=true --name=pxc2 --net=pxcnet --ip=172.30.0.11 percona/percona-xtradb-cluster
+$ docker create -p 13303:3306 -v vol_mylib_3:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --name=pxc3 --net=pxcnet --ip=172.30.0.12 percona/percona-xtradb-cluster
+$ docker create -p 13304:3306 -v vol_mylib_4:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --name=pxc4 --net=pxcnet --ip=172.30.0.13 percona/percona-xtradb-cluster
+$ docker create -p 13305:3306 -v vol_mylib_5:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e CLUSTER_NAME=pxc  -e CLUSTER_JOIN=pxc1 --name=pxc5 --net=pxcnet --ip=172.30.0.14 percona/percona-xtradb-cluster
 
 
 $ docker ps -a

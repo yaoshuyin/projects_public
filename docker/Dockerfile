@@ -25,13 +25,14 @@
 #或
 # docker exec -it gitlab /bin/bash
 
-FROM ubuntu:19.04
-
+FROM ubuntu:20.04
+ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get -y update && apt-get -y upgrade && \
 apt-get -y install apt-utils cron openssl \
-   apt-utils openssh-server net-tools git \
+   openssh-server net-tools git \
    locales vim curl wget dnsutils iputils-ping \
-   iproute2 telnet netcat elinks whois dbus rsyslog && \
+   iproute2 telnet netcat elinks whois dbus rsyslog language-pack-en-base nmap & \
+#
 #
 echo '#!/bin/bash' > /usr/local/bin/init.sh && \
 #

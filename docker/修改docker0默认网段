@@ -12,3 +12,24 @@ $ sudo /etc/init.d/docker restart
 $ ifconfig
   docker0: flags=4099 mtu 1500
      inet 192.168.199.1 netmask 255.255.255.0 broadcast 192.168.199.255
+
+
+ufw allow from 103.14.35.53
+ufw allow from 107.150.119.185
+ufw allow from 107.150.119.219
+ufw allow from 107.150.121.14
+ufw allow from 107.150.121.39
+ufw allow from 45.249.244.62
+
+docker run -it -d --privileged --ip=172.18.0.11 --net=dockernet -v "/data/docker/blog:/data" -w /data -h blog --name blog --restart=always blog /bin/bash
+
+docker run -it -d --privileged --ip=172.18.0.12 --net=dockernet -v "/data/docker/koo5:/data" -w /data -h koo5 --name koo5 --restart=always blog /bin/bash
+
+
+https://grabpay.okta.com
+https://signin.aws.amazon.com/switchrole?roleName=admin/GLink-DevStg-System-Expert&account=gfg-glink-dev-stg
+https://signin.aws.amazon.com/switchrole?roleName=admin/GLink-DevStg-Infrastructure-Expert&account=gfg-glink-dev-stg
+https://signin.aws.amazon.com/switchrole?roleName=admin/GLink-Prod-Infrastructure-Expert&account=gfg-glink-prod
+
+
+dname=Spiders; ip=172.18.0.11; data=~/data/docker/disks/spiders_data; docker run -it -d --privileged --ip=$ip --net=dockernet -v "$data:/data" -w /data -h $dname --name $dname --restart=always myubuntu:20.04 /bin/bash
