@@ -1,0 +1,25 @@
+1)
+$ kubectl proxy
+Starting to serve on 127.0.0.1:8001
+
+2)
+$ export HTTP_PROXY=http://127.0.0.1:8889
+$ export HTTPS_PROXY=http://127.0.0.1:8889
+
+$ git clone https://github.com/maguowei/k8s-docker-for-mac.git
+$ cd k8s-docker-for-mac/
+$ ./load_images.sh
+
+3)
+docker descktop --> Preferences --> Resources
+  --> PROXIES
+    Manual proxy configuration
+
+    Web Server(HTTP)
+      http://127.0.0.1:8889
+
+    Web Server(HTTPS)
+      http://127.0.0.1:8889
+
+  --> Kubernetes
+    Enable Kubernetes
