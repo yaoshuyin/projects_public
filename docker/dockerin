@@ -30,7 +30,15 @@ cat <<'_DOC_'
    192.168.199.0/24
 
 7) create docker
-  dname=test; ip=192.168.199.100; data=/data/docker/disks/test/data; docker run -it -d --name $dname --net=dockernet --ip=$ip -v data=$data -v "$data:/data" -w /data -h $dname --restart=always --privileged=true --cap-add SYS_ADMIN --security-opt seccomp=unconfined -v /sys/fs/cgroup:/sys/fs/cgroup:ro --tmpfs /run myubuntu:18.04 /sbin/init'
+  dname=test
+  ip=192.168.199.100
+  data=/data/docker/disks/test/data
+  docker run -it -d --name $dname --net=dockernet --ip=$ip -v data=$data -v "$data:/data" -w /data -h $dname --restart=always --privileged=true --cap-add SYS_ADMIN --security-opt seccomp=unconfined -v /sys/fs/cgroup:/sys/fs/cgroup:ro --tmpfs /run myubuntu:18.04 /sbin/init'
+
+  name=gantt
+  ip=172.18.0.18
+  docker run -it -d --privileged --ip=$ip --net=dockernet -v "~/data/docker/$name:/data" -w /data -h $name --name $name --restart=always myubuntu:20.04 /bin/bash
+
 _DOC_
 fi
 
