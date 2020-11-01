@@ -2,3 +2,17 @@ find /tmp -name *.tmp -delete
 find /tmp -name *.tmp -print0 | xargs -0 -I {} ls -l {}
 find . \( -name "*.txt" -o -name "*.tmp" \)
 find . -regex ".*\.\(txt\|pdf\)$"
+
+#删除特殊字符为名字的文件
+$ ls -il 
+ 917970 -rw-r--r--  a.zip
+1179837 -rw-r--r--  b.zip 
+1057838 -rw-r--r--  │╔┐╝.╫и╔¤▒╛
+ 
+$ find -inum 1057838
+./│╔┐╝.╫и╔¤▒╛
+ 
+$ find -inum 1057838 -exec rm -f {} \;
+$ ls
+a.zip  b.zip
+#~删除特殊字符为名字的文件
