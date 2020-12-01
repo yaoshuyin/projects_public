@@ -1,0 +1,86 @@
+.download ingress-controller
+..............................................
+curl -x 127.0.0.1:8889 -s https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.41.2/deploy/static/provider/cloud/deploy.yaml > ingress.controller.yml
+
+
+.ingress.controller.yml
+..............................................
+D:\yml>kubectl apply -f ingress.controller.yml
+kubectl apply -f ingress.controller.yml
+namespace/ingress-nginx created
+serviceaccount/ingress-nginx created
+configmap/ingress-nginx-controller created
+clusterrole.rbac.authorization.k8s.io/ingress-nginx created
+clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx created
+role.rbac.authorization.k8s.io/ingress-nginx created
+rolebinding.rbac.authorization.k8s.io/ingress-nginx created
+service/ingress-nginx-controller-admission created
+service/ingress-nginx-controller created
+deployment.apps/ingress-nginx-controller created
+validatingwebhookconfiguration.admissionregistration.k8s.io/ingress-nginx-admission created
+serviceaccount/ingress-nginx-admission created
+clusterrole.rbac.authorization.k8s.io/ingress-nginx-admission created
+clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created
+role.rbac.authorization.k8s.io/ingress-nginx-admission created
+rolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created
+job.batch/ingress-nginx-admission-create created
+job.batch/ingress-nginx-admission-patch created
+
+.nginx.pods.yml
+.............................................
+D:\yml>kubectl apply -f nginx.pods.yml
+deployment.apps/nginx-deploy created
+
+
+D:\yml>kubectl -n ingress-nginx get deploy
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+ingress-nginx-controller   1/1     1            1           34m
+nginx-deploy               2/2     2            2           27m
+
+
+D:\yml>kubectl -n ingress-nginx get pods
+NAME                                       READY   STATUS      RESTARTS   AGE
+ingress-nginx-admission-create-vdq7n       0/1     Completed   0          18m
+ingress-nginx-admission-patch-htzkr        0/1     Completed   0          18m
+ingress-nginx-controller-c4f944d4d-b54ks   1/1     Running     0          18m
+nginx-deploy-7b488bd947-bm4gp              1/1     Running     0          10m
+nginx-deploy-7b488bd947-x7jwq              1/1     Running     0          10m
+
+.nginx.svc.yml
+................................................
+D:\yml>kubectl apply -f nginx.svc.yml
+service/nginx-service created
+
+D:\yml>kubectl -n ingress-nginx get service
+NAME                                 TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+ingress-nginx-controller             LoadBalancer   10.101.47.221   localhost     80:30409/TCP,443:32049/TCP   22m
+ingress-nginx-controller-admission   ClusterIP      10.109.199.70   <none>        443/TCP                      22m
+nginx-service                        ClusterIP      10.110.7.9      <none>        8000/TCP                     6s
+
+
+.nginx.ingress.yml
+..................................................
+D:\yml>kubectl apply -f nginx.ingress.yml
+ingress.networking.k8s.io/ingress-nginx created
+ 
+D:\yml>kubectl -n ingress-nginx get ingress
+Warning: extensions/v1beta1 Ingress is deprecated in v1.14+, unavailable in v1.22+; use networking.k8s.io/v1 Ingress
+NAME            CLASS    HOSTS   ADDRESS     PORTS   AGE
+ingress-nginx   <none>   a.com   localhost   80      11m
+
+.hosts
+...................................................
+c:> notepad c:\windows\system32\drivers\etc\hosts
+127.0.0.1 a.com
+
+
+.change contents index.html
+....................................................
+D:\yml>kubectl -n ingress-nginx exec nginx-deploy-7b488bd947-bm4gp -- sh -c "echo 1 > /usr/share/nginx/html/index.html"
+D:\yml>kubectl -n ingress-nginx exec nginx-deploy-7b488bd947-x7jwq -- sh -c "echo 2 > /usr/share/nginx/html/index.html"
+
+D:\yml>curl -s http://a.com
+  2
+
+D:\yml>curl -s http://a.com
+  1
