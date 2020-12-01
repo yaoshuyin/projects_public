@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service  #定义service名称为nginx-service
+  namespace: ingress-nginx
+  labels:
+    app: nginx-service   #为service打上app标签
+spec:
+  #type: NodePort   #使用NodePort方式开通，在每个Node上分配一个端口作为外部访问入口
+  selector:
+     project: schat
+     service: web
+  ports:
+  - port: 8000       #port是k8s集群内部访问service的端口，即通过clusterIP:port可以访问到某个service
+    targetPort: 80   #targetPort是pod的端口，从port和nodePort来的流量经过kube-proxy流入到后端pod的targetPort上，最后进入容器
+    #nodePort: 32500  #nodePort是外部访问k8s集群中service的端口，通过nodeIP: nodePort可以从外部访问到某个service
