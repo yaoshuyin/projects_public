@@ -24,6 +24,8 @@
 #   -v "$data:/data" -w /data -h $cname --name $cname \
 #   --restart=always myubuntu:20.04 /bin/bash
 #
+# docker run -it -d --privileged --ip=192.168.65.10 -p 2222:22 -p 8001:8001 -v "/data/docker/gitlab:/data" -w /data -h gitlab --name gitlab --restart=always myubuntu20.04 /bin/bash
+#
 #3)run
 #  dockerin
 #或
