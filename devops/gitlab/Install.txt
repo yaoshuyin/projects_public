@@ -1,0 +1,84 @@
+.create docker
+..................
+docker run -it -d --privileged -p 2222:22 -p 8001:80 -v "/data/docker/gitlab2:/data" -w /data -h gitlab2 --name gitlab --restart=always myubuntu20.04 /bin/bash
+
+.install
+..................
+    apt update
+    apt upgrade
+    curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
+    apt-get install gitlab-ce
+
+.reconfigure
+...................
+    nohup /opt/gitlab/embedded/bin/runsvdir-start &
+    gitlab-ctl reconfigure
+
+.test
+...................... 修改root用户密码
+http://127.0.0.1:8001
+
+
+dd if=/dev/zero of=/swapfile bs=1024 count=4m
+
+
+.start
+......................
+nohup /opt/gitlab/embedded/bin/runsvdir-start &
+gitlab-ctl <stop|start>
+
+
+.ssh-keygen
+............................................
+$ ssh-keygen -t rsa -b 4096 -C "git test"
+$ ls ~/.ssh/
+id_rsa  id_rsa.pub  known_hosts
+
+$ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+$ ls ~/.ssh/
+authorized_keys  id_rsa  id_rsa.pub  known_hosts
+
+$ vim /etc/ssh/sshd_config
+PermitRootLogin yes
+PasswordAuthentication yes
+
+$ /etc/init.d/ssh restart
+
+$ ssh -i ~/.ssh/id_rsa root@127.0.0.1
+
+
+.创建项目
+.............................................
+http://127.0.0.1:8001
+--> Projects
+   --> New project
+      ---> schat
+
+
+.添加id_rsa.pub内容到gitlab
+...........................................
+
+--> settings
+   --> SSH Keys
+   --> add the  ~/.ssh/id_rsa.pub 内容就可以
+   
+
+.clone
+............................................
+$ cd /data
+$ mkdir gitlabtest
+$ cd gitlabtest/
+
+$ git config --global user.name "root"
+$ git config --global user.email "root@a.com"
+
+$ git clone git@127.0.0.1:root/schat.git
+
+.add README
+.............................................
+$ cd schat
+$ echo test > README.md
+$ git add README.md
+$ git commit -m "add README"
+$ git push -u origin master
