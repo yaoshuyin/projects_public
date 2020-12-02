@@ -46,7 +46,7 @@ RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak && \
     echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-backports main restricted universe multiverse >> /etc/apt/sources.list && \
     echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-security main restricted >> /etc/apt/sources.list && \
     echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-security universe >> /etc/apt/sources.list && \
-    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-security multiverse >> /etc/apt/sources.list && \ 
+    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-security multiverse >> /etc/apt/sources.list && \
     apt -y clean && apt -y update && apt-get -y upgrade && \
 #
     apt -y install apt-utils dialog cron openssl openssh-server net-tools git vim curl wget dnsutils iputils-ping iproute2 telnet netcat elinks whois nmap locales sudo && \
