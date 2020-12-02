@@ -36,7 +36,7 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt -y update && apt-get -y upgrade && \
-    apt -y install apt-utils dialog cron openssl openssh-server net-tools git vim curl wget dnsutils iputils-ping iproute2 telnet netcat elinks whois nmap locales && \
+    apt -y install apt-utils dialog cron openssl openssh-server net-tools git vim curl wget dnsutils iputils-ping iproute2 telnet netcat elinks whois nmap locales sudo && \
     locale-gen en_US.UTF-8 && \
 #
     echo '#!/bin/bash' > /usr/local/bin/init.sh && \
