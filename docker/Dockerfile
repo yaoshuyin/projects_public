@@ -32,7 +32,7 @@
 # access docker host: curl http://host.docker.internal
 
 FROM ubuntu:20.04
-
+MAINTAINER cnscn cnscn@sina.com
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt -y update && apt-get -y upgrade && \
