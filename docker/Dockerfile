@@ -1,7 +1,5 @@
 #1)build
 #
-# access docker host: curl http://host.docker.internal
-#
 # docker build -t harbor.a.com:9443/myimgs/myubuntu:20.04 .
 #Or
 # docker build -t myimgs/myubuntu:20.04 . 
@@ -39,6 +37,10 @@
 #  dockerin
 #或
 # docker exec -it gitlab /bin/bash
+
+#4)Other
+#
+# access docker host: curl http://host.docker.internal
 
 FROM ubuntu:20.04
 MAINTAINER cnscn cnscn@sina.com
