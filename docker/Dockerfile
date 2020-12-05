@@ -1,6 +1,15 @@
 #1)build
-#  docker build -t myubuntu:19.04 ./
 #
+# access docker host: curl http://host.docker.internal
+#
+# docker build -t harbor.a.com:9443/myimgs/myubuntu:20.04 .
+#Or
+# docker build -t myimgs/myubuntu:20.04 . 
+# docker tag myimgs/myubuntu:20.04 harbor.a.com:9443/myimgs/myubuntu:20.04
+#
+# docker push harbor.a.com:9443/myimgs/myubuntu:20.04
+# docker pull harbor.a.com:9443/myimgs/myubuntu:20.04
+
 #2)create
 # Centos: /usr/sbin/init Ubuntu: /sbin/init
 #
@@ -25,17 +34,11 @@
 #   --restart=always myubuntu:20.04 /bin/bash
 #
 # docker run -it -d --privileged --ip=192.168.65.10 -p 2222:22 -p 8001:8001 -v "/data/docker/gitlab:/data" -w /data -h gitlab --name gitlab --restart=always myubuntu20.04 /bin/bash
-#
+
 #3)run
 #  dockerin
 #或
 # docker exec -it gitlab /bin/bash
-#
-# access docker host: curl http://host.docker.internal
-
-# docker build -t harbor.a.com:9443/myimgs/myubuntu:20.04 .
-# docker push harbor.a.com:9443/myimgs/myubuntu:20.04
-# docker pull harbor.a.com:9443/myimgs/myubuntu:20.04
 
 FROM ubuntu:20.04
 MAINTAINER cnscn cnscn@sina.com
