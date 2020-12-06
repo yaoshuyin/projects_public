@@ -15,7 +15,7 @@
 #
 # sysopts=" --privileged=true --cap-add=SYS_ADMIN -v /run -v /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro --security-opt seccomp=unconfined "
 #
-# docker run $sysopts -it -d --name testInit --restart=always myu:20.04 /usr/sbin/init
+# docker run $sysopts -it -d --name test -h test --restart=always -v /data/docker/disks/test/data:/data harbor.a.com:9443/myimgs/myubuntu:20.04 /usr/sbin/init
 #
 # dname=gitlab; ip=172.18.0.108; data=~/data/docker/disks/spiders_data;
 # docker run $sysopts -d --name $dname -h $dname --restart=always \ 
