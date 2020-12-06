@@ -111,9 +111,9 @@ Pass: Harbor12345
  docker pull 私服地址/仓库项目名/镜像名:标签
  
 
-.harbor服务器上镜像列表
+.harbor服务器上镜像列表  项目名myimgs/仓库名20201207/镜像名:标签
 ..........................................
-harbor:
+harbor:  
   myimgs:
      myubuntu:
         20.04     #此处镜像名称为20.04而不是myubuntu:v20.04
