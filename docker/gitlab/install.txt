@@ -1,0 +1,59 @@
+.docker
+...................................
+sysopts=" --privileged=true --cap-add=SYS_ADMIN -v /run -v /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro --security-opt seccomp=unconfined "
+name=gitlab; data=/data/docker/disks/$name/data; docker run $sysopts -it -d -h $name --name $name --ip=$ip $net -v "$data:/data" -p 2222:22 -p 8001:8 -w /data -h $name --name $name --restart=always harbor.a.com:9443/myimgs/myubuntu:20.04 /usr/sbin/init
+
+
+.安装gitlab
+...................................
+apt -y update
+apt -y upgrade
+curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
+
+apt-get install gitlab-ce
+
+#wget -c --content-disposition https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/focal/gitlab-ce_13.6.0-ce.0_amd64.deb/download.deb
+#dpkg -i gitlab-ce_13.6.1-ce.0_amd64.deb
+
+
+.加入开机启动vim /data/init.sh 或 /etc/rc.local
+....................................
+grep runsvdir-start /data/init.sh || echo -e "/opt/gitlab/embedded/bin/runsvdir-start &\n/usr/bin/gitlab-ctl start" >> /data/init.sh
+
+
+.修改ip端口
+....................................
+sed  -i 's/^external_url .*$/external_url "http:\/\/192.168.101.7:8001"/g' /etc/gitlab/gitlab.rb
+sed -i "s/# nginx\['listen_port'\] = nil/  nginx\['listen_port'\] = 80/g" /etc/gitlab/gitlab.rb
+sed -i 's/DOCKER_HOST: tcp:\/\/docker:2375/DOCKER_HOST: tcp:\/\/192.168.101.7:2375/g' /opt/gitlab/embedded/service/gitlab-shell/.gitlab-ci.yml
+
+
+.reconfigure
+.................................... 
+ps -ef | grep runsvdir-start | grep -v grep > /dev/null || nohup /opt/gitlab/embedded/bin/runsvdir-start &
+
+gitlab-ctl reconfigure
+
+
+.重启
+gitlab-ctl status || gitlab-ctl start
+
+
+.访问测试
+...................................
+http://192.168.101.7:8001
+User: root
+Pass: Aa12345678!
+
+Projects -->
+   lingzhi -->
+      settings -->
+          access tokens --> cs9L8omWSKCxKRxV6RW5
+
+
+.创建ssh rsa
+...................................
+ssh-keygen -t rsa -b 4096 -C "gitlab"
+cat ~/.ssh/id_rsa.pub > ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys 
+ssh -i ~/.ssh/id_rsa root@localhost
