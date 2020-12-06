@@ -75,4 +75,5 @@ RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak && \
     echo '/bin/bash' >> /usr/local/bin/init.sh
 
 ENV LC_ALL=en_US.UTF-8
-ENTRYPOINT ["/usr/local/bin/init.sh"]
+ENTRYPOINT ["/usr/sbin/init"]
+CMD ["/usr/local/bin/init.sh"]
