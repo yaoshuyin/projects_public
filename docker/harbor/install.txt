@@ -100,3 +100,12 @@ Pass: Harbor12345
 # docker push harbor.koo5.com/myimgs/myubuntu:20.04
 
 # docker pull harbor.koo5.com/myimgs/myubuntu:20.04 
+
+#镜像打标签
+ docker tag 镜像名:标签 私服地址/仓库项目名/镜像名:标签
+    
+#推送到私服
+ docker push  私服地址/仓库项目名/镜像名:标签  
+    
+#从私服拉取镜像
+ docker pull 私服地址/仓库项目名/镜像名:标签
