@@ -1,0 +1,55 @@
+.download install (如果需要使用docker做为executor，则需要安装到docker外面)
+....................................
+wget -c https://s3.amazonaws.com/gitlab-runner-downloads/master/deb/gitlab-runner_amd64.deb
+dpkg -i gitlab-runner_amd64.deb
+
+gitlab-runner install
+gitlab-runner status | start | stop
+
+
+.register
+...............................................
+gitlab-runner verify --delete 
+ 
+gitlab-runner register                         
+    Enter the GitLab instance URL (for example, https://gitlab.com/):
+      http://192.168.101.7:8001/
+    Enter the registration token:
+      rx9stiKNzxLRukky9siX
+    Enter a description for the runner:
+      [ubuntu]: runner001
+    Enter tags for the runner (comma-separated):
+      runner001,lingzhi     
+    Enter an executor: docker-ssh, docker, docker+machine, shell, ssh:
+      docker
+    Enter the default Docker image (for example, ruby:2.6):
+      docker:stable
+    Runner registered successfully. Feel free to start it, but if it's running already the config should be automatically reloaded! 
+
+.修改配置
+...............................................
+sed -i 's/privileged = false/privileged = true/g' /etc/gitlab-runner/config.toml
+
+gitlab-runner stop
+   Runtime platform   arch=amd64 os=linux pid=610608 revision=c56f73fb version=13.7.0~beta.118.gc56f73fb
+   
+gitlab-runner status
+    gitlab-runner: Service is not running.
+    
+gitlab-runner start
+    Runtime platform arch=amd64 os=linux pid=610893 revision=c56f73fb version=13.7.0~beta.118.gc56f73fb
+gitlab-runner status
+    gitlab-runner: Service is running!
+
+
+.到gitlab的web界面中去配置
+...................................
+Project linzhi -->
+  lingzhi -->
+     Settings -->
+       CI/CD   -->
+           Runner XXX edit : 
+                ☑ Paused Runners don't accept new jobs   
+                ☐  This runner will only run on pipelines triggered on protected branches
+                ☑ Indicates whether this runner can pick jobs without tags
+                ☐  When a runner is locked, it cannot be assigned to other projects 
