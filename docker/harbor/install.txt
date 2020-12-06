@@ -1,0 +1,96 @@
+.docker
+..............................................
+apt update
+apt upgrade
+apt-get remove docker docker-engine docker.io containerd runc
+apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+apt-key fingerprint 0EBFCD88
+apt-get update
+apt-get install docker-ce docker-ce-cli containerd.io docker-compose
+
+.vim /etc/docker/daemon.json
+..............................................
+
+{
+  "registry-mirrors": [
+    "http://hub-mirror.c.163.com",
+    "https://docker.mirrors.ustc.edu.cn"
+  ],
+  "insecure-registries": [
+    "harbor.a.com:9800",
+    "harbor.a.com:9443",
+    "192.168.101.7:9800",
+    "192.168.101.7:9443"
+  ],
+  "debug": true,
+  "experimental": false,
+  "features": {
+    "buildkit": true
+  }
+}
+
+
+.vim /etc/docker/daemon.json
+..............................................
+1)在ExecStart后添加 -H tcp://0.0.0.0:2375
+ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock -H tcp://0.0.0.0:2375
+
+2)
+systemctl daemon-reload
+systemctl restart docker
+
+
+.install harbor
+..............................................
+
+wget -c "https://github.com/goharbor/harbor/releases/download/v1.10.6/harbor-offline-installer-v1.10.6.tgz"
+
+tar xvf harbor-offline-installer-v1.10.6.tgz
+cd harbor
+docker load -i harbor.v1.10.6.tar.gz
+
+vim harbor.yml
+.....................
+hostname: harbor.koo5.com
+
+certificate:  /home/user/harbor_install/ssl/harbor.koo5.com.crt
+private_key:  /home/user/harbor_install/ssl/harbor.koo5.com.key
+
+proxy:
+  http_proxy: 192.168.101.4:8889
+  https_proxy: 192.168.101.4:8889
+
+
+./prepare
+./install.sh
+
+ docker-compose ps
+          Name                     Command                  State                          Ports                   
+    ---------------------------------------------------------------------------------------------------------------
+    harbor-core         /harbor/harbor_core              Up (healthy)                                              
+    harbor-db           /docker-entrypoint.sh            Up (healthy)   5432/tcp                                   
+    harbor-jobservice   /harbor/harbor_jobservice  ...   Up (healthy)                                              
+    harbor-log          /bin/sh -c /usr/local/bin/ ...   Up (healthy)   127.0.0.1:1514->10514/tcp                  
+    harbor-portal       nginx -g daemon off;             Up (healthy)   8080/tcp                                   
+    nginx               nginx -g daemon off;             Up (healthy)   0.0.0.0:80->8080/tcp, 0.0.0.0:443->8443/tcp
+    redis               redis-server /etc/redis.conf     Up (healthy)   6379/tcp                                   
+    registry            /home/harbor/entrypoint.sh       Up (healthy)   5000/tcp                                   
+    registryctl         /home/harbor/start.sh            Up (healthy)                                                                                        
+
+
+.Web访问
+.............................................
+https://harbor.koo5.com/
+User: admin
+Pass: Harbor12345
+
+创建项目 myimgs
+
+.docker login
+.............................................
+docker build -f Dockerfile -t myubuntu:20.04 . 
+docker tag myubuntu:20.04 harbor.koo5.com/myimgs/myubuntu:20.04 
+docker push harbor.koo5.com/myimgs/myubuntu:20.04
+
+docker pull harbor.koo5.com/myimgs/myubuntu:20.04 
