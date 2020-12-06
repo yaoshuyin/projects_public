@@ -1,0 +1,71 @@
+.生成Key
+...........................................................................
+cat ~/.ssh/id_rsa.pub > ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys 
+
+.在gitlab web界面上添加 id_rsa.pub的内容
+...........................................................................
+git config --global user.name 'root'
+git config --global user.email '214363570@qq.com'
+
+.clone
+...........................................................................
+1)标准22端口
+git clone git@gitlab.koo5.com:root/lingzhi.git 
+
+2)SSH端口: 2222
+git clone ssh://git@gitlab.koo5.com:2222/root/lingzhi.git
+    Cloning into 'lingzhi'... 
+    ECDSA key fingerprint is SHA256:ei/KPBLLWcuWyyfvNU5ZyGHXsDD+zaEHIfDGvMmoNRs.
+    Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+    Warning: Permanently added '[gitlab.koo5.com]:2222,[192.168.101.7]:2222' (ECDSA) to the list of known hosts.
+
+    remote: Enumerating objects: 49, done.
+    remote: Counting objects: 100% (49/49), done.
+    remote: Compressing objects: 100% (33/33), done.
+    remote: Total 49 (delta 4), reused 0 (delta 0), pack-reused 0
+    Receiving objects: 100% (49/49), 54.54 KiB | 5.45 MiB/s, done.
+    Resolving deltas: 100% (4/4), done.
+
+.查看内容
+...........................................................................
+ls
+  lingzhi
+  
+ls lingzhi/
+  mvn  mvnw  mvnw.cmd  pom.xml  src
+
+ls lingzhi/src/
+  main  test
+
+ls lingzhi/src/main/
+  java  resources 
+
+git branch 
+  * master
+ 
+ 
+.其它
+...........................................................................
+Create a new repository
+git clone git@192.168.101.7:root/lingzhi.git
+cd lingzhi
+touch README.md
+git add README.md
+git commit -m "add README"
+git push -u origin master
+
+Push an existing folder
+cd existing_folder
+git init
+git remote add origin git@192.168.101.7:root/lingzhi.git
+git add .
+git commit -m "Initial commit"
+git push -u origin master
+
+Push an existing Git repository
+cd existing_repo
+git remote rename origin old-origin
+git remote add origin git@192.168.101.7:root/lingzhi.git
+git push -u origin --all
+git push -u origin --tags
