@@ -37,20 +37,20 @@ apt-get install docker-ce docker-ce-cli containerd.io docker-compose
 ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock -H tcp://0.0.0.0:2375
 
 2)
-systemctl daemon-reload
-systemctl restart docker
+# systemctl daemon-reload
+# systemctl restart docker
 
 
 .install harbor
 ..............................................
 
-wget -c "https://github.com/goharbor/harbor/releases/download/v1.10.6/harbor-offline-installer-v1.10.6.tgz"
+# wget -c "https://github.com/goharbor/harbor/releases/download/v1.10.6/harbor-offline-installer-v1.10.6.tgz"
 
-tar xvf harbor-offline-installer-v1.10.6.tgz
-cd harbor
-docker load -i harbor.v1.10.6.tar.gz
+# tar xvf harbor-offline-installer-v1.10.6.tgz
+# cd harbor
+# docker load -i harbor.v1.10.6.tar.gz
 
-vim harbor.yml
+# vim harbor.yml
 .....................
 hostname: harbor.koo5.com
 
@@ -62,10 +62,10 @@ proxy:
   https_proxy: 192.168.101.4:8889
 
 
-./prepare
-./install.sh
+# sudo ./prepare
+# sudo ./install.sh
 
- docker-compose ps
+# docker-compose ps
           Name                     Command                  State                          Ports                   
     ---------------------------------------------------------------------------------------------------------------
     harbor-core         /harbor/harbor_core              Up (healthy)                                              
@@ -89,8 +89,14 @@ Pass: Harbor12345
 
 .docker login
 .............................................
-docker build -f Dockerfile -t myubuntu:20.04 . 
-docker tag myubuntu:20.04 harbor.koo5.com/myimgs/myubuntu:20.04 
-docker push harbor.koo5.com/myimgs/myubuntu:20.04
+# docker login harbor.koo5.com
+     Username: admin
+     Password:  
 
-docker pull harbor.koo5.com/myimgs/myubuntu:20.04 
+   Login Succeeded
+
+# docker build -f Dockerfile -t myubuntu:20.04 . 
+# docker tag myubuntu:20.04 harbor.koo5.com/myimgs/myubuntu:20.04 
+# docker push harbor.koo5.com/myimgs/myubuntu:20.04
+
+# docker pull harbor.koo5.com/myimgs/myubuntu:20.04 
