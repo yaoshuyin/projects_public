@@ -1,0 +1,54 @@
+.gitlab server
+........................................................
+$ ls /etc/gitlab/ssl/
+    gitlab.koo5.com.crt gitlab.koo5.com.key
+
+$ vim /etc/gitlab/gitlab.rb
+external_url "http://gitlab.koo5.com:80"
+
+nginx['redirect_http_to_https'] = false
+
+nginx['ssl_certificate'] = "/etc/gitlab/ssl/gitlab.koo5.com.crt"
+nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/gitlab.koo5.com.key"
+nginx['ssl_ciphers'] = "ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE"     #!!!这里不同的SSL证书供应商不同
+nginx['ssl_protocols'] = "TLSv1 TLSv1.1 TLSv1.2";     #!!!这里不同的SSL证书供应商不同
+
+nginx['listen_port'] = 80
+
+
+$ sudo gitlab-ctl reconfigure
+
+
+.nginx server 
+.vim /etc/nginx/sites-enabled/gitlab.koo5.com.conf
+........................................................
+
+upstream gitlab {
+   server 172.17.0.3;
+}
+
+server {
+        listen 80;
+
+        server_name gitlab.koo5.com;
+
+        return 301 https://$host$request_uri;
+}
+
+server {
+        listen 443 ssl;
+        server_name gitlab.koo5.com;
+
+        ssl_session_timeout 5m;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2; 
+        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE; 
+        ssl_certificate     /etc/nginx/ssl/gitlab.koo5.com.crt;
+        ssl_certificate_key /etc/nginx/ssl/gitlab.koo5.com.key;
+
+        location / {
+             proxy_set_header Host $host;
+             add_header gzip_ratio "gzip_ratio";
+             proxy_set_header X-Real-IP $remote_addr;
+             proxy_pass http://gitlab;
+        }
+}
