@@ -1,0 +1,32 @@
+variables:
+  DOCKER_DRIVER: overlay2
+  CI_REGISTRY_IMAGE: ${CI_REGISTRY}/lingzhi/lingzhi
+
+before_script:
+  - echo $CI_JOB_NAME
+  - echo $CI_PROJECT_DIR
+
+stages:
+  - build
+
+build:docker:
+  stage: build
+  variables:
+    DOCKER_HOST: tcp://192.168.101.7:2375
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - echo "Building image - $CI_REGISTRY_IMAGE:latest"
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - docker image build --force-rm --no-cache -t $CI_REGISTRY_IMAGE:latest .
+    - docker image push $CI_REGISTRY_IMAGE:latest
+ only:
+   - master
+  
+push:
+  stage: push
+  script:
+    - docker push ${IMAGE_NAME}
+  only:
+    - master
