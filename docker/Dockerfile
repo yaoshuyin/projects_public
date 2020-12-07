@@ -43,34 +43,34 @@ FROM ubuntu:20.04
 MAINTAINER cnscn cnscn@sina.com
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak && \
+RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak \
 #
 #apt sources.list
-    codename=$(grep DISTRIB_CODENAME /etc/lsb-release| awk -F = '{print $2}') && echo $codename  && \
-    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename} main restricted  > /etc/apt/sources.list  && \
-    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-updates main restricted >> /etc/apt/sources.list  && \
-    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename} universe >> /etc/apt/sources.list && \
-    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-updates universe >> /etc/apt/sources.list && \
-    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename} multiverse >> /etc/apt/sources.list && \
-    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-updates multiverse >> /etc/apt/sources.list && \
-    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-backports main restricted universe multiverse >> /etc/apt/sources.list && \
-    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-security main restricted >> /etc/apt/sources.list && \
-    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-security universe >> /etc/apt/sources.list && \
-    echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-security multiverse >> /etc/apt/sources.list && \
-    apt -y clean && apt -y update && apt-get -y upgrade && \
+    && codename=$(grep DISTRIB_CODENAME /etc/lsb-release| awk -F = '{print $2}') && echo $codename  \
+    && echo deb http://mirrors.aliyun.com/ubuntu/ ${codename} main restricted  > /etc/apt/sources.list  \
+    && echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-updates main restricted >> /etc/apt/sources.list  \
+    && echo deb http://mirrors.aliyun.com/ubuntu/ ${codename} universe >> /etc/apt/sources.list \
+    && echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-updates universe >> /etc/apt/sources.list \
+    && echo deb http://mirrors.aliyun.com/ubuntu/ ${codename} multiverse >> /etc/apt/sources.list \
+    && echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-updates multiverse >> /etc/apt/sources.list \
+    && echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-backports main restricted universe multiverse >> /etc/apt/sources.list \
+    && echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-security main restricted >> /etc/apt/sources.list \
+    && echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-security universe >> /etc/apt/sources.list \
+    && echo deb http://mirrors.aliyun.com/ubuntu/ ${codename}-security multiverse >> /etc/apt/sources.list \
+    && apt -y clean && apt -y update && apt-get -y upgrade \
 #
 #init apps
-    apt -y install apt-utils dialog cron openssl openssh-server net-tools git vim curl wget dnsutils iputils-ping iproute2 telnet netcat elinks whois nmap locales tzdata sudo && \
-    locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
-    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && dpkg-reconfigure -f noninteractive tzdata && \
+    && apt -y install apt-utils dialog cron openssl openssh-server net-tools git vim curl wget dnsutils iputils-ping iproute2 telnet netcat elinks whois nmap locales tzdata sudo \
+    && locale-gen en_US.UTF-8 && dpkg-reconfigure locales \
+    && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && dpkg-reconfigure -f noninteractive tzdata  \
 #
 #rc.local
-    ln -fs /lib/systemd/system/rc-local.service /etc/systemd/system/rc-local.service && \
-    echo "[Install]\\nWantedBy=multi-user.target\\nAlias=rc-local.service" >> /etc/systemd/system/rc-local.service && \
-    echo "#!/bin/bash\\n" > /etc/rc.local && chmod +x /etc/rc.local && \
+    && ln -fs /lib/systemd/system/rc-local.service /etc/systemd/system/rc-local.service  \
+    && echo "[Install]\\nWantedBy=multi-user.target\\nAlias=rc-local.service" >> /etc/systemd/system/rc-local.service \
+    && echo "#!/bin/bash\\n" > /etc/rc.local && chmod +x /etc/rc.local \
 #
 #/data/init.sh
-    echo "test -d /data || mkdir /data\\ntest -f /data/init.sh || echo '#!/bin/bash' >/data/init.sh\\nchmod +x /data/init.sh\\n/data/init.sh" >> /etc/rc.local
+    && echo "test -d /data || mkdir /data\\ntest -f /data/init.sh || echo '#!/bin/bash' >/data/init.sh\\nchmod +x /data/init.sh\\n/data/init.sh" >> /etc/rc.local
 
 #ENV
 ENV LC_ALL=en_US.UTF-8
