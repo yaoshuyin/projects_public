@@ -1,0 +1,8 @@
+$ git clone https://github.com/cnych/gitlab-ci-k8s-demo.git
+$ cd gitlab-ci-k8s-demo
+
+修改远程仓库为本地gitlab
+$ git remote set-url origin ssh://git@gitlab.koo5.com:2222/root/gitlab-ci-k8s-demo.git
+
+# Now to push/"import" the repository run:
+$ git push -u origin master
