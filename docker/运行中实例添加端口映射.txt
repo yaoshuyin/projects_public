@@ -1,0 +1,16 @@
+ 
+~# docker ps
+  CONTAINER_ID          IMAGE              PORTS      NAMES
+  7771fcc7e8a6   jenkins/jenkins:lts     8080/tcp    jenkins
+
+#把运行中的Container通过commit提交成镜像
+~# docker commit 7771fcc7e8a6 myjenkins
+
+~# docker images
+    myjenkins   latest    334362084730     713MB
+
+~# docker run -d --restart=always --name jenkins2 -h jenkins2 -p 50000:50000 -v /data/docker/disks/jenkins/jenkins_home:/var/jenkins_home myjenkins
+
+~# docker ps 
+   CONTAINER_ID      IMAGE                  PORTS                     NAMES
+   d20096ad61df    myjenkins   8080/tcp, 0.0.0.0:50000->50000/tcp    jenkins2 
