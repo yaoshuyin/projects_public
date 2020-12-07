@@ -1,0 +1,47 @@
+./etc/nginx/sites-enabled/jnekins.koo5.com.conf
+......................................................
+upstream jenkins {
+   server 172.17.0.4:8080;
+}
+
+server {
+        listen 80;
+
+        server_name jenkins.koo5.com;
+
+        return 301 https://$host$request_uri;
+}
+
+server {
+        server_name jenkins.koo5.com;
+
+        listen 443 ssl;
+        ssl_session_timeout 5m;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2; 
+        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE; 
+        ssl_certificate     /etc/nginx/ssl/jenkins.koo5.com.crt;
+        ssl_certificate_key /etc/nginx/ssl/jenkins.koo5.com.key;
+
+        location / {
+             proxy_set_header Host $host;
+             add_header gzip_ratio "gzip_ratio";
+             proxy_set_header X-Real-IP $remote_addr;
+             proxy_pass http://jenkins;
+        }
+}
+
+.安装
+.....................................................
+1)目录 
+mkdir /data/docker/disks/jenkins/jenkins_home
+chown -R 1000:1000 /data/docker/disks/jenkins
+
+2)docker
+docker run -d --restart=always --name jenkins -h jenkins  -v /data/docker/disks/jenkins/jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+
+3)查看初始密码
+cat /data/docker/disks/jenkins/jenkins_home/secrets/initialAdminPassword
+
+4)Web操作： 访问https://jenkins.koo5.com 
+   1)按提示创建新管理帐号 
+   2)安装初始插件
