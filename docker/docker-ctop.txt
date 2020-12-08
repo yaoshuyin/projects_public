@@ -1,0 +1,13 @@
+echo "deb http://packages.azlux.fr/debian/ buster main" | sudo tee /etc/apt/sources.list.d/azlux.list
+wget -qO - https://azlux.fr/repo.gpg.key | sudo apt-key add -
+apt update
+apt install docker-ctop
+
+~# ctop -a                                                                             
+
+     NAME               CID        CPU       MEM         NET RX/TX      IO R/W     PIDS
+
+   ◉ gitlab       5360e4f6db16     0%      8M / 3G      71M / 30M     5G / 7M       3   
+   ◉ jenkins      34d2cb0a96fe     8%    189M / 3G     17M / 21M     30G / 6M      40
+   ◉ test         e4ca60b04517     0%      6M / 3G      4M / 92K    683M / 6M       1
+
