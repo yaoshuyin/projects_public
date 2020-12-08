@@ -2,6 +2,7 @@ echo "deb http://packages.azlux.fr/debian/ buster main" | sudo tee /etc/apt/sour
 wget -qO - https://azlux.fr/repo.gpg.key | sudo apt-key add -
 apt update
 apt install docker-ctop
+apt install broot bashtop dog duf gping rclone sss tut 
 
 ~# ctop -a                                                                             
 
