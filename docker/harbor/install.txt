@@ -9,9 +9,10 @@ apt-key fingerprint 0EBFCD88
 apt-get update
 apt-get install docker-ce docker-ce-cli containerd.io docker-compose
 
-.vim /etc/docker/daemon.json
+./etc/docker/daemon.json
 ..............................................
 
+cat <<EOF >/etc/docker/daemon.json
 {
   "registry-mirrors": [
     "http://hub-mirror.c.163.com",
@@ -29,28 +30,28 @@ apt-get install docker-ce docker-ce-cli containerd.io docker-compose
     "buildkit": true
   }
 }
-
+EOF
 
 .vim /etc/docker/daemon.json
 ..............................................
 1)在ExecStart后添加 -H tcp://0.0.0.0:2375
-ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock -H tcp://0.0.0.0:2375
+sed -i '/ExecStart/s!$! -H tcp://0.0.0.0:2375!' /lib/systemd/system/docker.service
 
 2)
-# systemctl daemon-reload
-# systemctl restart docker
+~# systemctl daemon-reload
+~# systemctl restart docker
 
 
 .install harbor
 ..............................................
 
-# wget -c "https://github.com/goharbor/harbor/releases/download/v1.10.6/harbor-offline-installer-v1.10.6.tgz"
+~# wget -c "https://github.com/goharbor/harbor/releases/download/v1.10.6/harbor-offline-installer-v1.10.6.tgz"
 
-# tar xvf harbor-offline-installer-v1.10.6.tgz
-# cd harbor
-# docker load -i harbor.v1.10.6.tar.gz
+~# tar xvf harbor-offline-installer-v1.10.6.tgz
+~# cd harbor
+~# docker load -i harbor.v1.10.6.tar.gz
 
-# vim harbor.yml
+~# vim harbor.yml
 .....................
 hostname: harbor.koo5.com
 
@@ -68,12 +69,12 @@ proxy:
   https_proxy: 192.168.101.4:8889
 
 
-# sudo ./prepare --with-clair  --with-chartmuseum --with-notary
+~# sudo ./prepare --with-clair  --with-chartmuseum --with-notary
 
-# sudo ./install.sh --with-clair  --with-chartmuseum --with-notary
+~# sudo ./install.sh --with-clair  --with-chartmuseum --with-notary
 
 
-# docker-compose ps
+~# docker-compose ps
           Name                     Command                  State                          Ports                   
     ---------------------------------------------------------------------------------------------------------------
     harbor-core         /harbor/harbor_core              Up (healthy)                                              
@@ -97,17 +98,17 @@ Pass: Harbor12345
 
 .docker login
 .............................................
-# docker login harbor.koo5.com
+~# docker login harbor.koo5.com
      Username: admin
      Password:  
 
    Login Succeeded
 
-# docker build -f Dockerfile -t myubuntu:20.04 . 
-# docker tag myubuntu:20.04 harbor.koo5.com/myimgs/myubuntu:20.04 
-# docker push harbor.koo5.com/myimgs/myubuntu:20.04
+~# docker build -f Dockerfile -t myubuntu:20.04 . 
+~# docker tag myubuntu:20.04 harbor.koo5.com/myimgs/myubuntu:20.04 
+~# docker push harbor.koo5.com/myimgs/myubuntu:20.04
 
-# docker pull harbor.koo5.com/myimgs/myubuntu:20.04 
+~# docker pull harbor.koo5.com/myimgs/myubuntu:20.04 
 
 #镜像打标签
  docker tag 镜像名:标签 私服地址/仓库项目名/镜像名:标签
