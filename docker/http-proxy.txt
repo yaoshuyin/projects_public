@@ -1,0 +1,27 @@
+1、 
+mkdir -p /etc/systemd/system/docker.service.d
+vi /etc/systemd/system/docker.service.d/http-proxy.conf 
+
+[Service]
+[Service]
+Environment="HTTP_PROXY=http://192.168.56.101:8889" "HTTPS_PROXY=http://192.168.56.101:8889" "NO_PROXY=192.168.0.0/16,172.0.0.0/8,10.0.0.0/8,127.0.0.0,localhost"
+ 
+2、让配置文件内容生效，命令如下
+
+systemctl daemon-reload
+sleep 5
+systemctl daemon-reload
+sleep 5
+systemctl daemon-reload
+sleep 5
+systemctl daemon-reload
+
+systemctl restart docker
+sleep 5
+systemctl restart docker
+sleep 5
+systemctl restart docker
+
+
+3、尝试拉取服务器A上的镜像仓库里的镜像：
+$ docker pull k8s.gcr.io/ingress-nginx/controller:v0.41.2@sha256:1f4f402b9c14f3ae92b11ada1dfe9893a88f0faeb0b2f4b903e2c67a0c3bf0de 
