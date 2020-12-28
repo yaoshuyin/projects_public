@@ -1,0 +1,71 @@
+export https_proxy=127.0.0.1:8889
+
+wget https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/addons/dns/coredns/coredns.yaml.sed
+wget https://raw.githubusercontent.com/coredns/deployment/master/kubernetes/deploy.sh
+
+chmod +x deploy.sh 
+./deploy.sh -i 10.254.0.2 > coredns.yaml
+
+sed -i 's/$DNS_SERVER_IP/xxxx/' coredns.yaml
+sed -i 's/$DNS_MEMORY_LIMIT/70Mi/'  coredns.yaml
+
+unset https_proxy
+
+kubectl apply -f coredns.yaml 
+
+kubectl get pods -n kube-system -o wide 
+
+................................................................
+
+$ kubectl get pods 
+        NAME                      READY   STATUS    RESTARTS   AGE
+  deploy-heketi-f9fc47bff-sdl96   1/1     Running   4          10h
+  mysql-744c7c6568-sjhql          1/1     Running   0          10h
+
+$ kubectl exec -it  mysql-744c7c6568-sjhql /bin/bash
+
+root@mysql-744c7c6568-sjhql:/# dig @10.254.0.2 A mysql-744c7c6568-sjhql.default
+
+; <<>> DiG 9.11.5-P4-5.1+deb10u2-Debian <<>> @10.254.0.2 A mysql-744c7c6568-sjhql.default
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 7938
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+; COOKIE: 5837fa4118e64939 (echoed)
+;; QUESTION SECTION:
+;mysql-744c7c6568-sjhql.default.	IN	A
+
+;; AUTHORITY SECTION:
+.			25	IN	SOA	ns0-6ors.dns-lab.net. root.dnsv6lab.net. 2020122800 1800 900 604800 86400
+
+;; Query time: 3 msec
+;; SERVER: 10.254.0.2#53(10.254.0.2)
+;; WHEN: Mon Dec 28 16:03:59 UTC 2020
+;; MSG SIZE  rcvd: 143
+
+root@mysql-744c7c6568-sjhql:/# dig @10.254.0.2 A mysql-744c7c6568-sjhql        
+
+; <<>> DiG 9.11.5-P4-5.1+deb10u2-Debian <<>> @10.254.0.2 A mysql-744c7c6568-sjhql
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 7078
+;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+; COOKIE: d3c8ce6cf68de722 (echoed)
+;; QUESTION SECTION:
+;mysql-744c7c6568-sjhql.		IN	A
+
+;; AUTHORITY SECTION:
+.			30	IN	SOA	a.root-servers.net. nstld.verisign-grs.com. 2020122800 1800 900 604800 86400
+
+;; Query time: 4044 msec
+;; SERVER: 10.254.0.2#53(10.254.0.2)
+;; WHEN: Mon Dec 28 16:04:56 UTC 2020
+;; MSG SIZE  rcvd: 138
