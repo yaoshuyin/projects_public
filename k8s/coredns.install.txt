@@ -8,6 +8,7 @@ chmod +x deploy.sh
 
 sed -i 's/$DNS_SERVER_IP/xxxx/' coredns.yaml
 sed -i 's/$DNS_MEMORY_LIMIT/70Mi/'  coredns.yaml
+sed -i 's/$DNS_DOMAIN/cluster.local/' coredns.yaml
 
 unset https_proxy
 
@@ -69,3 +70,34 @@ root@mysql-744c7c6568-sjhql:/# dig @10.254.0.2 A mysql-744c7c6568-sjhql
 ;; SERVER: 10.254.0.2#53(10.254.0.2)
 ;; WHEN: Mon Dec 28 16:04:56 UTC 2020
 ;; MSG SIZE  rcvd: 138
+
+......................................... test ...................................
+
+$ kubectl get services --all-namespaces |awk '{print $2}'
+deploy-heketi
+kubernetes
+
+$ kubectl run curl --image=radial/busyboxplus:curl -i --tty
+
+$ kubectl exec -it curl sh
+[ root@curl:/ ]$ nslookup deploy-heketi
+Server:    10.254.0.2
+Address 1: 10.254.0.2 kube-dns.kube-system.svc.cluster.local
+
+Name:      deploy-heketi
+Address 1: 10.254.123.84 deploy-heketi.default.svc.cluster.local
+
+[ root@curl:/ ]$ nslookup kubernetes
+Server:    10.254.0.2
+Address 1: 10.254.0.2 kube-dns.kube-system.svc.cluster.local
+
+
+Name:      kubernetes
+Address 1: 10.254.0.1 kubernetes.default.svc.cluster.local
+
+[ root@curl:/ ]$ nslookup curl
+Server:    10.254.0.2
+Address 1: 10.254.0.2 kube-dns.kube-system.svc.cluster.local
+
+Name:      curl
+Address 1: 172.10.104.4 curl
