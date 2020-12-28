@@ -44,6 +44,8 @@ rm -fr /data/gfs/pv1/{.glusterfs,.trashcan }
 
 ............................................ heketi install .................................................
 
+.gfs-master01 / gfs-master02 / gfs-master02 192.168.56.101/102/103
+
   yum install heketi heketi-client
   
   vim /etc/heketi/heketi.json 
@@ -153,4 +155,4 @@ rm -fr /data/gfs/pv1/{.glusterfs,.trashcan }
   heketi-cli --server http://localhost:18080 --user admin --secret admin topology info 
 
 .k8s-node01 / k8s-node2 / k8s-node2
- yum install glusterfs-fuse
+ yum install glusterfs-fuse heketi-client
