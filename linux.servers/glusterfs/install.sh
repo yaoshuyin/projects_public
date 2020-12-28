@@ -1,3 +1,6 @@
+
+............................................ gluster install .................................................
+
 ./etc/hosts  (三个节点都执行）
 192.168.56.101 gfs-master01
 192.168.56.102 gfs-master02
@@ -38,3 +41,116 @@ gluster volume stop pv1
 gluster volume delete pv1 
 
 rm -fr /data/gfs/pv1/{.glusterfs,.trashcan }
+
+............................................ heketi install .................................................
+
+  yum install heketi heketi-client
+  
+  vim /etc/heketi/heketi.json 
+   {
+     .....
+     
+     "port": "18080",
+   
+     "use_auth": false,
+   
+     "jwt": {
+       "_admin": "Admin has access to all APIs",
+       "admin": {
+         "key": "admin"
+       },
+       "_user": "User only has access to /volumes endpoint",
+       "user": {
+         "key": "user"
+       }
+     },
+   
+       "executor": "ssh",
+   
+       "_sshexec_comment": "SSH username and private key file information",
+       "sshexec": {
+         "keyfile": "/etc/heketi/id_rsa",
+         "user": "root",
+         "port": "22",
+         "fstab": "/etc/fstab"
+       },
+   
+     }
+     ....
+   }
+
+  ssh-copy-id root@gfs-node1
+  ssh-copy-id root@gfs-node2
+  ssh-copy-id root@gfs-node3 
+   
+  cp /root/.ssh/id_rsa /etc/heketi/
+  chown -R heketi:heketi /etc/heketi/id_rsa 
+   
+  chown -R heketi:heketi /var/lib/heketi
+  
+  systemctl restart heketi
+  systemctl status heketi 
+  
+  vim /etc/heketi/topology.json
+{
+    "clusters": [
+        {
+            "nodes": [
+                {
+                    "node": {
+                        "hostnames": {
+                            "manage": [
+                                "192.168.56.101"
+                            ],
+                            "storage": [
+                                "192.168.56.101"
+                            ]
+                        },
+                        "zone": 1
+                    },
+                    "devices": [
+                        "/dev/sdb"
+                    ]
+                },
+                {
+                    "node": {
+                        "hostnames": {
+                            "manage": [
+                                "192.168.56.102"
+                            ],
+                            "storage": [
+                                "192.168.56.102"
+                            ]
+                        },
+                        "zone": 2
+                    },
+                    "devices": [
+                        "/dev/sdb"
+                    ]
+                },
+                {
+                    "node": {
+                        "hostnames": {
+                            "manage": [
+                                "192.168.56.103"
+                            ],
+                            "storage": [
+                                "192.168.56.103"
+                            ]
+                        },
+                        "zone": 3
+                    },
+                    "devices": [
+                        "/dev/sdb"
+                    ]
+                }
+            ]
+        }
+    ]
+} 
+ 
+  heketi-cli --server http://localhost:18080 --user admin --secret admin topology load --json=/etc/heketi/topology.json
+  heketi-cli --server http://localhost:18080 --user admin --secret admin topology info 
+
+.k8s-node01 / k8s-node2 / k8s-node2
+ yum install glusterfs-fuse
