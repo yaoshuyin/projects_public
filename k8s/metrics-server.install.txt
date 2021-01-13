@@ -1,0 +1,85 @@
+ .on master-01
+ ..........................................
+ $ mkdir tmp
+ $ cd tmp
+ $ cat > proxy-client-csr.json<<EOF
+{
+  "CN": "aggregator",
+  "hosts": [],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "Hangzhou",
+      "L": "Hangzhou",
+      "O": "system:masters",
+      "OU": "System"
+    }
+  ]
+}
+EOF
+
+$ cfssl gencert -ca=/etc/kubernetes/cert/ca.pem -ca-key=/etc/kubernetes/cert/ca-key.pem -config=/etc/kubernetes/cert/ca-config.json -profile=kubernetes  proxy-client-csr.json | cfssljson -bare proxy-client
+$ mkdir /etc/kubernetes/proxy-client_cert
+$ cp proxy-client* /etc/kubernetes/proxy-client_cert/
+$ scp -r /etc/kubernetes/proxy-client_cert root@192.168.56.102:/etc/kubernetes/
+$ scp -r /etc/kubernetes/proxy-client_cert root@192.168.56.103:/etc/kubernetes/
+$ scp -r /etc/kubernetes/proxy-client_cert root@192.168.56.104:/etc/kubernetes/
+$ scp -r /etc/kubernetes/proxy-client_cert root@192.168.56.105:/etc/kubernetes/
+ 
+ 
+在各master上 vim /etc/systemd/system/kube-apiserver.service  添加
+ 
+  --proxy-client-cert-file=/etc/kubernetes/proxy-client_cert/proxy-client.pem \
+  --proxy-client-key-file=/etc/kubernetes/proxy-client_cert/proxy-client-key.pem \
+  --requestheader-client-ca-file=/etc/kubernetes/cert/ca.pem \
+  --requestheader-allowed-names=aggregator,metrics-server \
+  --enable-aggregator-routing=true \
+  --requestheader-extra-headers-prefix=X-Remote-Extra- \
+  --requestheader-group-headers=X-Remote-Group \
+  --requestheader-username-headers=X-Remote-User \
+  --runtime-config=api/all=true \
+  
+$ systemctl daemon-reload
+$ systemctl restart kube-apiservr
+ 
+ 
+$ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+ ( kubectl replace --force -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml )
+ 
+$ kubectl -n kube-system get deploy 
+    NAME             READY   UP-TO-DATE   AVAILABLE    AGE
+   coredns            1/1     1            1           15d
+   metrics-server     1/1     1            1           76m
+
+$ kubectl -n kube-system get pods
+        NAME                                         READY   STATUS      RESTARTS   AGE
+   coredns-6f9fdbd88f-h5dsp                          1/1     Running     3          11h
+   metrics-server-5858745cf5-s22b4                   1/1     Running     5          36m
+
+ $ kubectl -n kube-system logs metrics-server-5858745cf5-s22b4
+ 
+ 
+.测试
+...............................................................
+
+ $ kubectl top pods -n kube-system
+      Unable to connect to the server: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
+
+ 使用--kubeconfig
+ $ kubectl --kubeconfig=/root/.kube/config top pods -n kube-system
+             NAME                   CPU(cores)   MEMORY(bytes)   
+    coredns-6f9fdbd88f-h5dsp          14m          23Mi            
+    metrics-server-5858745cf5-s22b4   19m          18Mi 
+  
+或 开启kube-proxy
+ $ kube-proxy --kubeconfig=/root/.kube/config  &
+ 
+  $ kubectl top pods -n kube-system
+             NAME                   CPU(cores)   MEMORY(bytes)   
+    coredns-6f9fdbd88f-h5dsp          14m          23Mi            
+    metrics-server-5858745cf5-s22b4   19m          18Mi 
