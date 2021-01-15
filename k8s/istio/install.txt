@@ -1,3 +1,51 @@
+.安装metrics-server ( 否则istio-injection失败)
+
+.安装istio
+1)master01 (1cpu 2GB    swap 4G)
+$ export https_proxy=http://192.168.56.101:8889  
+$ export http_proxy=http://192.168.56.101:8889  
+$ export no_proxy="127.0.0.1,192.168.0.0/16,10.0.0.0/16,172.0.0.0/8,a.com"
+
+$ curl -L https://istio.io/downloadIstio | sh -
+
+$ mv istio-1.8.1 /usr/local
+
+$ grep -R istio /etc/profile || sed -i 'aexport PATH=$PATH:/usr/local/istio-1.8.1/bin' /etc/profile
+
+$ . /etc/profile
+
+$ systemctl stop haproxy
+$ systemctl stop haproxy
+$ systemctl start haproxy
+
+
+2)node01/node02   ( 2cpu 2.5GB  swap 4G )
+$ vim /etc/docker/daemon.json 
+{
+  "registry-mirrors": [ "https://docker.mirrors.ustc.edu.cn","https://quay.mirrors.ustc.edu.cn","https://registry.aliyuncs.com","https://registry.docker-cn.com","http://hub-mirror.c.163.com" ]
+}
+
+$ cat /etc/systemd/system/docker.service.d/http-proxy.conf 
+[Service]
+Environment="HTTP_PROXY=http://192.168.56.1:8889" "HTTPS_PROXY=http://192.168.56.1:8889" "NO_PROXY=192.168.0.0/16,172.0.0.0/8,10.0.0.0/8,127.0.0.0,localhost,ustc.edu.cn,aliyuncs.com,docker-cn.com,163.com"
+
+$ systemctl daemon-reload
+$ systemctl restart docker
+$ systemctl status docker
+
+$ telnet 192.168.56.100 4443
+
+$ istioctl manifest install --set profile=demo  (需要等很久)
+
+$ kubectl label namespace default istio-injection=enabled
+
+$ kubectl -n istio-system get pods
+
+$ kubectl -n default get pods
+
+
+
+
 $ export INGRESS_PORT=$(kubectl -n istio-system get svc istio-ingressgateway -o "jsonpath={.spec.ports[?(@.name=='http2')].nodePort}")
 
 $ export SECURE_INGRESS_PORT=$(kubectl -n istio-system get svc istio-ingressgateway -o "jsonpath={.spec.ports[?(@.name=='https')].nodePort}")
