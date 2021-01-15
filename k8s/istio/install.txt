@@ -1,0 +1,35 @@
+$ export INGRESS_PORT=$(kubectl -n istio-system get svc istio-ingressgateway -o "jsonpath={.spec.ports[?(@.name=='http2')].nodePort}")
+
+$ export SECURE_INGRESS_PORT=$(kubectl -n istio-system get svc istio-ingressgateway -o "jsonpath={.spec.ports[?(@.name=='https')].nodePort}")
+
+$ export INGRESS_HOST=$(kubectl -n istio-system get pod -l istio=ingressgateway -o "jsonpath={.items[0].status.hostIP}")
+
+$ export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+
+$ echo http://$GATEWAY_URL/productpage
+    http://192.168.56.104:30321/productpage
+    
+$ curl -v -I  http://$GATEWAY_URL/productpage
+* About to connect() to 192.168.56.104 port 30321 (#0)
+*   Trying 192.168.56.104...
+* Connected to 192.168.56.104 (192.168.56.104) port 30321 (#0)
+> HEAD /productpage HTTP/1.1
+> User-Agent: curl/7.29.0
+> Host: 192.168.56.104:30321
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+HTTP/1.1 200 OK
+< content-type: text/html; charset=utf-8
+content-type: text/html; charset=utf-8
+< content-length: 3889
+content-length: 3889
+< server: istio-envoy
+server: istio-envoy
+< date: Fri, 15 Jan 2021 12:01:25 GMT
+date: Fri, 15 Jan 2021 12:01:25 GMT
+< x-envoy-upstream-service-time: 10850
+x-envoy-upstream-service-time: 10850
+
+< 
+* Connection #0 to host 192.168.56.104 left intact
