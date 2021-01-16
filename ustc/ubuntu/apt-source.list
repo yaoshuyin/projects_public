@@ -1,8 +1,9 @@
-apt update
-apt upgrade
-apt install curl wget
+ver=$(grep -o ' \([^ -]\+\) main restricted' /etc/apt/sources.list |head -n 1|awk '{print $1}')
+url=https://mirrors.ustc.edu.cn/repogen/conf/ubuntu-https-4-$ver
+echo $url
 
 cp /etc/apt/sources.list /etc/apt/sources.list.old
-wget https://mirrors.ustc.edu.cn/repogen/conf/ubuntu-https-4-$(grep -o ' \([^ -]\+\) main restricted' /etc/apt/sources.list |head -n 1|awk '{print $1}') -O /etc/apt/sources.list
+which wget && wget $url -O /etc/apt/sources.list
+
 apt update
 apt upgrade
