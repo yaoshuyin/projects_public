@@ -1,4 +1,9 @@
-#mirrors.aliyun.com
+#mirrors.ustc.edu.cn
 sed -i".$(date +%Y%m%d%H%M%S).bak" -e 's/\(archive\|security\).ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list 
+apt update
+apt upgrade
+
+#mirrors.aliyun.com
+sed -i".$(date +%Y%m%d%H%M%S).bak" -e 's/\(archive\|security\).ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list 
 apt update
 apt upgrade
