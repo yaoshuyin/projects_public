@@ -1,6 +1,4 @@
-cp /etc/apt/sources.list /etc/apt/sources.list.old
-
-sed -i 's/archive.ubuntu.com/mirrors.ustc.edu.cn/g' sources.list
-sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' sources.list
+#mirrors.aliyun.com
+sed -i".$(date +%Y%m%d%H%M%S).bak" -e 's/\(archive\|security\).ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list 
 apt update
 apt upgrade
