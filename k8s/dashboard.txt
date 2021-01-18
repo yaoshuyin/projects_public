@@ -1,0 +1,27 @@
+.下载dashboard.yaml
+wget https://.../kubernetes-server-linux-amd64.tar.gz
+tar xvf kubernetes-server-linux-amd64.tar.gz
+cd kubernetes/
+find -name "*dashboard*"
+kubectl apply -f cluster/addons/dashboard/dashboard.yaml 
+或
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+
+.查看部署情况
+kubectl get deployment -n kubernetes-dashboard 
+kubectl get pod  -n kubernetes-dashboard 
+kubectl get service  -n kubernetes-dashboard 
+kubectl edit service  -n kubernetes-dashboard kubernetes-dashboard 
+kubectl get service  -n kubernetes-dashboard  -o wide
+
+.创建管理员
+kubectl create sa dashboard-admin -n kubernetes-dashboard
+kubectl create clusterrolebinding dashboard-admin --clusterrole=cluster-admin --serviceaccount=kubernetes-dashboard:dashboard-admin
+
+.查看token
+ADMIN_SECRET=$(kubectl get secrets -n kubernetes-dashboard | grep dashboard-admin | awk '{print $1}')
+kubectl describe secret -n kubernetes-dashboard ${ADMIN_SECRET} | grep -E '^token' | awk '{print $2}'
+
+.页面访问
+kubectl proxy &
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy
