@@ -1,3 +1,4 @@
 $ kubectl create namespace prometheus
-$ helm install prometheus stable/prometheus-operator --namespace prometheus
+$ helm install prometheus stable/prometheus-operator --namespace prometheus (废弃)
+$ helm install prometheus ali-stable/prometheus --namespace prometheus
 $ kubectl get pods -n prometheus
