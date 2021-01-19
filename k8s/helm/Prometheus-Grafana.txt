@@ -1,0 +1,3 @@
+$ kubectl create namespace prometheus
+$ helm install prometheus stable/prometheus-operator --namespace prometheus
+$ kubectl get pods -n prometheus
