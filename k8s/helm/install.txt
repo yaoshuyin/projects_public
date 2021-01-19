@@ -1,5 +1,15 @@
- #https://helm.sh/docs/intro/install/
- $ curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+#https://helm.sh/docs/intro/install/
+$ curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
  
- $ helm version
+$ helm version
    version.BuildInfo{Version:"v3.5.0", GitCommit:"32c22239423b3b4ba6706d450bd044baffdcf9e6", GitTreeState:"clean", GoVersion:"go1.15.6"}
+   
+$ helm repo add stable https://charts.helm.sh/stable
+$ helm repo add ali-stable    https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
+$ helm repo update
+$ helm search repo stable
+
+$ helm repo list
+NAME            URL                                                   
+stable          https://charts.helm.sh/stable                         
+ali-stable      https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
