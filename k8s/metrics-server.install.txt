@@ -46,10 +46,10 @@ $ scp -r /etc/kubernetes/proxy-client_cert root@192.168.56.105:/etc/kubernetes/
 $ systemctl daemon-reload
 $ systemctl restart kube-apiservr
  
+ wget https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
  
-$ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-
- ( kubectl replace --force -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml )
+ sed -i '/kubelet-use-node-status-port/a\        - --kubelet-insecure-tls' components.yaml
+$ kubectl apply -f components.yaml
  
 $ kubectl -n kube-system get deploy 
     NAME             READY   UP-TO-DATE   AVAILABLE    AGE
