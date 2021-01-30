@@ -1,0 +1,102 @@
+.架构
+...................................
+1) 192.168.0.51 ceph-node01 
+   ceph-deploy mon osd
+
+2) 192.168.0.52 ceph-node02 
+   mon osd
+
+3) 192.168.0.53 ceph-node03 
+   mon osd
+
+.主机名
+...................................
+ ceph-node01 ceph-node02 ceph-node03
+ 
+./etc/hosts (三台都加)
+...................................
+192.168.0.51 ceph-node01
+192.168.0.52 ceph-node02
+192.168.0.53 ceph-node03
+
+.准备(三台都执行)
+...................................
+1)关闭防火墙 或 开放端口:  Monitors之间默认使用 6789 端口通信， OSD之间默认用 6800:7300 内的端口通信
+systemctl stop firewalld
+systemctl disable firewalld
+
+2)安装ntp服务
+yum -y install ntpd
+systemctl enable ntpd
+systemctl start ntpd 
+
+3)禁用SELINUX
+vim /etc/selinux/config
+SELINUX=disabled
+
+reboot
+
+
+4) 安装软件 (三台)
+4.1) vim /etc/yum.conf
+proxy=http://192.168.0.9:8889
+
+4.2)
+yum update
+yum upgrade
+yum -y install yum-plugin-priorities gcc python-setuptools python-devel
+yum -y install centos-release-ceph-luminous ceph-common ceph-deploy
+
+
+.免密登录(ceph-node01上执行)
+...................................
+ssh-keygen -t rsa -b 2048 -C ceph-node01
+ssh-copy-id -i ~/.ssh/id_rsa.pub ceph-node02
+ssh-copy-id -i ~/.ssh/id_rsa.pub ceph-node03
+
+.部署集群(ceph-node01)
+...................................
+1)创建目录
+mkdir -p /opt/ceph-cluster
+cd /opt/ceph-cluster
+
+2)新建立集群 (node名字 要和主机名一样)
+ceph-deploy --overwrite-conf new ceph-node01 ceph-node02 ceph-node03
+
+3)安装
+ceph-deploy --overwrite-conf install --release mimic ceph-node01 ceph-node02 ceph-node03
+
+4)创建monitor
+ceph-deploy  --overwrite-conf  mon create-initial
+
+5)配置admin key
+ceph-deploy  --overwrite-conf admin ceph-node01 ceph-node02 ceph-node03
+
+6)添加osd
+ceph-deploy osd create ceph-node01 --data /dev/sdc
+ceph-deploy osd create ceph-node02 --data /dev/sdc
+ceph-deploy osd create ceph-node03 --data /dev/sdc
+
+7)其他节点添加monitor
+ceph-deploy --overwrite-conf mon add ceph-node02
+ceph-deploy --overwrite-conf mon add ceph-node03
+  
+8)添加管理进程
+ceph-deploy --overwrite-conf mgr create ceph-node01
+  
+9)查看状态
+$ ceph status
+  cluster:
+    id:     06dabeca-804a-4eed-86e9-f56792a5e3f9
+    health: HEALTH_OK
+ 
+  services:
+    mon: 3 daemons, quorum ceph-node01,ceph-node02,ceph-node03
+    mgr: ceph-node01(active)
+    osd: 3 osds: 3 up, 3 in
+ 
+  data:
+    pools:   0 pools, 0 pgs
+    objects: 0  objects, 0 B
+    usage:   3.0 GiB used, 177 GiB / 180 GiB avail
+    pgs:     
