@@ -73,7 +73,8 @@ priority=1
 5)更新安装
 yum update
 yum upgrade
-yum -y install yum-plugin-priorities gcc python-setuptools python-devel
+yum -y install yum-plugin-priorities  --enablerepo=rhel-7-server-optional-rpms
+yum -y install gcc python-setuptools python-devel
 yum -y install ceph-deploy centos-release-ceph-luminous ceph-common
 
 
