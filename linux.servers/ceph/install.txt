@@ -26,7 +26,7 @@ systemctl stop firewalld
 systemctl disable firewalld
 
 2)安装ntp服务
-yum -y install ntpd
+yum -y install ntp
 systemctl enable ntpd
 systemctl start ntpd 
 
@@ -41,11 +41,40 @@ reboot
 4.1) vim /etc/yum.conf
 proxy=http://192.168.0.9:8889
 
-4.2)
+4.ceph源
+vim /etc/yum.repos.d/ceph.repo
+[Ceph]
+name=Ceph packages for $basearch
+baseurl=http://download.ceph.com/rpm-mimic/el7/$basearch
+enabled=1
+gpgcheck=1
+type=rpm-md
+gpgkey=https://download.ceph.com/keys/release.asc
+priority=1
+
+[Ceph-noarch]
+name=Ceph noarch packages
+baseurl=http://download.ceph.com/rpm-mimic/el7/noarch
+enabled=1
+gpgcheck=1
+type=rpm-md
+gpgkey=https://download.ceph.com/keys/release.asc
+priority=1
+
+[ceph-source]
+name=Ceph source packages
+baseurl=http://download.ceph.com/rpm-mimic/el7/SRPMS
+enabled=1
+gpgcheck=1
+type=rpm-md
+gpgkey=https://download.ceph.com/keys/release.asc
+priority=1
+
+5)更新安装
 yum update
 yum upgrade
 yum -y install yum-plugin-priorities gcc python-setuptools python-devel
-yum -y install centos-release-ceph-luminous ceph-common ceph-deploy
+yum -y install ceph-deploy centos-release-ceph-luminous ceph-common
 
 
 .免密登录(ceph-node01上执行)
@@ -83,8 +112,14 @@ ceph-deploy --overwrite-conf mon add ceph-node03
   
 8)添加管理进程
 ceph-deploy --overwrite-conf mgr create ceph-node01
+
+9)添加元数据服务
+ ceph-deploy mds create ceph-node01
   
-9)查看状态
+10)查看状态
+$ ceph health
+HEALTH_OK
+
 $ ceph status
   cluster:
     id:     06dabeca-804a-4eed-86e9-f56792a5e3f9
