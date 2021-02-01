@@ -162,3 +162,14 @@ $ ceph status
  $ ceph mon stat
  $ ceph osd stat
  $ ceph pg stat
+
+..................................................
+
+1)创建pool,名称为rbd
+  ceph osd pool create rbd 128
+  ceph osd lspools
+  rados df
+ 
+2)在pool rbd上创建块设备rbd1
+  rbd create rbd1 --size 1024 
+  ceph osd pool get rbd size
