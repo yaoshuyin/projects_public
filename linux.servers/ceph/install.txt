@@ -171,5 +171,18 @@ $ ceph status
   rados df
  
 2)在pool rbd上创建块设备rbd1
-  rbd create rbd1 --size 1024 
+  rbd create rbd1 --size 1024 -p rbd
   ceph osd pool get rbd size
+
+3)映射rbd1到/dev/rbdx,以生成可用磁盘
+ $ rbd map --image rbd1 
+ /dev/rbd0 created
+ 
+ 创建文件系统
+ $ mkfs.xfs /dev/rbd0
+ $ mkdir /mnt/rbd0test
+ $ mount /dev/rbd0 /mnt/rbd0test
+ $ df -h
+ $ cd /mnt/rbd0test/
+ $ touch 1.txt
+ $ ls
