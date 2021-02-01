@@ -195,3 +195,6 @@ SNAPID NAME                   SIZE TIMESTAMP
 
 恢复快照
 $ rbd snap rollback rbd/rbd1@snap.001.202102012255
+
+重新加载/mnt/rbd0test
+$ mount -o remount /dev/rbd0 /mnt/rbd0test
