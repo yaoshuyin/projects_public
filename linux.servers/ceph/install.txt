@@ -186,3 +186,9 @@ $ ceph status
  $ cd /mnt/rbd0test/
  $ touch 1.txt
  $ ls
+
+4)rbd创建快照
+$ rbd snap create rbd/rbd1@snap.001.202102012255
+$ rbd snap ls rbd/rbd1
+SNAPID NAME                   SIZE TIMESTAMP                
+     4 snap.001.202102012255 1 GiB Mon Feb  1 22:55:30 2021 
