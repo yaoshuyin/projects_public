@@ -39,3 +39,71 @@
   
  .把配置推送到ceph节点
   ceph-deploy --overwrite-conf config push dlp node1 node2 node3
+ 
+ .查看已经创建的磁盘
+  rbd ls -l
+  
+ .查看ceph授权信息
+  ceph auth get client.admin
+  
+ .移除monitor节点
+  ceph-deploy mon destory lab1
+  
+ .详细列出每块磁盘的使用情况
+  ceph osd df
+  
+ .RBD常用命令
+ 1)创建pool
+   ceph osd pool create rbd 128 128  #少于5个osd, 设置pg_num为128, 5~10个osd 设置pg_num为512, 10~50个osd,pg_num为4096
+   rbd pool init rbd
+   
+ 2)删除pool
+   ceph osd pool rm rbd rbd -yes-i-really-really-mean-it
+   #在ceph.conf添加
+   ##mon_allow_pool_delete = true
+   
+ .手动创建一个rbd磁盘 
+  rbd create --image-feature layering [rbd-name] -s 10240
+  
+ .清除磁盘上的逻辑卷
+  本机操作
+  ceph-volume lvm zap --destory /dev/vdc
+  远程操作
+  ceph-deploy disk zap lab4 /dev/sdb 
+   
+   创建osd
+   ceph-deploy osd create lab4 --fs-type btrfs --data vg1/lvol01
+   
+.删除osd节点的node4
+1）查看节点4上所有的osd
+   ceph osd tree
+2) 把node4上的所有osd踢出集群
+   ceph osd out osd.9
+   ceph osd out osd.10
+  
+3）让node4上的所有osd停止工作 
+   service ceph stop osd.9
+   service ceph stop osd.10
+   
+4) 查看node4上osd的状态是否为down,权重为0
+   ceph osd tree
+   
+5) 移除node4上所有的osd
+   ceph osd crush remove osd.9
+   ceph osd crush remove osd.10
+   
+6) 删除节点node4
+   ceph osd crush remove ceph-node4
+   
+.替换一个失效的磁盘驱动
+ ceph osd tree
+ ceph osd out osd.0
+ ceph osd crush rm osd.0
+ ceph auth del osd.0
+ ceph osd rm osd.0
+ 
+.zap新磁盘，清理新磁盘
+ ceph-deploy disk zap node1 /dev/sdb
+ 
+.在新磁盘上建一个osd，ceph会把它添加为osd:0
+ceph-deploy --overwrite-conf osd create node1 /dev/sdb
