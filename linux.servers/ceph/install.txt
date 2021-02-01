@@ -109,6 +109,15 @@ ceph-deploy  --overwrite-conf  mon create-initial
 ceph-deploy  --overwrite-conf admin ceph-node01 ceph-node02 ceph-node03
 
 6)添加osd
+查看可用磁盘
+ceph-deploy disk list ceph-node01
+ceph-deploy disk list ceph-node02
+ceph-deploy disk list ceph-node03
+
+删除磁盘分区表和内容
+ceph-deploy disk zap ceph-node01:sdc ceph-node02:sdc ceph-node03:sdc
+
+使用create命令格式化磁盘为数据和日志两个分区
 ceph-deploy osd create ceph-node01 --data /dev/sdc
 ceph-deploy osd create ceph-node02 --data /dev/sdc
 ceph-deploy osd create ceph-node03 --data /dev/sdc
@@ -142,3 +151,14 @@ $ ceph status
     objects: 0  objects, 0 B
     usage:   3.0 GiB used, 177 GiB / 180 GiB avail
     pgs:     
+
+11)查看仲裁状态
+ $ ceph quorum_status --format json-pretty
+ 
+12)查看集群使用状态
+ $ ceph df
+ 
+13)查看mon osd pg状态
+ $ ceph mon stat
+ $ ceph osd stat
+ $ ceph pg stat
