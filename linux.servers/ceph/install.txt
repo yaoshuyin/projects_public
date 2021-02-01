@@ -198,3 +198,6 @@ $ rbd snap rollback rbd/rbd1@snap.001.202102012255
 
 重新加载/mnt/rbd0test
 $ mount -o remount /dev/rbd0 /mnt/rbd0test
+
+删除快照
+$ rbd snap rm rbd/rbd1@snap.001.202102012255
