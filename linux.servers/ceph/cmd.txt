@@ -1,0 +1,41 @@
+.ceph -s  <=> ceph status
+.ceph -w 监控集群实时更改
+.ceph health 
+ 查看集群健康状态
+.ceph time-sync-status
+ 查看mon节点时间同步情况
+.ceph osd df
+ 查看osd的使用信息
+.ceph osd tree
+ 查看osd的状态和编号以及分布情况
+.ceph osd metadata 0
+ 查看osd元数据的详细信息
+.ceph mon dump
+ 查看mon的信息
+.ceph mon stat
+ ceph osd stat 
+ ceph osd dump
+ ceph quorum_status -f json-pretty
+ 
+.修改池的副本数目
+ ceph osd pool set mypool size 2
+.查看池的详细信息
+ ceph osd pool ls detail
+.查看池的IO情况
+ ceph osd pool status
+.查看pg的详细信息
+ ceph pg dump
+.查看单个pg和osd的映射信息
+ ceph pg map 1.6c
+.获取PG的详细信息
+ ceph pg {pg-id} query
+ 
+ .查看默认配置
+  ceph --show-config
+  
+ .获取配置信息
+  ceph daemon osd.0 config show
+  ceph daemon /var/run/ceph/ceph-mon.sds1.asock config show
+  
+ .把配置推送到ceph节点
+  ceph-deploy --overwrite-conf config push dlp node1 node2 node3
