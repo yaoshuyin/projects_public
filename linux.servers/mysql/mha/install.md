@@ -11,25 +11,25 @@
 ```
 
 *b)设置host*
-```
+```bash
 hostnamectl set-hostname mha-manager
 ```
 
 2)系统更新
-```
+```bash
 yum update
 yum install -y yum-utils
 ```
 
 3)安装ntp
-```
+```bash
 yum install -y ntp
 systemctl enable ntpd
 systemctl start ntpd
 ```
 
 4)防火墙开放3306端口
-```
+```bash
 firewall-cmd --permanent --new-zone=mysql
 firewall-cmd --permanent --zone=mysql --add-source=192.168.0.0/24
 firewall-cmd --permanent --zone=mysql --add-port=3306/tcp
@@ -42,7 +42,7 @@ firewall-cmd --list-all
 .**安装mysql** （所有mysql服务器 mha-mysql-master mha-mysql-slave01 mha-mysql-slave02)
 
 1)安装mysql repo
-```
+```bash
 rpm -i  https://repo.mysql.com//mysql80-community-release-el7-3.noarch.rpm
 yum update
 
@@ -58,7 +58,7 @@ systemctl enable mysqld
 2)mysql conf
  
 *a)master*
-```
+```mysql
 [client]
 default-character-set=utf8
 
@@ -101,7 +101,7 @@ slave-skip-errors = 1133
 ```
 
 *b)slave01*
-```
+```mysql
 [client]
 default-character-set=utf8
 
@@ -145,7 +145,7 @@ slave-skip-errors = 1133
 ```
 
 *b)slave02*
-```
+```mysql
 [client]
 default-character-set=utf8
 
@@ -189,12 +189,12 @@ slave-skip-errors = 1133
 ```
 
 3)start mysql
-```
+```bash
 systemctl start mysqld
 ```
 
 4)设置密码
-```
+```bash
 $ grep 'temporary password' /var/log/mysqld.log
      temporary password is generated for root@localhost: nbwIjF3zC
 
@@ -207,7 +207,7 @@ MySQL>  FLUSH PRIVILEGES;
 MySQL> grant all on *.* to 'mhamng'@'192.168.0.%' identified by 'Aa123456!';
 ```
 
-```
+```bash
 #设置slave复制账号、密码、权限
 MySQL> grant replication slave,REPLICATION CLIENT on *.* to 'rep'@'192.168.0.%' identified by 'Aa123456!';  
 
@@ -384,7 +384,7 @@ master_binlog_dir="/var/lib/mysql"
 no_master=1 
 ```
 
-```
+```bash
 $ masterha_check_ssh --conf=/etc/mha/app1.cnf
 $ masterha_check_repl --conf=/etc/mha/app1.cnf 
 
@@ -395,7 +395,7 @@ $ masterha_check_status --conf=/etc/mha/app1.cnf
  
 
 **停止master，测试master与vip的切换**
-```
+```bash
 192.168.0.32$ systemctl stop mysqld
 $ cat /var/log/mha/app1/manager.log
   ......
