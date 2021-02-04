@@ -57,7 +57,7 @@ systemctl enable mysqld
 
 2)mysql conf
  
-*a)master *
+*a)master*
 ```
 [client]
 default-character-set=utf8
