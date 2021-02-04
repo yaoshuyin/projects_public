@@ -351,13 +351,18 @@ manager_log=/var/log/mha/app1/manager.log
 manager_workdir=/var/log/mha/app1
 master_binlog_dir=/var/lib/mysql
 master_ip_failover_script=/etc/mha/app1_master_ip_failover
-password="Aa123456!"
 ping_interval=1
+
+ssh_user=root
+
+#mha manager 连接mysql各服务器的MySQL账号密码(对应grant all on *.* to 'mhamng'@'192.168.0.%' identified by 'Aa123456!';)
+user=mhamng
+password="Aa123456!"
+
 repl_password="Aa123456!"
 repl_user=rep
+
 secondary_check_script=masterha_secondary_check -s 192.168.0.32 -s 192.168.0.33 -s 192.168.0.34
-ssh_user=root
-user=mhamng
 
 [server1]
 candidate_master=1
