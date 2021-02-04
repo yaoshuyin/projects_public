@@ -1,13 +1,14 @@
 .**系统初始化**
 
 **..............................................**
-**1)配置host**
+**1)配置host** 
+**a)vim /etc/hosts**
 ```
-a)vim /etc/hosts
 192.168.0.30 mha-manager
 192.168.0.32 mha-mysql-master
 192.168.0.33 mha-mysql-slave01 (for master backup)
 192.168.0.34 mha-mysql-slave02
+```
 
 b)设置host
 hostnamectl set-hostname mha-manager
