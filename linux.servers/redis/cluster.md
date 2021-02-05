@@ -103,7 +103,7 @@ for i in {0..5}
 do 
 cat > /usr/lib/systemd/system/redis700${i}.service <<_EOF_
 [Unit]
-Description=Redis700${i} persistent key-value database
+Description=Redis persistent key-value database
 After=network.target
 After=network-online.target
 Wants=network-online.target
