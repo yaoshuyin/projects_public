@@ -59,8 +59,16 @@ $ mkdir -p /data/redis/700{0..5}
 #创建配置文件
 $ for i in {0..5}
 do
-   cat > /data/redis/$i/redis.conf <<_EOF_
+   cat > /data/redis/700${i}/redis.conf <<_EOF_
+daemonize yes
 port 700${i}
+dir "/data/redis/700${i}" 
+masterauth 123456
+requirepass 123456
+
+pidfile "/data/redis/700${i}/redis.pid"
+logfile "/data/redis/700${i}/redis.log"
+
 cluster-enabled yes
 #nodes.conf is simply generated at startup by the Redis Cluster instances, and updated
 cluster-config-file nodes.conf
@@ -71,9 +79,8 @@ done
 
 #启动redis
 $ for i in {0..5}
-do
-   cd /data/redis/700${i}
-   nohup /usr/local/bin/redis-server redis.conf &
+do 
+   /usr/local/bin/redis-server /data/redis/700${i}/redis.conf 
 done
 
 #创建集群
@@ -91,22 +98,59 @@ $ redis-cli --cluster check 127.0.0.1:7000
 
 **测试**
 ```
-$ redis-cli -c -p 7000
-redis 127.0.0.1:7000> set foo bar
--> Redirected to slot [12182] located at 127.0.0.1:7002
+[root@mha-manager tmp]# redis-cli -c -a 123456  -h 127.0.0.1 -p 7000
+127.0.0.1:7000> get bar
+-> Redirected to slot [5061] located at 127.0.0.1:7003
+(nil)
+
+127.0.0.1:7003> set bar 123
 OK
 
-redis 127.0.0.1:7002> set hello world
--> Redirected to slot [866] located at 127.0.0.1:7000
+127.0.0.1:7003> get bar
+"123"
+
+127.0.0.1:7003> set name tom
 OK
 
-redis 127.0.0.1:7000> get foo
--> Redirected to slot [12182] located at 127.0.0.1:7002
-"bar"
+127.0.0.1:7003> get name
+"tom"
 
-redis 127.0.0.1:7002> get hello
--> Redirected to slot [866] located at 127.0.0.1:7000
-"world"
+127.0.0.1:7003> cluster info
+cluster_state:ok
+cluster_slots_assigned:16384
+...
+cluster_stats_messages_received:1279
+
+127.0.0.1:7003> cluster nodes
+b3cc8c9....c1924 127.0.0.1:7003@17003 myself,master - 0 1612541279000 8 connected 0-5961 10923-11421
+
+81e45988...4d69a 127.0.0.1:7005@17005 master - 0 1612541281528 10 connected 11422-16383
+3210028e...9eaad 127.0.0.1:7004@17004 master - 0 1612541281124 9 connected 5962-10922
+
+29520ece...4adee 127.0.0.1:7002@17002 slave 81e459...9a 0 1612541280000 10 connected
+a4f5ebb0...8e9c4 127.0.0.1:7001@17001 slave 321002...ad 0 1612541281000 9 connected
+a2e1113d...1c834 127.0.0.1:7000@17000 slave b3cc8c...24 0 1612541279509 8 connected
+127.0.0.1:7003> 
+
+[root@mha-manager tmp]# redis-cli -c  -h 127.0.0.1 -p 7000
+127.0.0.1:7000> get bar
+(error) NOAUTH Authentication required.
+
+127.0.0.1:7000> auth 123456
+OK
+
+127.0.0.1:7000> get bar
+-> Redirected to slot [5061] located at 127.0.0.1:7003
+(error) NOAUTH Authentication required.
+
+127.0.0.1:7003> auth 123456
+OK
+
+127.0.0.1:7003> get bar
+"123"
+
+127.0.0.1:7003> get name
+"tom"
 ```
 
 **节点操作**
