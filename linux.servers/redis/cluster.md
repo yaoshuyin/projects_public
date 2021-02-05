@@ -1,8 +1,7 @@
 **install the newest gcc**
 ```bash
-$ yum install gcc gcc-c++
-$ yum install centos-release-scl 
-$ yum install devtoolset-7-gcc devtoolset-7-gcc-c++
+$ yum install -y centos-release-scl 
+$ yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ tcl tcl-devel
 $ scl enable devtoolset-7 bash 
 $ gcc -v
 ```
@@ -16,10 +15,6 @@ $ cd redis-6.0.10
 $ cd deps
 $ make lua hiredis linenoise jemalloc
 $ cd ..
-
-$ cd deps/jemalloc
-$ ./configure 
-$ make
 
 $ make CFLAGS="-march=x86-64"
 $ make test
