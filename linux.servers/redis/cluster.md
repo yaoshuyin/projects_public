@@ -28,4 +28,5 @@ Execution time of different units:
 \o/ All tests passed without errors!
 
 Cleanup: may take some time... OK
+$ make install
 ```
