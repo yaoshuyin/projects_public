@@ -18,4 +18,14 @@ $ cd ..
 
 $ make CFLAGS="-march=x86-64"
 $ make test
+Execution time of different units:
+  0 seconds - unit/printver
+  35 seconds - unit/dump
+  ....
+  0 seconds - unit/shutdown
+  294 seconds - defrag
+
+\o/ All tests passed without errors!
+
+Cleanup: may take some time... OK
 ```
