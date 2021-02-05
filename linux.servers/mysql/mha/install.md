@@ -367,20 +367,17 @@ secondary_check_script=masterha_secondary_check -s 192.168.0.32 -s 192.168.0.33 
 [server1]
 candidate_master=1
 check_repl_delay=0
-hostname=192.168.0.32
-master_binlog_dir="/var/lib/mysql"
+hostname=192.168.0.32 
 
 [server2]
 candidate_master=1
 check_repl_delay=0
-hostname=192.168.0.33
-master_binlog_dir="/var/lib/mysql"
+hostname=192.168.0.33 
 
 [server3]
 candidate_master=0
 check_repl_delay=0
-hostname=192.168.0.34
-master_binlog_dir="/var/lib/mysql"
+hostname=192.168.0.34 
 no_master=1 
 ```
 
@@ -402,4 +399,24 @@ $ cat /var/log/mha/app1/manager.log
   ...... master 192.168.0.33 .....
 192.168.0.32$ ip addr
   ...... 192.168.0.29 ....
+```
+
+**master恢复重新加入**
+```
+1)MySQL(Master32)> reset slave;
+  > stop slave;
+  > change master to master_host='192.168.0.33', master_user='rep', master_password='Aa123456!', master_port=3306, MASTER_AUTO_POSITION = 1, MASTER_RETRY_COUNT = 0, MASTER_HEARTBEAT_PERIOD = 100000;
+  > start slave;
+  
+2)
+  MHAManager$ vim /etc/mha/app1.cnf
+  [server1]
+candidate_master=1
+check_repl_delay=0
+hostname=192.168.0.32
+master_binlog_dir="/var/lib/mysql"
+
+ 3)
+  rm -f /etc/mha/app1/app1.failover.complete
+  nohup masterha_manager --conf=/etc/mha/app1.cnf --remove_dead_master_conf --ignore_last_failover < /dev/null > /var/log/mha/app1/manager.log 2>&1 &
 ```
