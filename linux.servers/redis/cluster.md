@@ -6,8 +6,12 @@ $ scl enable devtoolset-7 bash
 $ gcc -v
 ```
 
-**install tcl 8.6.11(一定要用8.6.11或以后，否则make test报xxx.tcl错误)** 
+**install tcl 8.5(一定要用8.5或以后)** 
 ```bash
+$ yum install -y tcl tcl-devel
+
+OR
+
 $ wget -c https://nchc.dl.sourceforge.net/project/tcl/Tcl/8.6.11/tcl8.6.11-src.tar.gz
 $ tar xvf tcl8.6.11-src.tar.gz
 $ cd tcl8.6.11
