@@ -62,10 +62,11 @@ do
    cat > /data/redis/700${i}/redis.conf <<_EOF_
 daemonize yes
 port 700${i}
-dir "/data/redis/700${i}" 
+
 masterauth 123456
 requirepass 123456
 
+dir "/data/redis/700${i}" 
 pidfile "/data/redis/700${i}/redis.pid"
 logfile "/data/redis/700${i}/redis.log"
 
@@ -86,7 +87,7 @@ done
 #创建集群
 # --cluster-replicas 1  指每个master需要一个slave
 # 这里一共6个server, 所以分成3个master和3个slave
-$ redis-cli --cluster create 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 --cluster-replicas 1
+$ redis-cli -a 123456 --cluster create 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 --cluster-replicas 1
 
 #reshard
 $ redis-cli --cluster reshard 127.0.0.1:7000
