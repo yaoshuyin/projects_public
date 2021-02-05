@@ -97,6 +97,40 @@ $ redis-cli --cluster reshard 127.0.0.1:7000
 $ redis-cli --cluster check 127.0.0.1:7000
 ```
 
+**redis.service**
+```
+for i in {0..5}
+do 
+cat > /usr/lib/systemd/system/redis700${i}.service <<_EOF_
+[Unit]
+Description=Redis700${i} persistent key-value database
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+PIDFile=/data/redis/700${i}/redis.pid
+ExecStart=/usr/local/bin/redis-server /data/redis/700${i}/redis.conf --supervised systemd
+ExecStop=/usr/local/bin/redis-cli -a 123456 -h 127.0.0.1 -p 700${i} shutdown
+ExecReload=/usr/bin/kill -s HUP $MAINPID
+User=root
+Group=root
+RuntimeDirectory=redis
+RuntimeDirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target
+_EOF_
+
+systemctl enable redis700${i}
+systemctl start  redis700${i}
+systemctl stop   redis700${i}
+systemctl reload redis700${i}
+systemctl status redis700${i}
+done
+```
+
 **测试**
 ```
 [root@mha-manager tmp]# redis-cli -c -a 123456  -h 127.0.0.1 -p 7000
