@@ -21,4 +21,4 @@ let g:airline_powerline_fonts = 1
 "~airline
 ```
 
-![avatar](https://mounui.com/wp-content/uploads/2018/07/vim-airline2.png)
+![avatar](imgs/airline.png)
