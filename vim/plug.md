@@ -9,3 +9,8 @@ call plug#begin('~/.vim/plugged')
    Plug 'Valloric/YouCompleteMe'                                                                          
 call plug#end()  
 ```
+
+```vim
+vim ~/.vimrc
+:PluginInstall
+```
