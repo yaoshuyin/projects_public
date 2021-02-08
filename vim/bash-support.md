@@ -14,3 +14,4 @@ Plug 'WolfgangMehner/bash-support'
 ```
 
 ![avatar](https://wolfgangmehner.github.io/vim-plugins/bashsupport/menu_main.png)
+![avatar](imgs/bashsupport.png)
