@@ -17,8 +17,17 @@ let g:airline#extensions#tabline#enabled = 2
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline#extensions#tabline#formatter = 'default'
-let g:airline_powerline_fonts = 1   
+let g:airline_powerline_fonts = 1  
+
+let g:airline_theme="dark"
+
 "~airline
+```
+
+**~/.vim/bashrc**
+```bash
+"   export TERM=xterm-<t_co>color
+" grep '.vim/bashrc' ~/.bashrc || echo source ~/.vim/bashrc >> ~/.bashrc
 ```
 
 ![avatar](imgs/airline.png)
