@@ -1,3 +1,4 @@
+```vim
 filetype plugin on
 
 call plug#begin('~/.vim/plugged')
@@ -21,3 +22,4 @@ let g:ycm_semantic_triggers =  {
 
 autocmd FileType php set omnifunc=phpcomplete#CompletePHP
 "~YouCompleteMe
+```
