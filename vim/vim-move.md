@@ -1,15 +1,15 @@
 **install**
-```
+```vim
 Plug 'matze/vim-move'
 ```
 
 **config**
-```
+```vim
 let g:move_key_modifier = 'C'
 ```
 
 **usage**
-```
+```vim
   <C-k>   Move current line/selections up
   <C-j>   Move current line/selections down
   <C-l>   Move current character/selection left
