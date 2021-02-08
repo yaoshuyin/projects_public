@@ -10,4 +10,4 @@ Plug 'drewtempelmeyer/palenight.vim'
   let g:airline_theme = "palenight
 ``` 
 
-![avatar](imgs/palenight.png)
+![avatar](imgs/palenight.PNG)
