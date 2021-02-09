@@ -8,4 +8,4 @@
 Plug 'vim-scripts/txt.vim'
 ```
 
-![avatar](imgs/txt.png)
+![avatar](https://raw.githubusercontent.com/yaoshuyin/projects_public/master/vim/imgs/txt.vim.png)
