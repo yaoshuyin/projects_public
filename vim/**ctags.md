@@ -13,4 +13,7 @@ apt install ctags
   
   C-]  跳转到 定义处
   c-t  跳回
+  
+  :ptag mytag  预览窗口打开
+  :pclose      关闭预览窗口
 ```
