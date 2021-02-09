@@ -5,7 +5,8 @@ Plug 'airblade/vim-gitgutter'
 
 **config**
 ```vim
-  无需配置
+  "gitgutter            
+  autocmd BufWritePost * GitGutter 
 ```
 
 **usage**
