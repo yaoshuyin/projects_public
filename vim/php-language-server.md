@@ -1,12 +1,12 @@
 **install**
 ```bash
-cd /data/Spiders/tmp2/
-php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-php composer-setup.php --install-dir=/usr/local/bin/
-ln -s /usr/local/bin/composer.phar /usr/local/bin/composer
+$ cd /data/Spiders/tmp2/
+$ php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+$ php composer-setup.php --install-dir=/usr/local/bin/
+$ ln -s /usr/local/bin/composer.phar /usr/local/bin/composer
 
-composer init
-vim composer.json
+$ composer init
+$ vim composer.json
 { 
    ...
    "minimum-stability": "dev",
@@ -17,8 +17,10 @@ vim composer.json
    }
 }
 
-rm -f composer.lock
-$ composer -vvv  require felixfbecker/language-server
+$ rm -f composer.lock
+$ composer install
+$ composer update
+$ composer -vvv require felixfbecker/language-server
 $ composer -vvv run-script --working-dir=vendor/felixfbecker/language-server parse-stubs 
 $ 如果出现错误，则 vim +180 /data/Spiders/tmp2/vendor/phpdocumentor/type-resolver/src/TypeResolver.php
           change 
