@@ -4,8 +4,8 @@ Plug 'lilydjwg/colorizer'
 ```
 
 **usage**
-```vim
+```html
 a {
-      color: <span style="color:blue">*.rgb(144,255,34)*</span>;
+      color: <span style="background-color:blue">rgb(144,255,34)</span>;
 }
 ```
