@@ -35,6 +35,7 @@ $ apt install -y nodejs
 $ apt install golang
 "$ go env -w GO111MODULE=on
 "$ go env -w GOPROXY=https://goproxy.cn,direct" 
+:CocInstall coc-go
 
 "json
 :CocInstall coc-json
