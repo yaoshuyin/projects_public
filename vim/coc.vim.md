@@ -20,13 +20,18 @@ $ apt install -y nodejs
 
 "php
 :CocInstall coc-phpls
- 
-"c/c++
-"$ apt install clangd
-:CocInstall coc-clangd
+
+"json
+:CocInstall coc-json
  
 .python
 :CocInstall coc-pyright
+
+"html
+:CocInstall coc-html
+
+"js
+:CocInstall coc-tsserver
 
 "css
 :CocInstall coc-css
@@ -37,11 +42,13 @@ $ apt install golang
 "$ go env -w GOPROXY=https://goproxy.cn,direct" 
 :CocInstall coc-go
 
-"json
-:CocInstall coc-json
- 
 "snippets
 :CocInstall coc-snippets 
+
+"c/c++
+"$ apt install clangd
+:CocInstall coc-clangd
+ 
 ```
 
 
