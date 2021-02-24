@@ -109,7 +109,55 @@ $ sed -i "s/# nginx\['listen_port'\] = nil/  nginx\['listen_port'\] = 8000/g" /e
 $ gitlab-ctl reconfigure
 $ gitlab-ctl status
 #gitlab-ctl restart
-.........................................
 
+.安装maven
+...............................
+.maven
+$ wget https://mirrors.bfsu.edu.cn/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+$ tar xvf apache-maven-3.6.3-bin.tar.gz
+$ mv apache-maven-3.6.3 /data/softs/maven
+
+$ grep MAVEN_HOME /etc/profile || cat >> /etc/profile <<EOF
+
+export MAVEN_HOME=/data/softs/maven
+export PATH=$PATH:$MAVEN_HOME/bin
+EOF
+
+.创建tom.schat.niu项目
+........................
+$ export http_proxy=172.17.0.1:8889
+$ export https_proxy=172.17.0.1:8889
+$ mvn archetype:generate -DgroupId=top.schat.niu -DartifactId=niu -DarchetypeArtifactId=maven-archetype-webapp -DinteractiveMode=false
+
+[INFO] Parameter: basedir, Value: /tmp/niu
+[INFO] Parameter: package, Value: top.schat.niu
+[INFO] Parameter: groupId, Value: top.schat.niu
+[INFO] Parameter: artifactId, Value: niu
+[INFO] Parameter: packageName, Value: top.schat.niu
+[INFO] Parameter: version, Value: 1.0-SNAPSHOT
+[INFO] project created from Old (1.x) Archetype in dir: /tmp/niu/niu
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  03:53 min
+[INFO] Finished at: 2021-02-19T00:24:10Z
+[INFO] -------------------------------------------------------------
+
+
+[root@jenkins2 niu]# tree .
+.
+├── pom.xml
+└── src
+    └── main
+        ├── resources
+        └── webapp
+            ├── index.jsp
+            └── WEB-INF
+                └── web.xml
+
+$ mvn compile
+$ mvn install
+#maven web app打包成app.war。
+$mvn  clean package '-Dmaven.test.skip=true'
 
 ```
