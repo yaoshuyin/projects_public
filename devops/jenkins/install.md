@@ -31,7 +31,6 @@ openjdk version "1.8.0_282"
 OpenJDK Runtime Environment (build 1.8.0_282-b08)
 OpenJDK 64-Bit Server VM (build 25.282-b08, mixed mode)
 
-.........................................
 
 .安装tomcat
 ...................
@@ -73,6 +72,44 @@ $ ./startup.sh
 3) http://172.17.0.3
 3) http://172.17.0.3/manager/html
 
-.
+
+.安装jenkins
+..............................
+$ wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+$ rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+$ yum provides '*/applydeltarpm'
+$ yum install deltarpm -y
+
+$ yum install -y jenkins
+
+$ vim /etc/sysconfig/jenkins
+   JENKINS_PORT="8081"
+   JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -Xms256m -Xmx256m -XX:MaxNewSize=256m -XX:MaxPermSize=256m"
+
+$ yum -y install initscripts
+$ chkconfig jenkins on
+$ service jenkins start
+$ service jenkins status
+$ netstat -tnlp
+$ cat /var/lib/jenkins/secrets/initialAdminPassword
+
+$ http://127.0.0.1:8081/
+
+
+.安装gitlab
+..........................
+$ curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+$ yum update
+$ yum install giblab-ce
+
+$ /opt/gitlab/embedded/bin/runsvdir-start &
+$ sed  -i 's/^external_url .*$/external_url "http:\/\/172.17.0.3:8000"/g' /etc/gitlab/gitlab.rb
+$ sed -i "s/# nginx\['listen_port'\] = nil/  nginx\['listen_port'\] = 8000/g" /etc/gitlab/gitlab.rb
+
+$ gitlab-ctl reconfigure
+$ gitlab-ctl status
+#gitlab-ctl restart
+.........................................
+
 
 ```
