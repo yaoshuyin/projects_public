@@ -26,4 +26,24 @@ $ vim +208 install-playstore.sh
 #done
   
 $ ./install-playstore.sh
+
+
+$ wget https://raw.githubusercontent.com/Debyzulkarnain/anbox-bridge/master/anbox-bridge.sh
+$ chmod +x anbox-bridge.sh
+$ sudo ./anbox-bridge.sh stop
+$ sudo ./anbox-bridge.sh start
+
+
+$vim anbox.rute.sh 
+#!/bin/bash
+adb shell <<EOF
+  su
+  ip route add default dev eth0 via 192.168.250.1
+  ip rule add pref 32766 table main
+  ip rule add pref 32767 table local
+EOF
+
+打开Anbox Application Manager
+ ---> webview
+ --->   https://www.baidu.com
 ```
