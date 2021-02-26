@@ -34,14 +34,7 @@ $ sudo ./anbox-bridge.sh stop
 $ sudo ./anbox-bridge.sh start
 
 
-$vim anbox.rute.sh 
-#!/bin/bash
-adb shell <<EOF
-  su
-  ip route add default dev eth0 via 192.168.250.1
-  ip rule add pref 32766 table main
-  ip rule add pref 32767 table local
-EOF
+$ snap set anbox bridge.address=192.168.250.1
 
 打开Anbox Application Manager
  ---> webview
