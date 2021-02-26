@@ -35,6 +35,7 @@ $ sudo ./anbox-bridge.sh start
 
 
 $ snap set anbox bridge.address=192.168.250.1
+$ snap set anbox container.netwokr.address=192.168.250.10
 
 打开Anbox Application Manager
  ---> webview
