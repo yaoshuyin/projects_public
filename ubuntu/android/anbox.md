@@ -44,6 +44,15 @@ $ sudo snap run --shell anbox.container-manager
 # ls -alh /var/snap/anbox/common/combined-rootfs
 $ sudo chown -R 100000:100000 /var/snap/anbox/common/rootfs-overlay
 
+
+.Anbox includes Swiftshader for this which provides a high-performance CPU based implementation of OpenGL ES and EGL.
+$ snap set anbox software-rendering.enable=true
+$ snap restart anbox.container-manager
+
+.If you want to disable software rendering it’s as simple as
+$ snap set anbox software-rendering.enable=false
+$ snap restart anbox.container-manager
+
 打开Anbox Application Manager
  ---> webview
  --->   https://www.baidu.com
