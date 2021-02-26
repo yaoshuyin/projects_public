@@ -53,6 +53,13 @@ $ snap restart anbox.container-manager
 $ snap set anbox software-rendering.enable=false
 $ snap restart anbox.container-manager
 
+$ http_proxy
+$ adb shell settings put global http_proxy 192.168.250.1:8889
+$ To remove it I used these commands:
+   adb shell settings delete global http_proxy
+   adb shell settings delete global global_http_proxy_host
+   adb shell settings delete global global_http_proxy_port
+
 打开Anbox Application Manager
  ---> webview
  --->   https://www.baidu.com
