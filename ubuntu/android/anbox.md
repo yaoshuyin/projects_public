@@ -33,9 +33,16 @@ $ chmod +x anbox-bridge.sh
 $ sudo ./anbox-bridge.sh stop
 $ sudo ./anbox-bridge.sh start
 
+$ snap set anbox rootfs-overlay.enable=true
 
 $ snap set anbox bridge.address=192.168.250.1
 $ snap set anbox container.netwokr.address=192.168.250.10
+
+$ snap restart anbox.container-manager
+
+$ sudo snap run --shell anbox.container-manager
+# ls -alh /var/snap/anbox/common/combined-rootfs
+$ sudo chown -R 100000:100000 /var/snap/anbox/common/rootfs-overlay
 
 打开Anbox Application Manager
  ---> webview
