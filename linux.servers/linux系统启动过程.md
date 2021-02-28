@@ -1,5 +1,5 @@
-```
 ![avatar](imgs/linux-qidong-guocheng.jpg)
+```
 
 PowerOn
    1)BIOS 加电自检
