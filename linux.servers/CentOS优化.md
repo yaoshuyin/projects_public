@@ -5,4 +5,10 @@ $ wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Cento
 $ yum update
 ```
 
-**
+**关闭SELinux**
+```bash
+$ getenforce
+$ sed -i 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+$ setenforce 0
+$ getenforce
+```
