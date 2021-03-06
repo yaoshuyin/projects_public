@@ -169,7 +169,7 @@ systemctl start zabbix-agent
 ```python
 #!/usr/bin/python3
 #conding=utf-8
-#Usage: ./feishu.py 18550022185,18550xxxxx msgtitle "testxxxx  mmmm  kkkk llll"
+#Usage: ./feishu.py 131xxxxxxxx,18550xxxxx msgtitle "testxxxx  mmmm  kkkk llll"
 import requests,json,sys,time
 
 group="ZabbixAlertGroup"
@@ -177,8 +177,8 @@ mobiles=sys.argv[1].replace(',','&mobiles=')    #接收消息的手机号
 subject=sys.argv[2]
 messages=sys.argv[3] 
 
-app_id="cli_a0c8dd1729b8d00c"
-app_secret="LD3TTozQwMKDn0a3dhGC6gJnyZjFEOhs"
+app_id="..."
+app_secret="...."
 
 def gettenant_access_token():
     tokenurl="https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal/"
