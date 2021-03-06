@@ -169,9 +169,8 @@ systemctl start zabbix-agent
 ```python
 #!/usr/bin/python3
 #conding=utf-8
-#Usage: ./feishu.py ZabbixAlertGroup 18550022185,18550xxxxx msgtitle "testxxxx  mmmm  kkkk llll"
-import requests,json,sys
-import time
+#Usage: ./feishu.py 18550022185,18550xxxxx msgtitle "testxxxx  mmmm  kkkk llll"
+import requests,json,sys,time
 
 group="ZabbixAlertGroup"
 mobiles=sys.argv[1].replace(',','&mobiles=')    #接收消息的手机号
