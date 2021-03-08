@@ -5,6 +5,18 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 **CocInstall**
 ```bash
+$ if ! which node
+then
+    node -v |grep v14 
+    if [ $? -ne 0 ]
+    then
+         apt -y remove nodejs node
+         curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - 
+        apt -y update
+        apt -y install nodejs npm
+    fi
+fi
+
 $ apt install python3 python3-pip python3-venv
 
 $ unset http_proxy
