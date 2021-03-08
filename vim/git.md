@@ -10,3 +10,29 @@ make install
 ln -s /usr/local/bin/git /usr/bin/git
 git clone https://github.com/powerline/fonts.git --depth=1
 ```
+
+**使用vimdiff来比较**
+```bash
+git config --global diff.tool vimdiff
+git config --global difftool.prompt No
+
+git diff a.php
+git difftool a.php
+```
+
+**ssh clone**
+```bash
+$ git clone ssh://user@132.33.19.168:22/data/gitroot/Spiders
+user@132.33.19.168's password: xxxxxx
+
+$ git add .
+
+$ git commit -m "xxx"
+
+$ git push
+user@132.33.19.168's password: xxxxxx
+
+$ git pull
+user@132.33.19.168's password: xxxxxx
+
+```
