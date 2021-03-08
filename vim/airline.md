@@ -3,6 +3,7 @@
 git clone https://github.com/powerline/fonts.git --depth=1
 cd fonts
 ./install.sh  
+./install.sh  安装两次来确认
 ```
 
 **install airline**
