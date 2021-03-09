@@ -23,6 +23,7 @@ DNS1=8.8.8.8
 DNS2=8.8.4.4
 $ nmcli connection reload
 $ nmcli connection down ens33-xxx; nmcli connection up ens33-xxx
+$ ifconfig
 
 ```
 
