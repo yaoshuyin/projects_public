@@ -3,7 +3,7 @@
 $ yum -y install samba cfs-utils
 $ mkdir -p /samba/data
 $ chmod 777 /samba/data
-$ cp /etc/hosts /samba/data/
+$ cp /etc/hosts /samba/data 
 ```
 
 **config**
