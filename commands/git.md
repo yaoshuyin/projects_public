@@ -1,3 +1,14 @@
+**use vimdiff**
+```console
+#vimdiff 有可能因为 interactive shell 的设置而导致无法启用
+echo "set shellcmdflag=-c" >> ~/.bashrc
+set shellcmdflag=-c
+git config --global diff.tool vimdiff
+git config --global difftool.prompt false
+git config --global alias.d difftool
+
+```
+
 **conflict**
 ```console
 $ git diff find.md 
