@@ -22,4 +22,4 @@ nameserver 192.168.0.100
 3)test
 dig baidu.com
 ```
-![F%i](pic/test.png)
+![avatar](pic/test.png)
