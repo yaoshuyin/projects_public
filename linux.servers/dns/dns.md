@@ -18,7 +18,17 @@ options {
 2)client
 vim /etc/resolv.conf
 nameserver 192.168.0.100
+"tabexpand
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set expandtab
 
 3)test
 dig baidu.com
 ```
+"tabexpand
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set expandtab
