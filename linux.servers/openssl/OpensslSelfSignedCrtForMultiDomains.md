@@ -1,4 +1,4 @@
-****
+**script**
 ```console
 #!/bin/bash
 #Script: OpensslSelfSignedCrtForMultiDomains.sh 
