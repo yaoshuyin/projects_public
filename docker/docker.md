@@ -149,8 +149,6 @@ $ docker inspect c_data
 
 $ docker run -d -it --name centos_vol_from_data --volumes-from c_data centos:7 /bin/bash
 
-$ touch /var/lib/docker/volumes/a14d66543e64b635ea3f1feecb1d5bf88fc2fb34c547ad74087f629270231ff0/_data/a.txt
-
 $docker inspect centos_vol_from_data
   ...
   "Mounts": [
