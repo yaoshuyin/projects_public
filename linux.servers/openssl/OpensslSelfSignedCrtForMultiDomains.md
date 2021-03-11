@@ -63,6 +63,14 @@ openssl x509 -req -days 3650 -in ${domain}.csr -CA ${domain}-ca.crt -CAkey ${dom
 
 ```
 
+**查看证书**
+```console
+$ openssl x509 -in a.com.crt -text -noout
+   ...
+    DNS:a.com, DNS:*.a.com, DNS:*.app.a.com, DNS:*.b.com
+   ...
+```
+
 **Nginx配置**
 ```console
 $ ls 
@@ -92,7 +100,9 @@ $ systemctl restart nginx
 ```
 
 **加hosts**
+```
 172.18.0.8 a.com www.a.com b.com www.b.com
+```
 
 **测试**
 ```console
