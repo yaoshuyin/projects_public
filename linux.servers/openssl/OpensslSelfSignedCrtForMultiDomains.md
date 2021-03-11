@@ -60,22 +60,21 @@ openssl req -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$domain/emailAddress=$email"
 #用CA证书给server.csr进行签名
 openssl x509 -req -days 3650 -in ${domain}.csr -CA ${domain}-ca.crt -CAkey ${domain}-ca.key -set_serial 01 -out $domain.crt -extensions v3_req -extfile openssl.cnf
 #............ ~no need change ...........
-
 ```
 
 **查看证书**
 ```console
+$ ls 
+  a.com-ca.crt a.com-ca.key a.com.crt a.com.key
+
 $ openssl x509 -in a.com.crt -text -noout
-   ...
+  ...
     DNS:a.com, DNS:*.a.com, DNS:*.app.a.com, DNS:*.b.com
-   ...
+  ...
 ```
 
 **Nginx配置**
 ```console
-$ ls 
- a.com-ca.crt a.com-ca.key a.com.crt a.com.key
-
 $ vim nginx.conf
 http {
   server {
