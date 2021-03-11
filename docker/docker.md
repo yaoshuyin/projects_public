@@ -124,5 +124,53 @@ $ docker volume inspect vol_test
     }
 ]
 
+$ docker run -d -i -t --name test -v vol_test:/data centos:7 /bin/bash
 
+```
+
+**数据巻容器**
+```
+创建一个容器时创建数据巻(容器无需运行)
+$ docker create --name c_data -v /data centos:7
+
+root@myubuntu ~# dockerin
+1) centos_vol_from_data(172.17.0.4)
+$ mount -l
+/dev/nvme0n1p8 on /data type ext4 (rw,relatime,errors=remount-ro)
+
+$ ls data/
+a.txt
+
+$ docker create --name c_data -v /data centos:7
+$ docker inspect c_data
+
+$ docker run -d -it --name centos_vol_from_data --volumes-from c_data centos:7 /bin/bash
+
+$ touch /var/lib/docker/volumes/a14d66543e64b635ea3f1feecb1d5bf88fc2fb34c547ad74087f629270231ff0/_data/a.txt
+
+$ docker inspect c_data
+  ...
+  "Mounts": [
+     {
+         "Type": "volume",
+         "Name": "a14d66543e64b635ea3f1feecb1d5bf88fc2fb34c547ad74087f629270231ff0",
+         "Source": "/var/lib/docker/volumes/a14d66543e64b635ea3f1feecb1d5bf88fc2fb34c547ad74087f629270231ff0/_data",
+         "Destination": "/data",
+         "Driver": "local",
+         "Mode": "",
+         "RW": true,
+         "Propagation": ""
+     }
+  ]
+
+$ touch /var/lib/docker/volumes/a14d66...31ff0/_data/a.txt
+$ touch /var/lib/docker/volumes/a14d66...31ff0/_data/1234.txt
+
+$ dockerin
+1) centos_vol_from_data(172.17.0.4)  3) centos-save(172.17.0.2)
+2) centos-import(172.17.0.3)	     4) centos2(172.18.0.8)
+#? 1
+[root@c27a15f0e3e3 /]# cd /data
+[root@c27a15f0e3e3 data]# ls
+1234.txt  a.txt
 ```
