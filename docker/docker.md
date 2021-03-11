@@ -178,3 +178,27 @@ $ dockerin
 1234.txt  a.txt
 ```
 
+**docker link**
+```console
+#通过link后，可以通过主机名访问link的源主机
+
+$ dockerin
+1) centos_vol_from_data(172.17.0.4)
+2) centos-import(172.17.0.3)
+3) centos-save(172.17.0.2)
+4) centos2(172.18.0.8)
+#? 
+
+$ docker run -d -it --name centos_vol_from_data2 --link centos-import:centoslink --volumes-from c_data centos:7 /bin/bash
+
+$ dockerin
+1) centos_vol_from_data2(172.17.0.5)
+2) centos_vol_from_data(172.17.0.4)
+3) centos-import(172.17.0.3)
+4) centos-save(172.17.0.2)
+5) centos2(172.18.0.8)
+
+[root@5903c19176f8 ~]# cat /etc/hosts
+172.17.0.3	centoslink 7ef37ea703ee centos-import
+172.17.0.5	5903c19176f8
+```
