@@ -147,6 +147,7 @@ $ docker inspect c_data
      }
   ]
 
+# 源及挂载点 会使用 c_data容器创建时的 源及挂载点
 $ docker run -d -it --name centos_vol_from_data --volumes-from c_data centos:7 /bin/bash
 
 $docker inspect centos_vol_from_data
@@ -176,3 +177,4 @@ $ dockerin
 [root@c27a15f0e3e3 data]# ls
 1234.txt  a.txt
 ```
+
