@@ -1,4 +1,4 @@
-**iptables nat**
+**iptables nat port redirect local2remote**
 
 ```bash
 :<<_EOF_
@@ -13,13 +13,13 @@ Script: redirect.sh
              client --> 172.18.0.9:2222 --> 172.18.0.100:22
 
 Usage: ./redirect.sh server_eth server_port  dest_host dest_port
-       ./redirect.sh eth0 8888 172.18.0.8 80
+       ./redirect.sh eth0 8888 172.18.0.100 80
        ./redirect.sh eth0 2222 192.168.0.100 22
 
 test:
-  $ redirect eth0 8888 172.18.0.8 80
-  $ nc -vz 192.168.101.18 8888
-    Connection to 192.168.101.18 8888 port [tcp/*] succeeded!
+  $ redirect eth0 8888 172.18.0.100 80
+  $ nc -vz 172.18.0.9 8888
+    Connection to 172.18.0.9 8888 port [tcp/*] succeeded!
   
   $ nc -vz -w 2 127.0.0.1 8888
   nc: connect to 127.0.0.1 port 9999 (tcp) timed out
