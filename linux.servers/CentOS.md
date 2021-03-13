@@ -260,6 +260,7 @@ redirect_local2local $1 $2
 Author: cnscn
 Script: redirect.sh
 功能:   本机端口 重定向到 其他服务器端口
+        !!!nc -vz 127.0.0.1:8888 是无法访问的，只能lo以外的IP才可以
 环境:
   本机IP:    172.18.0.9
   dest_host: 172.18.0.100
@@ -268,16 +269,16 @@ Script: redirect.sh
              client --> 172.18.0.9:2222 --> 172.18.0.100:22
 
 Usage: ./redirect.sh server_eth server_port  dest_host dest_port
-       ./redirect.sh eth0 8888 172.18.0.8 80
+       ./redirect.sh eth0 8888 172.18.0.100 80
        ./redirect.sh eth0 2222 192.168.0.100 22
 
 test:
-  $ redirect eth0 8888 172.18.0.8 80
-  $ nc -vz 192.168.101.18 8888
-    Connection to 192.168.101.18 8888 port [tcp/*] succeeded!
+  $ redirect eth0 8888 172.18.0.100 80
+  $ nc -vz 172.18.0.9 8888
+    Connection to 172.18.0.9 8888 port [tcp/*] succeeded!
   
   $ nc -vz -w 2 127.0.0.1 8888
-  nc: connect to 127.0.0.1 port 9999 (tcp) timed out
+  nc: connect to 127.0.0.1 port 8888 (tcp) timed out
 _EOF_
 
 function redirect_local2remote()
@@ -301,10 +302,76 @@ function redirect_local2remote()
    #如果不能访问，可以尝试添加下面两条
    #iptables -t nat -A POSTROUTING -o $server_eth -j MASQUERADE 
    #iptables -A FORWARD -i $server_eth -p tcp --dport $dest_port -d $dest_host -j ACCEPT
-   
-   #!!!注意：不能使用127.0.0.1访问，因为localhost、127.0.0.1不过nat
-   #curl http://127.0.0.1:9974 .. failed  ()
 }
 
 redirect_local2remote $1 $2 $3 $4
+```
+
+```
+.ip
+ ip addr list
+ ip addr add 192.168.0.3/24 dev eth0
+ ip addr del 192.168.0.3/24 dev eth0
+
+ ip route list
+ ip route add 192.168.3.1 dev eth0
+
+.tcpdump
+ -i eth0
+ host net port
+ src dst or and
+ not ! and && or ||
+ S SYN
+ F FIN
+ P PUSH
+ R RST
+
+ tcpdump -i eth0
+ tcpdump -i eth0 tcp and dst host 192.168.0.1 and dst port 3306 -s100 -XX -n
+
+.dhcp server
+$ ifconfig eth0:0 192.168.10.1 up
+
+$ yum install dhcp dhclient
+
+# 修改/etc/systemd/system/multi-user.target.wants/dhcpd.service，在ExecStart后添加要做DHCP的网卡
+
+$ vim /etc/systemd/system/multi-user.target.wants/dhcpd.service
+[Unit]
+Description=DHCPv4 Server Daemon
+Documentation=man:dhcpd(8) man:dhcpd.conf(5)
+Wants=network-online.target
+After=network-online.target
+After=time-sync.target
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/dhcpd -f -cf /etc/dhcp/dhcpd.conf -user dhcpd -group dhcpd --no-pid eth0:0
+
+[Install]
+WantedBy=multi-user.target
+
+$ vim /etc/dhcp/dhcpd.conf
+default-lease-time 3600;
+log-facility local7;
+
+subnet 192.168.10.0 netmask 255.255.255.0 {
+   authoritative;
+   range 192.168.10.30 192.168.10.200;
+   default-lease-time 3600;
+   max-lease-time 172800;
+   option subnet-mask 255.255.255.0;
+   option broadcast-address 192.168.10.255;
+   option routers 192.168.10.1;
+   option domain-name-servers 8.8.4.4;
+   #option domain-name "a.com";
+}
+
+$ systemctl enable dhcpd
+$ systemctl start dhcpd
+
+test
+$ yum install dhclient
+$ ifconfig eth0:1 192.168.10.10 up
+$ dhclient -d eth0:1
 ```
