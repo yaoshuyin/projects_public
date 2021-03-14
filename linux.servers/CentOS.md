@@ -436,5 +436,275 @@ ip route list table InternetLine1
    default via 172.18.0.1 dev eth0 
 ip route list table InternetLine2
    default via 172.18.0.1 dev eth0 
-
 ```
+
+**MySQL**
+```mysql
+mysql> set password=password('123456');
+
+mysqladmin
+mysqlcheck
+mysqldump
+mysqlimport
+mysqlshow
+mysqldumpslow
+mysqlbinlog
+
+bind-address
+port
+socket
+datadir
+tmpdir
+skip-external-locking
+back_log 在连接请求等待队列中允许存放的最大连接数
+character-set-server 默认字符集
+key_buffer_size myisam索引缓冲区
+max_connections 允许的最大连接数
+table_cache 设置表调整缓存的数量
+max_allowed_packet 网络传输中，一次消息传输量的最大值
+binlog_cache_size 在事务过程中容纳二进制日志SQL语句的缓存大小
+sort_buffer_size 用来完成排序操作的线程使用的缓冲区大小
+join_buffer_size 为两个表间的每个完全连接分配连接缓冲区
+thread_cache_size 线程缓冲区所能容纳的最大线程个数
+thread_concurrency 限制一次有多少线程能进入内存
+
+query_cache_size 为缓存查询结果分配的内存的数量
+query_cache_limit 如查询结果超过此参数设置的大小将不进行缓存
+ft_min_word_len  加入索引的词的最小长度
+thread_stack 每个连接创建时分配的内存
+transaction_isolation mysql数据库事务隔离级别
+tmp_table_size 临时表的最大大小
+net_buffer_length 服务器和客户之间通信使用的缓冲区长度
+read_buffer_size 对数据表顺序读取时分配的MySQL读入缓冲区大小
+read_rnd_buffer_size MYSQL随机读缓冲区大小
+max_heap_table_size HEAP表允许的最大值
+default-storage-engine
+log-bin
+server-id
+slow_query_log
+long_query_time
+log-queries-not-using-indexes
+expire-logs-days
+replicate_wild_ignore_table 主从同步时忽略的表
+replicate_wild_do_table 主从同步时需要同步的表
+innodb_data_home_dir  InnoDB数据文件的目录
+innodb_file_per_table 启用独立表空间
+innodb_data_file_path InnoDB数据文件位置
+innodb_log_group_home_dir 用来存放InnoDB日志文件的目录路径
+innodb_additional_mem_pool_size InnoDB存储的数据目录信息和其他内部数据结构的内存池大小
+innodb_buffer_pool_size Innodb存储引擎的表数据和索引数据的最大内存缓冲区大小
+innodb_file_io_threads I/O操作的最大线程个数
+innodb_thread_concurrency Innodb并发线程数
+innodb_flush_log_at_trx_commit Innodb日志提交方式
+innodb_log_buffer_size InnoDB日志缓冲区大小
+innodb_log_file_size InnoDB日志文件大小
+innodb_log_files_in_group Innodb日志个数
+innodb_max_dirty_pages_pct 当内存中的脏页量达到innodb_buffer_pool大小的比例时，刷新脏页到磁盘
+innodb_lock_wait_timeout innodb行锁导致的死锁等待时间
+slave_compressed_protocol 主从同步时是否采用压缩传输binlog
+
+skip-name-resolve 跳过域名解析
+
+.
+create
+drop
+grant option
+references
+alter
+delete
+indexe
+insert
+select
+update
+create view
+show view
+alter routine
+create routine
+execute
+file
+create temporary table
+lock tables 
+crete user
+process
+reload
+replication client
+replication slave
+show databases
+shutdown
+super
+
+select * from tables_priv where user='user1';
+
+show grants for user1@1.1.1.1
+
+revoke insert on *.* from 'u'@'%';
+revoke all on *.* from 'u'@'%';
+drop user 'u'@'%';
+mysqlbinlog mysql-bin.000005 | cat -n
+purge binary logs to 'mysql-bin.010';
+purge binary logs before '2015-04-02 22:46:26';
+set global expire_logs_days=7;
+
+slow_query_log = 1
+long_query_time = 1
+log-slow-queries = /tmp/slow.log
+#log-queries-not-using-indexes
+
+mysqldump -u root -d --add-drop-table test > test.sql
+mysql -uroot test < a.sql
+
+-A 导出全部数据库
+--add-drop-database
+--add-drop-table
+--add-locks
+-c 导出时使用完整的insert语句
+--default-character-set 设置默认字符集
+-x 提交请求，锁定所有表，保证数据一致
+-l 导出前，锁定所有表
+-n 只导出数据，而不添加create database语句
+-t 只导出数据，而不添加create table
+-d 只导出数据结构，不导出数据
+-w 只导出给定的where条件选择的记录
+
+.xtrabackup
+因mysqldump备份和恢复时间会较长
+xtrabackup 是一款高效的备份工具，备份时不会影响原数据库的正常更新
+
+./innobackupex --defaults-file=/etc/my.cnf --socket=/data/mysql_data/mysql.sock --user=root --password=123456 --slave-info /data/backup
+
+mysql -S /tmp/mysql.sock -u root -p
+
+grant replication slave on *.* to repl@'192.168.1.%';
+
+change master to master_host='192.168.1.100', master_port=3306, master_user='repl', master_password='';
+
+.nginx
+upstream up{
+ip_hash;
+  server 1.1.1.1:8000 weight=2 max_fails=1 fail_timeout=10s;
+server 1.1.1.2:8000 weight=1 max_fails=1 fail_timeout=10s;
+}
+
+.
+proxy_redirect off;
+proxy_set_header Host $host;
+proxy_set_header X-Forwarded-For $remote_addr;
+client_max_body_size 10m;
+client_body_buffer_size 128k;
+proxy_connect_timeout 3;
+proxy_send_timeout 3;
+proxy_read_timeout 3;
+proxy_buffer_size 32k;
+proxy_buffers 4 32k;
+proxy_busy_buffers_size 64k;
+proxy_temp_file_write_size 64k;
+proxy_next_upstream error timeout http_500 http_502 http_503 http_504;
+
+location ~* ^.+\.(js|css)$ {
+   root /data/a;
+   expires 2d;
+   access_log /var/log/a.log main;
+}
+
+location ~ \.php$ {
+   fastcgi_pass 127.0.0.1:9000;
+   fastcgi_index index.php;
+   fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+   include fastcgi_params;
+}
+
+.集群
+ 数据链路层，可以根据数据包的MAC地址选择不同的路径
+ 网络层可以利用IP地址的分配方式将数据分配到多个节点
+ LVS linux virtual server
+ 基于IP层和内容 分发的负载平衡调度解决方案
+ 前端有一个负载均衡器Load Balancer
+
+ VS/NAT Virtual Server Via Network Address Translation
+ 负载均衡器通过重写请求报文的目的地址实现网络地址转换，根据设定的负载均衡算法将请求分配给后端的真实服务器
+  真实服务器的响应报文通过负载均衡器时，报文的源地址被重写，然后返回给客户端
+  因每次请求都要经过负载均衡器，负载均衡器可能成为性能瓶颈
+
+ VS/TUN Virtual Server via IP Tunneling
+  负载均衡器把请求报文通过IP隧道发到真实服务器， 真实服务器将响应直接返回给客户，由此负载均衡器只处理请求报文，而结果不需要经过负载均衡器，因此吞吐能力更强大
+  TUN模式可以支持跨网段，并支持跨地域部署
+
+VS/DR Virtual Server via Direct Routing
+ 此模式通过改写请求报文的MAC地址，把请求发送到真实服务器，DR模式下真实服务器把响应直接返回给客户端
+ 此方式要求负载均衡器与真实服务器都在同一物理网段上
+ 此方式没有IP隧道的开销
+
+.负载均衡高度算法
+ 轮询RR: Round Robin 
+ 加权轮询WRR: Weighted Round Robin
+     负载均衡器可以自动问询后端服务器的负载情况，并动态调整其权值
+
+最少链接算法LC: Least Connections
+加权最少链接算法WLC: Weighted Least Connections
+
+虚拟IP     192.168.32.100 
+负载均衡器 192.168.32.101 / 102
+后端服务器 192.168.32 104 / 105
+
+ipvsadm 是LVS主程序，负责RS的添加、删除、修改
+ipvsadm-save 备份LVS配置
+ipvsadm-restore 用于恢复LVS配置
+
+-A 在内核的虚拟服务器表中添加一条新的虚拟服务器记录
+-E 编辑内核虚拟服务器表中的一条虚拟服务器记录
+-D 删除内核虚拟服务器中的一条虚拟服务器记录
+-C 清除内核虚拟服务器表中的所有记录
+-R 恢复虚拟服务器规则
+-S 保存虚拟服务器规则，输出为－R选项可读的格式
+-a 在内核虚拟服务器表的一条记录里添加一条新的真实服务器记录
+-e 编辑一条虚拟服务器记录中的某条真实服务器记录
+-d 删除一条虚拟服务器记录中的某条真实服务器记录
+
+.配置
+!!! vip/ld/rs 在同一网段
+
+1)架构:
+  vip: 192.168.56.110
+    ld1: eth0 192.168.56.101  eth0:0 192.168.56.110
+    ld2: eth0 192.168.56.102  eth0:0 192.168.56.110
+
+  rs1: 192.168.56.103
+  rs2: 192.168.56.104
+
+2)load balancer
+a) ld1 eth0 192.168.56.101
+
+echo >> /etc/rc.local <<EOF
+  echo 1 > /proc/sys/net/ipv4/ip_forward
+  /usr/sbin/ipvsadm -A -t 192.168.56.110:80 -s wrr
+  /usr/sbin/ipvsadm -a -t 192.168.56.110:80 -r 192.168.56.103:80 -m -w 1
+  /usr/sbin/ipvsadm -a -t 192.168.56.110:80 -r 192.168.56.104:80 -m -w 1
+EOF
+
+b) ld1 eth0 192.168.56.102
+
+echo >> /etc/rc.local <<EOF
+  echo 1 > /proc/sys/net/ipv4/ip_forward
+  /usr/sbin/ipvsadm -A -t 192.168.56.110:80 -s wrr
+  /usr/sbin/ipvsadm -a -t 192.168.56.110:80 -r 192.168.56.103:80 -m -w 1
+  /usr/sbin/ipvsadm -a -t 192.168.56.110:80 -r 192.168.56.104:80 -m -w 1
+EOF
+
+3)real server
+  a) rs1 eth0 192.168.56.103
+     apt install nginx
+     echo 56.103 > /var/www/html/index.nginx-debian.html 
+  
+  2) rs2 eth0 192.168.56.104
+     apt install nginx
+     echo 56.104 > /var/www/html/index.nginx-debian.html 
+  
+4)test
+$ curl http://192.168.56.110
+   56.103
+   
+$ curl http://192.168.56.110
+   56.104
+   
+$ curl http://192.168.56.110
+   56.103
