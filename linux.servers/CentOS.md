@@ -374,4 +374,65 @@ test
 $ yum install dhclient
 $ ifconfig eth0:1 192.168.10.10 up
 $ dhclient -d eth0:1
+
+.route
+RIP:
+  Routing Information Protocol
+  路由信息协议
+  以30秒为周期向相邻的路由器交换信息，从而让每个路由器都建立路由表
+  通过一个路由器称为一跳
+  跳数超过15数据包将不可达
+  因每30秒向相邻路由器交换信息，因此收敛时间(路由协议让每个路由器建立精确并稳定的路由表的时间长度，时间越长，网络发生变化后，路由表生成的越慢，网络稳定需要的时间也越长)相对较长
+
+OSPF(Open Shortest path First, 开放最短路径优先)
+  一般用于一个路由域内，称为自治系统(Autonomous System)
+  根据链路状态计算路由表
+  适合大型网络
+  收敛速度更快
+
+BGP(Border Gateway Protocol)
+  边界网关协议
+  用来处理自治系统之间的路由关系的路由协议
+  适合处理Internet这样巨大的网络
+  使用通路向量路由协议
+  使用TCP协议进行可靠的传输
+  使用了路由汇聚、增量更新等功能
+  极大增加网络可靠性和稳定性
+
+IGRP
+  Interior Gateway Routing Protocol
+  内部网关路由协议
+  是距离向量路由协议
+  要求路由器以90秒为周期向相邻的路由器发送路由表的全部或部分
+  由此区域内的路由器都可以计算出所有网络的距离
+  由于使用网络延迟、带宽、可靠性及负载用作路由选择，因此稳定性相当不错
+
+.route add|del -net|-host ip netmask mask gw ip|dev
+
+route add default gw 192.168.0.168.0.1
+
+route add -net 192.168.1.0/24 gw 192.168.0.1
+route add -net 192.168.1.0 netmask 255.255.255.0 gw 192.168.0.1
+
+.两个内网 分别走两条 InternetLine
+192.168.1.1 eth0           eth2 172.16.1.1 ... InternetLineA
+                    HOST                      
+192.168.2.1 eth1           eth3 172.16.2.1 ... InternetLineB
+
+![avatar](pic/internetline.png.png)
+
+echo 199 InternetLine1 >> /etc/iproute2/rt_tables
+echo 200 InternetLine2 >> /etc/iproute2/rt_tables
+
+ip rule add from 192.168.101.0/24 table InternetLine1
+ip route add default via 172.16.1.1 table InternetLine1
+
+ip rule add from 192.168.102.0/24 table InternetLine2
+ip route add default via 172.16.2.1 table InternetLine2
+
+ip route list table InternetLine1
+   default via 172.18.0.1 dev eth0 
+ip route list table InternetLine2
+   default via 172.18.0.1 dev eth0 
+
 ```
