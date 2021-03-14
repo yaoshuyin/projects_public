@@ -419,8 +419,10 @@ route add -net 192.168.1.0 netmask 255.255.255.0 gw 192.168.0.1
                     HOST                      
 192.168.2.1 eth1           eth3 172.16.2.1 ... InternetLineB
 
+```
 ![avatar](pic/internetline.png.png)
 
+```Console
 echo 199 InternetLine1 >> /etc/iproute2/rt_tables
 echo 200 InternetLine2 >> /etc/iproute2/rt_tables
 
