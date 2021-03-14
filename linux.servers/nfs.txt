@@ -23,3 +23,17 @@ rpc.mount   396    root    8u  IPv4   TCP *:20048 (LISTEN)
 
 172.16.5.13
 
+all_squash
+   将远程访问的所有普通用户及所属组都映射为nobody,此为默认设置
+no_all_squash
+
+root_squash
+   将root用户及所属组都映射为匿名用户或组
+
+no_root_squash
+
+anonuid 将远程访问的所有用户都映射为匿名用户，并指定此用户为本地用户
+anongid 将远程访问的所有用户组都映射为匿名用户组，并指定此用户为本地用户组
+
+
+
