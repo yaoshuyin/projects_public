@@ -74,7 +74,7 @@ bbs    A  172.18.0.1
 
 $ chgrp named -R /var/named/zones
 $ systemctl enable named
-$ systemctl start named
+$ systemctl start named  ;
 
 $ dig  @172.18.0.8 test.x.com
 test.x.com.		3600	IN	A	172.18.0.1

@@ -1,5 +1,5 @@
 **dhcp server**
-```console
+```consoledhcpd -4 -f -d -s 169.254.13.1 -cf dhcpd.conf -lf leases
 $ ifconfig eth0:0 192.168.10.1 up
 
 $ yum install dhcp dhclient

@@ -36,4 +36,15 @@ anonuid 将远程访问的所有用户都映射为匿名用户，并指定此用
 anongid 将远程访问的所有用户组都映射为匿名用户组，并指定此用户为本地用户组
 
 
+.后台进程
+rpc.nfsd
 
+rpc.lockd  抓取文件锁
+rpc.statd  抓取文件锁
+
+rpc.mountd 初始化客户端的mount请求
+
+.确认nfs服务是否正常
+$ rpcinfo -p
+$ showmount -e 127.0.0.1
+rpc.rquotad 负责对客户文件的磁盘配额
