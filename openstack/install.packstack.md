@@ -102,7 +102,14 @@ $ ps -ef|grep python
 .登陆测试
 http://172.30.14.10/dashboard
 user: admin
-pass: 34561649c218494d  (使用/root/openstack-answer.txt： CONFIG_KEYSTONE_ADMIN_PW)
+pass: 123456  (使用/root/openstack-answer.txt： CONFIG_KEYSTONE_ADMIN_PW)
+
+管理员
+  计算
+    巻
+      管理巻
+        识别码: test
+        主机:   openstack@lvm#cinder-volumes
 
 ................................
 
