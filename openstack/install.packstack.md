@@ -31,8 +31,6 @@ $ yum install epel-release
 $ yum -y update
 $ yum -y install yum-utils net-tools
  
-#!!! 很重要
-$ yum downgrade leatherman
 
 $ systemctl stop NetworkManager
 $ systemctl disable NetworkManager
@@ -41,9 +39,6 @@ $ vi /etc/selinux/config
 $ systemctl disable firewalld
 $ systemctl stop firewalld
  
-$ systemctl stop NetworkManager
-$ systemctl status NetworkManager
-
 $ systemctl enable network
 $ systemctl start network
 $ systemctl status network
@@ -63,8 +58,11 @@ $ vgcreate lxc /dev/sdc
 
 $ yum install -y centos-release-openstack-queens
 $ yum -y update
-$ reboot
 
+#!!! 很重要
+$ yum downgrade leatherman
+$ grep exclude /etc/yum.conf || echo 'exclude=leatherman' >> /etc/yum.conf
+$ reboot
 
 $ yum install -y openstack-packstack
 
