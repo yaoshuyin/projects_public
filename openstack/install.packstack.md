@@ -1,9 +1,9 @@
 **packstack install openstack**
 ```console
 #参考: https://www.jianshu.com/p/3fe87399ba78?from=singlemessage
-1)virtualbox
+1)virtualbox (CPU/内存 越大越好,太小了安装会失败)
   cpu: 2Core
-  mem: 3GB
+  mem: 10GB (total:9.4G/free:3.7G/cache:553.8M/buff:3.1M)
   网卡: enp0s3  nat   enp0s18  hostonly
 
   python2 
@@ -19,6 +19,10 @@
 https://mirrors.tuna.tsinghua.edu.cn/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso
 
 3)
+$ grep 8.8.4.4 /etc/rc.local || cat >> /etc/rc.local <<'_EOF_'
+grep 8.8.4.4 /etc/resolv.conf || sed '/search/anameserver 8.8.4.4' /etc/resolv.conf
+_EOF_
+
 $ cat /etc/redhat-release 
     CentOS Linux release 7.9.2009 (Core)
 
@@ -85,6 +89,11 @@ $ vi /root/openstack-answer.txt
   CONFIG_REDIS_HOST=172.30.14.10
 
 #!!! 保存好openstack-answer.txt, 以后扩容再用
+$ packstack --allinone 
+
+$ vim packstack-answer-20210315-080444.txt
+  :%s/10.0.2.15/192.168.10.10/g
+
 $ packstack --answer-file=/root/openstack-answer.txt 
  
 .开启另一个Termnial
