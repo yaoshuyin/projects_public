@@ -1,0 +1,93 @@
+#!/bin/bash
+:<<DOC
+  Script:
+    dict.sh
+
+  Usage:
+    ln -s /xxxx/dict.sh /usr/local/bin/dict
+    dict "i love you" 
+    dict "我爱你" zh en
+DOC
+
+:<<DOC
+  Author:
+     cnscn
+  
+  Date: 2021/03/19
+  
+  Install:
+     apt install jq
+  
+  Usage: 
+     btrans "i love you" 
+     btrans "我爱你" zh en
+  
+  lang:
+     auto 自动检测 / zh 	中文     / en 	英语  / jp   日语   / wyw  文言文 
+     fra  法语     / spa  西班牙语 / th 	泰语  / vie  越南语 / kor  韩语
+DOC
+
+[ -f /usr/bin/jq ] || apt -y install jq || yum -y install jq
+
+function btrans() {
+   q="$1"
+   
+   from=${2:-auto}
+   to=${3:-zh}
+   salt="14...8"
+   appid="2...4"
+   key="w..ix"
+   sign=$(echo -n "${appid}${q}${salt}${key}"|md5sum|cut -d ' ' -f1)
+   curl -q  --no-progress-meter -X GET -G --data-urlencode "q=$q" "http://api.fanyi.baidu.com/api/trans/vip/translate?from=$from&to=$to&appid=$appid&salt=$salt&sign=$sign"
+}
+
+from=${2:-auto}
+to=${3:-zh}
+
+w=$1
+
+#baidu fanyi
+echo -n "Baidu: "
+str=$(btrans "$w" $from $to|jq .trans_result[0].dst)
+echo -e $str
+
+if [[ $w =~ \  ]]
+then
+   #echo "blank "
+   exit 100
+fi
+
+echo "CiDian: "
+cd /data/Spiders/x/16/
+
+function plus() {
+   w=$1
+   if grep -E "^${w}:" dict_hist.txt 
+   then
+      perl -F: -i -pne  '$y=$F[1]+1; s/:(\d+)(:?)/:${y}$2/g if /^'$w':/' dict_hist.txt
+   else
+      echo "$w:1" >> dict_hist.txt 
+   fi
+   sort -r -n -t: -k2 dict_hist.txt > .dict_hist.txt
+   cp -f .dict_hist.txt dict_hist.txt
+}
+
+rm -f /tmp/_dict_
+if [[ $w =~ ^[a-zA-Z0-9]+$ ]]
+then
+  wl=$(echo $w|tr '[A-Z]' '[a-z]')
+  if [ -f "output/html/dict/${w}.html" ] 
+  then
+    plus "$w"
+    elinks -dump "output/html/dict/${w}.html" > /tmp/_dict_
+  elif [ -f "output/html/dict/${wl}.html" ] 
+  then
+    plus "$wl"
+    elinks -dump "output/html/dict/${wl}.html" > /tmp/_dict_
+  fi
+else
+  grep -wRi "$w" output/html/dict | awk -F: '{print $1}' |  xargs -I {}  elinks -dump {} > /tmp/_dict_
+  [ -f /tmp/_dict_ ] && plus "$w" 
+fi
+
+[ -f /tmp/_dict_ ] && less /tmp/_dict_
