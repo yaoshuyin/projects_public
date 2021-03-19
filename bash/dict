@@ -1,23 +1,27 @@
 #!/bin/bash
-:<<DOC
-  Script:
-    dict.sh
+:<<_DOC_
+  Script: dict.sh
+  Author: cnscn
+  Date:   2021/03/19
+_DOC_
 
-  Usage:
-    ln -s /xxxx/dict.sh /usr/local/bin/dict
-    dict "i love you" 
-    dict "我爱你" zh en
-DOC
+function help() {
+  [ -f /usr/local/bin/dict ] || ln $(realpath $0) /usr/local/bin/dict
+  [ -f /usr/local/bin/d ]    || ln $(realpath $0) /usr/local/bin/d
+  cat <<_DOC_
+Usage:
+  d "i love you" 
+  d "我爱你" zh en
+
+  dict "i love you" 
+  dict "我爱你" zh en
+_DOC_
+  exit
+}
+
+[ $# -eq 0 ] && help
 
 :<<DOC
-  Author:
-     cnscn
-  
-  Date: 2021/03/19
-  
-  Install:
-     apt install jq
-  
   Usage: 
      btrans "i love you" 
      btrans "我爱你" zh en
@@ -50,6 +54,10 @@ w=$1
 echo -n "Baidu: "
 str=$(btrans "$w" $from $to|jq .trans_result[0].dst)
 echo -e $str
+
+exit
+
+############ xindongfang #############
 
 if [[ $w =~ \  ]]
 then
