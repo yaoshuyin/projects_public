@@ -1,0 +1,35 @@
+#!/bin/bash
+
+:<<_DOC_
+$ cp /xxx/hosts /usr/local/bin/
+
+$ cat <<EOF >Host minibaike.cn
+Host minibaike.cn
+  HostName 2.1.5.3
+  Port 22
+  User root
+  IdentityFile ~/.ssh/id_rsa
+EOF
+
+$ hosts
+  1) minibaike.cn
+     #? 1
+        1) ssh
+        2) sftp
+     #? 2
+  Connected to minibaike.cn
+  sftp> 
+_DOC_
+
+select h  in $(grep "^Host" ~/.ssh/config | awk '{print $2}')
+do
+   select s in ssh sftp
+   do
+      if [ "$s" = "1" ]
+      then
+        ssh $h
+      else
+        sftp $h
+      fi
+   done
+done
