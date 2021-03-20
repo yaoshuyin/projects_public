@@ -25,7 +25,7 @@ select h  in $(grep "^Host" ~/.ssh/config | awk '{print $2}')
 do
    select s in ssh sftp
    do
-      if [ "$s" = "1" ]
+     if [ "$s" = "ssh" ]
       then
         ssh $h
       else
