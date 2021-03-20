@@ -9,9 +9,12 @@
 #   #? 2
 #
 
-echo 'net=" --net=dockernet "'
-echo 'sysopts=" --privileged=true --cap-add=SYS_ADMIN -v /run -v /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro --security-opt seccomp=unconfined "'
-echo -e 'name=gantt; ip=172.17.0.18; data=/data/docker/disks/$name/data; docker run $sysopts -it -d -h $name --name $name --ip=$ip $net -v "$data:/data" -w /data -h $name --name $name --restart=always harbor.a.com:9443/myimgs/myubuntu:20.04 /usr/sbin/init\n'
+if [ $# -eq 1 -a "$1" = "-h" ]
+then	
+   echo 'net=" --net=dockernet "'
+   echo 'sysopts=" --privileged=true --cap-add=SYS_ADMIN -v /run -v /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro --security-opt seccomp=unconfined "'
+   echo -e 'name=gantt; ip=172.17.0.18; data=/data/docker/disks/$name/data; docker run $sysopts -it -d -h $name --name $name --ip=$ip $net -v "$data:/data" -w /data -h $name --name $name --restart=always harbor.a.com:9443/myimgs/myubuntu:20.04 /usr/sbin/init\n'
+fi
 
 if [ ! -f /usr/local/bin/dockergetip ]
 then
@@ -21,15 +24,14 @@ function getip(){
    name=${1/:/}
    docker inspect $name|grep '"IPAddress": "[0-9]\+.*"'|head -n1|awk '{print $2}'|sed -e 's/"//g' -e 's/,//g'|xargs -I {} echo "$name({})"
 }
-
 getip $1
 _EOF_
 
-   chmod +x /usr/local/bin/dockergetip
+   sudo chmod +x /usr/local/bin/dockergetip
 fi
 
-select c  in $( docker ps |awk 'NR>1 {print $NF}'|xargs -I {} /usr/local/bin/dockergetip {})
+select c  in $( sudo docker ps |awk 'NR>1 {print $NF}'|xargs -I {} sudo /usr/local/bin/dockergetip {})
 do
   name=$(echo $c|sed -e 's/(.*)//g' -e 's/://g')
-  docker exec -it $name bash
+  sudo docker exec -it $name bash
 done
