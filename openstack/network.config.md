@@ -126,4 +126,10 @@ Admin Project
      实例
 	    创建实例
         绑定浮动IP
+
+.vnc
+vim /etc/nova/nova.conf
+
+#vncserver_proxyclient_address=openstack.smartont.net
+vncserver_proxyclient_address=192.168.10.10
 ```
