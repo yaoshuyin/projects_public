@@ -1,8 +1,6 @@
 1、 
 mkdir -p /etc/systemd/system/docker.service.d
 vi /etc/systemd/system/docker.service.d/http-proxy.conf 
-
-[Service]
 [Service]
 Environment="HTTP_PROXY=http://192.168.56.101:8889" "HTTPS_PROXY=http://192.168.56.101:8889" "NO_PROXY=192.168.0.0/16,172.0.0.0/8,10.0.0.0/8,127.0.0.0,localhost"
  
