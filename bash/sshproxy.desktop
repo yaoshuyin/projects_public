@@ -1,0 +1,11 @@
+#vim /home/tom/Desktops/sshproxy.desktop
+#chmod +x /home/tom/Desktops/sshproxy.desktop
+[Desktop Entry]
+Encoding=UTF-8
+Name=sshproxy
+Type=Application
+Icon=emblem-web
+Categories=Application;
+StartupNotify=true
+Terminal=true
+Exec=/bin/bash /home/tom/.bin/sshproxy
