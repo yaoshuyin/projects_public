@@ -1,5 +1,6 @@
-#vim /home/tom/Desktops/sshproxy.desktop
-#chmod +x /home/tom/Desktops/sshproxy.desktop
+#vim /usr/share/applications/sshproxy.desktop
+#chmod +x /usr/share/applications/sshproxy.desktop
+#打开开始菜单，看到sshproxy,右键 "发送到桌面快捷方式" "固定到任务栏"
 [Desktop Entry]
 Encoding=UTF-8
 Name=sshproxy
