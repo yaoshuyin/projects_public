@@ -4,6 +4,7 @@
 Encoding=UTF-8
 Name=sshproxy
 Type=Application
+#Icons: /usr/share/icons/
 Icon=emblem-web
 Categories=Application;
 StartupNotify=true
