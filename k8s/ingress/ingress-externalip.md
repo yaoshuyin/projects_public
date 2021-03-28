@@ -1,7 +1,5 @@
 ***安装ingress-nginx***
 ```bash
-.给ingress添加external ip, 供外部访问
-..................................................
 #!/bin/bash
 
 #install ingress
@@ -12,9 +10,6 @@
 #/usr/local/k8s/bin/kubectl -n ingress-nginx get deploy
 #~install ingress
 ```
-
-***ingress pod 操作***
-
 
 ***添加externalip***
 ```bash
