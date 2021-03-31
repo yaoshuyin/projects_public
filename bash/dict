@@ -1,27 +1,33 @@
 #!/bin/bash
 :<<_DOC_
   Script: dict.sh
-  Author: cnscn
+  Author: cnscn QQ:214363570
   Date:   2021/03/19
 _DOC_
 
 function help() {
-  [ -f /usr/local/bin/dict ] || ln $(realpath $0) /usr/local/bin/dict
-  [ -f /usr/local/bin/d ]    || ln $(realpath $0) /usr/local/bin/d
-  cat <<_DOC_
-Usage:
+  [ -f /usr/local/bin/mydict ] || sudo ln -s $(realpath $0) /usr/local/bin/mydict
+  [ -f /usr/local/bin/d ]    || sudo ln -s $(realpath $0) /usr/local/bin/d
+  echo 'Usage:
   d "i love you" 
   d "我爱你" zh en
 
   dict "i love you" 
   dict "我爱你" zh en
-_DOC_
+  dict "我爱你" auto en'
   exit
 }
 
-[ $# -eq 0 ] && help
+function _init_() {
+   [ -f /usr/bin/jq ] || sudo apt -y install jq || sudo yum -y install jq
+   which sqlite3 &>/dev/null || sudo apt install -y sqlite3 &>/dev/null || sudo yum install -y sqlite3 &> /dev/null
+}
 
-:<<DOC
+function _trim() {
+   echo -n $1 | sed -E 's/^ *([^ ]+) *$/\1/g'
+}
+
+:<<_DOC_
   Usage: 
      btrans "i love you" 
      btrans "我爱你" zh en
@@ -29,73 +35,66 @@ _DOC_
   lang:
      auto 自动检测 / zh 	中文     / en 	英语  / jp   日语   / wyw  文言文 
      fra  法语     / spa  西班牙语 / th 	泰语  / vie  越南语 / kor  韩语
-DOC
+_DOC_
 
-[ -f /usr/bin/jq ] || apt -y install jq || yum -y install jq
-
-function btrans() {
+#https://fanyi-api.baidu.com/api/trans/product/desktop?req=account
+function _btrans() {
    q="$1"
    
    from=${2:-auto}
    to=${3:-zh}
-   salt="14...8"
-   appid="2...4"
-   key="w..ix"
+   salt="1...8"
+   appid="20..64"
+   key="wD..ix"
    sign=$(echo -n "${appid}${q}${salt}${key}"|md5sum|cut -d ' ' -f1)
    curl -q  --no-progress-meter -X GET -G --data-urlencode "q=$q" "http://api.fanyi.baidu.com/api/trans/vip/translate?from=$from&to=$to&appid=$appid&salt=$salt&sign=$sign"
 }
 
+function _plus() {
+   w="$1"
+   hist=/data/backup/words/db/dict_hist.txt 
+   if grep -E "^${w}:" $hist
+   then
+      perl -F: -i -pne '$y=$F[1]+1; s/:(\d+)(:?)/:${y}$2/g if /^'$w':/' $hist
+   else
+      echo "$w:1" >> $hist
+   fi
+   sort -r -n -t: -k2 $hist > /tmp/.dict_hist.txt
+   cp -f /tmp/.dict_hist.txt $hist
+}
+
+function _mydict_word() {
+  word=$(echo $word|tr '[A-Z]' '[a-z]')
+
+  count=$(sqlite3 /data/backup/words/db/dacidian.sqlite  "select count(wid) from words where word='$word'")
+  if [ $count -gt 0 ]
+  then
+     _plus "$word"
+
+     sqlite3 /data/backup/words/db/dacidian.sqlite "select examples from words where word='$word'" |less
+   else 
+     str=$(_btrans "$word" $2 $3 |jq .trans_result[0].dst)
+     echo -e $str|sed 's/^"\|"$//g'
+  fi
+}
+
+function _mytrans() {
+   word=$(_trim "$1")
+   
+   if [[ $word =~ \  || $w =~ ^[^a-zA-Z0-9]+$ ]] 
+   then
+     str=$(_btrans "$word" $2 $3 |jq .trans_result[0].dst)
+     echo -e $str|sed 's/^"\|"$//g'
+   else 
+     _mydict_word "$word" $2 $3
+   fi
+}
+
+[ $# -eq 0 ] && help
+_init_
+
+word=$(_trim "$1")
 from=${2:-auto}
 to=${3:-zh}
 
-w=$1
-
-#baidu fanyi
-echo -n "Baidu: "
-str=$(btrans "$w" $from $to|jq .trans_result[0].dst)
-echo -e $str
-
-exit
-
-############ xindongfang #############
-
-if [[ $w =~ \  ]]
-then
-   #echo "blank "
-   exit 100
-fi
-
-echo "CiDian: "
-cd /data/Spiders/x/16/
-
-function plus() {
-   w=$1
-   if grep -E "^${w}:" dict_hist.txt 
-   then
-      perl -F: -i -pne  '$y=$F[1]+1; s/:(\d+)(:?)/:${y}$2/g if /^'$w':/' dict_hist.txt
-   else
-      echo "$w:1" >> dict_hist.txt 
-   fi
-   sort -r -n -t: -k2 dict_hist.txt > .dict_hist.txt
-   cp -f .dict_hist.txt dict_hist.txt
-}
-
-rm -f /tmp/_dict_
-if [[ $w =~ ^[a-zA-Z0-9]+$ ]]
-then
-  wl=$(echo $w|tr '[A-Z]' '[a-z]')
-  if [ -f "output/html/dict/${w}.html" ] 
-  then
-    plus "$w"
-    elinks -dump "output/html/dict/${w}.html" > /tmp/_dict_
-  elif [ -f "output/html/dict/${wl}.html" ] 
-  then
-    plus "$wl"
-    elinks -dump "output/html/dict/${wl}.html" > /tmp/_dict_
-  fi
-else
-  grep -wRi "$w" output/html/dict | awk -F: '{print $1}' |  xargs -I {}  elinks -dump {} > /tmp/_dict_
-  [ -f /tmp/_dict_ ] && plus "$w" 
-fi
-
-[ -f /tmp/_dict_ ] && less /tmp/_dict_
+_mytrans "$word"  $from $to
