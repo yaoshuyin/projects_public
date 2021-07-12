@@ -3,19 +3,7 @@ call plug#begin('~/.vim/plugged')
    Plug 'vim-syntastic/syntastic'
 call plug#end()
 
-"Syntastic
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
 
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0 
-"~Syntastic    
-```
-**lint**
-```vim
 "Syntastic
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
@@ -56,6 +44,7 @@ let g:syntastic_lua_checkers = ['luac']
 let g:syntastic_python_checkers = ['pylint']
 
 "apt install  shellcheck
+"yum install ShellCheck
 let g:syntastic_sh_checkers = ['shellcheck']
 "pip install sqlint
 let g:syntastic_sql_checkers = ['sqlint']
