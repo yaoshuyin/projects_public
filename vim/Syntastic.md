@@ -48,6 +48,7 @@ let g:syntastic_python_checkers = ['pylint']
 let g:syntastic_sh_checkers = ['shellcheck']
 "pip install sqlint
 let g:syntastic_sql_checkers = ['sqlint']
+"yum install yamllint
 "pip install yamllint
 let g:syntastic_yaml_checkers = ['yamllint']
 
