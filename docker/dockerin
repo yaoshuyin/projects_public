@@ -41,5 +41,5 @@ fi
 select c  in $( sudo docker ps |grep -Ev 'coredns_coredns|_POD_|controller_ingress-nginx-controller|metrics-server_metrics-server' |awk 'NR>1 {print $NF}'|xargs -I {} sudo /usr/local/bin/dockergetip {})
 do
   name=$(echo $c|sed -e 's/(.*)//g' -e 's/://g')
-  sudo docker exec -it $name bash
+  sudo docker exec -it $name bash || sh
 done
