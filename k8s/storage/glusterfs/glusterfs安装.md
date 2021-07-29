@@ -22,7 +22,6 @@
   systemctl enable glusterd.service
   systemctl start glusterd.service
 
-  echo gluster peer probe "$node"
   gluster peer probe prod-glusterfs-01 
   gluster peer probe prod-glusterfs-02 
   gluster peer probe prod-glusterfs-03
