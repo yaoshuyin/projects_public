@@ -1,5 +1,6 @@
-***节点***
+***节点（三个节点都执行）***
 ```
+/etc/hosts
 10.133.30.25 prod-glusterfs-01
 10.133.30.26 prod-glusterfs-02
 10.133.30.27 prod-glusterfs-03
