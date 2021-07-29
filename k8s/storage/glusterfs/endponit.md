@@ -1,6 +1,6 @@
 ***.客户端(如k8s-node节点上)***
 ```
-#需要添加glusterfs服务器各节点的hosts (否则报错: Mount failed. Check the log file  for more details.)
+#在客户端(如k8s-node)节点上需要添加glusterfs服务器各节点的hosts (否则报错: Mount failed. Check the log file  for more details.)
 10.133.30.25 prod-glusterfs-01
 10.133.30.26 prod-glusterfs-02
 10.133.30.27 prod-glusterfs-03
