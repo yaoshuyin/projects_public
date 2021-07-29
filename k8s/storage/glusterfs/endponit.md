@@ -1,4 +1,4 @@
-***客户端(如k8s-node节点上)***
+***.客户端(如k8s-node节点上)***
 ```
 #需要添加glusterfs服务器各节点的hosts (否则报错: Mount failed. Check the log file  for more details.)
 10.133.30.25 prod-glusterfs-01
@@ -6,8 +6,8 @@
 10.133.30.27 prod-glusterfs-03
 ```
 
-***在glusterfs服务器上创建volume***
-```
+***.在glusterfs服务器上创建volume***
+```bash
 vol=nsmysql-deploymysql-podmysql01
 
 path=/data/gfs/$vol
@@ -31,7 +31,7 @@ gluster volume status   (可以看到新创建volume的端口49154)
 mount -t glusterfs 10.133.30.26:/nsmysql-deploymysql-podmysql01 /tmp/ttt
 ```
 
-***k8s endponits***
+***.k8s endponits***
 ```yaml
 apiVersion: v1
 kind: Namespace
