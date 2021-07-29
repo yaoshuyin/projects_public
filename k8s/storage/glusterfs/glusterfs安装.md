@@ -9,7 +9,7 @@
 ***安装（三个节点都执行）***
 ``` 
   systemctl stop firewalld
-  systemctl desible firewalld
+  systemctl disable firewalld
 
   yum -y install centos-release-gluster9.noarch
   yum -y --enablerepo=centos-gluster9-test clean all
