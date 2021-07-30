@@ -1,5 +1,7 @@
 ***filebeat collect k8s logs***
 
+![avatar](kibana-k8s-index.png)
+
 ```yaml
 ---
 apiVersion: rbac.authorization.k8s.io/v1
