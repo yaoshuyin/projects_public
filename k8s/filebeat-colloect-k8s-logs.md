@@ -2,6 +2,7 @@
 
 ![avatar](kibana-k8s-index.png)
 
+***filebeat***
 ```yaml
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -65,11 +66,13 @@ data:
             matchers:
             - logs_path:
                 logs_path: "/var/lib/docker/containers/"
-        #symlinks: true
-        #exclude_lines: [".+? INFO[^*].+", ".+? DEBUG[^*].+","Non-zero metrics in the last","Closing because close_inactive of"]
         fields:
           service: "prod-k8s-log"
           nodename: ${NODE_NAME}
+
+        #symlinks: true
+        #exclude_lines: [".+? INFO[^*].+", ".+? DEBUG[^*].+","Non-zero metrics in the last","Closing because close_inactive of"]
+
         encoding: utf-8
         #scan_frequency: 10s
         #json.keys_under_root: true
@@ -220,4 +223,56 @@ spec:
         hostPath:
           path: /var/lib/filebeat-data
           type: DirectoryOrCreate
+```
+
+***logstash***
+```yaml
+cat logstash.conf
+input { beats {
+   port => "5044"
+   client_inactivity_timeout => 36000
+   ssl => false
+ }
+}
+
+filter {
+    grok {
+        pattern_definitions => { "MYDATE" => "20[0-9]{2}-[0-9]{2}-[0-9]{2}" "MYTIME" => "[0-9]{2}:[0-9]{2}:[0-9]{2}" }
+        match => {
+                  "message" => [
+                      "%{MYDATE:log.date} %{MYTIME:log.time}.\d+"
+                  ]
+        }
+    }
+
+    grok {
+        match => {
+                  "message" => [
+                      "%{TIMESTAMP_ISO8601:log.datetime}"
+                  ]
+        }
+    }
+}
+
+output {
+  if [fields][service] == "prod-k8s-log" {
+    elasticsearch {
+        hosts => ["http://1.1.1.1:9200"]
+        index => "prod-k8s-%{[kubernetes][namespace]}-%{[kubernetes][labels][app]}-%{+YYYY.MM.dd}"
+        user => "elastic"
+        password => "elastic"
+    }
+  } else {
+     elasticsearch {
+        hosts => ["http://1.1.1.1:9200"]
+        user => "elastic"
+        password => "elastic"
+        index => "%{[fields][index]}-%{+yyyy.MM.dd}-1"
+        template_name => "mytemplate"
+        manage_template => true
+        template_overwrite => true
+        template => "/opt/logstash-7.4.0/config/logstash.template.conf"
+     }
+  }
+}
 ```
