@@ -1,4 +1,5 @@
-*** filebeat collect k8s logs ***
+***filebeat collect k8s logs***
+
 ```yaml
 ---
 apiVersion: rbac.authorization.k8s.io/v1
