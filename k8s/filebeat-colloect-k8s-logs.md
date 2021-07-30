@@ -276,3 +276,26 @@ output {
   }
 }
 ```
+
+```shell
+$ /opt/logstash-7.4.0/bin/logstash "--path.settings" "/opt/logstash-7.4.0/config"  -f  /opt/logstash-7.4.0/config/logstash.conf -e
+ 
+$ cat > /etc/systemd/system/logstash.service[Unit] <<EOF
+Description=logstash
+
+[Service]
+Type=simple
+User=elk
+Group=elk
+EnvironmentFile=-/etc/default/logstash
+EnvironmentFile=-/etc/sysconfig/logstash
+ExecStart=/opt/logstash-7.4.0/bin/logstash "--path.settings" "/opt/logstash-7.4.0/config"  -f  /opt/logstash-7.4.0/config/logstash.conf
+Restart=always
+WorkingDirectory=/
+Nice=19
+LimitNOFILE=16384
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
