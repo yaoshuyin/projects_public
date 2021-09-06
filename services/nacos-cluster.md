@@ -1,3 +1,9 @@
+***环境***
+```
+ 版本: NACOS2.0.3
+```
+
+
 ***yaml***
 ```yaml
 apiVersion: v1
