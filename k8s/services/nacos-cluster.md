@@ -6,11 +6,9 @@
 
 ***yaml***
 ```yaml
-apiVersion: v1
-kind: Namespace
+apiVersion: v1kind: Namespace
 metadata:
-   name: nacos
-   labels:
+   name: nacos   labels:
      name: nacos
 
 ---
