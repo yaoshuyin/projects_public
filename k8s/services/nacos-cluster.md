@@ -72,7 +72,7 @@ spec:
       containers:
         - name: nacos
           imagePullPolicy: Always
-          image: nacos/nacos-server:4.1.2
+          image: nacos/nacos-server:1.4.2
           resources:
             requests:
               memory: "2Gi"
