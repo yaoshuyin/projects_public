@@ -1,4 +1,26 @@
 ```bash
+.elasticsearch.yml
+network.host: 192.168.100.100
+http.port: 9200
+discovery.seed_hosts: ["192.168.100.100"]
+
+cluster.name: myelk
+#和hostname一致,加hosts
+node.name: myelk-node-1
+cluster.initial_master_nodes: ["myelk-node-1"]
+
+indices.fielddata.cache.size: 40%
+
+xpack.security.enabled: false
+xpack.security.transport.ssl.enabled: true
+xpack.license.self_generated.type: basic
+
+.启动
+./bin/elasticsearch -d
+
+.###设置密码
+./bin/elasticsearch-setup-passwords interactive
+
 .单节点需要配置 (否则索引状态为yellow)
 PUT /_all/_settings
 { 
