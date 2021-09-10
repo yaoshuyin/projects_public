@@ -7,7 +7,7 @@ PUT /_all/_settings
   }
 }
 
-.默认每个Node节点的分片数是1000,满了就写不进日志了
+.默认每个Node节点的分片数是1000,满了就写不进日志了 (persistent:永久有效 / transient：临时生效，集群重启就会失效)
 PUT /_cluster/settings
 {
    "persistent": {
