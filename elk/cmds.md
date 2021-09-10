@@ -6,4 +6,14 @@ PUT /_all/_settings
     "number_of_replicas" : 0 
   }
 }
+
+.默认分片数是1000,满了就写不进日志了
+PUT /_cluster/settings
+{
+   "persistent": {
+      "cluster": {
+         "max_shards_per_node":90000
+      }
+   }
+}
 ```
