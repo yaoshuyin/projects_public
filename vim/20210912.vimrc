@@ -91,6 +91,18 @@
 "$ curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 "$ apt install -y nodejs
 "
+"let g:coc_global_extensions = ['coc-json','coc-css']
+"
+"一次就成功:
+":CocInstall coc-html coc-css coc-json coc-python coc-emmet coc-snippets coc-xml coc-yaml coc-markdownlint 
+":CocInstall coc-browser coc-calc coc-eslint coc-explorer coc-flow coc-fzf-preview coc-html-css-support 
+":CocInstall coc-lists  coc-snippets  coc-spell-checker  coc-sql coc-sqlfluff coc-sumneko-lua  
+":CocInstall coc-tabnine coc-translator coc-tsserver coc-pairs coc-phpls
+"
+"多次后成功:
+":CocInstall coc-git coc-highlight coc-htmlhint coc-markdown-preview-enhanced coc-pydocstring 
+":CocInstall coc-sh coc-stylelintplus coc-vimlsp coc-webview  coc-yank
+"
 "bash
 ":CocInstall coc-sh
 "
@@ -106,6 +118,9 @@
 "
 "css
 ":CocInstall coc-css
+"
+"js
+":CocInstall coc-tsserver
 "
 "go
 "$ apt install golang
