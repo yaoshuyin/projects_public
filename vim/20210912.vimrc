@@ -133,6 +133,9 @@
 "
 "snippets
 ":CocInstall coc-snippets
+"
+"sed -i 's/^\s\+autocmd CompleteDonePre/"autocmd CompleteDonePre/g' /root/.vim/plugged/vim-vsnip-integ/plugin/vsnip_integ.vim
+"
 "```
 "
 "**.vimrc**
