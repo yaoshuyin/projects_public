@@ -1,0 +1,4 @@
+1)双方都要有rsync
+2)做好ssh key
+
+/usr/bin/rsync -av -e "ssh -p 22" ./aa/ root@192.168.10.100:/tmp/aa/
