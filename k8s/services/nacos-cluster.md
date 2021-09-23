@@ -6,9 +6,11 @@
 
 ***yaml***
 ```yaml
-apiVersion: v1kind: Namespace
+apiVersion: v1
+kind: Namespace
 metadata:
-   name: nacos   labels:
+   name: uat-nacos
+   labels:
      name: nacos
 
 ---
@@ -16,9 +18,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nacos-cm-mysql
-  namespace: nacos
+  namespace: uat-nacos
 data:
-  mysql.host: "10.133.30.23"
+  mysql.host: "10.133.20.39"
   mysql.port: "3306"
   mysql.user: "nacos"
   mysql.password: "nacos"
@@ -29,7 +31,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nacos-headless
-  namespace: nacos
+  namespace: uat-nacos
   labels:
     app: nacos
   annotations:
@@ -48,7 +50,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: nacos
-  namespace: nacos
+  namespace: uat-nacos
 spec:
   serviceName: nacos-headless
   replicas: 3
@@ -121,7 +123,15 @@ spec:
             - name: PREFER_HOST_MODE
               value: "hostname"
             - name: NACOS_SERVERS
-              value: "nacos-0.nacos-headless.nacos.svc.cluster.local:8848 nacos-1.nacos-headless.nacos.svc.cluster.local:8848 nacos-2.nacos-headless.nacos.svc.cluster.local:8848"
+              value: "nacos-0.nacos-headless.uat-nacos.svc.cluster.local:8848 nacos-1.nacos-headless.uat-nacos.svc.cluster.local:8848 nacos-2.nacos-headless.uat-nacos.svc.cluster.local:8848"
+          volumeMounts:
+          - mountPath: /etc/localtime
+            name: localtime
+            readOnly: true
+      volumes:
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
   selector:
     matchLabels:
       app: nacos
@@ -131,7 +141,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nacos
-  namespace: nacos
+  namespace: uat-nacos
   annotations:
     nginx.ingress.kubernetes.io/affinity: "true"
     nginx.ingress.kubernetes.io/session-cookie-name: backend
@@ -143,29 +153,6 @@ spec:
     - name: nacos
       port: 8848
       targetPort: 8848
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: nacos
-  namespace: nacos
-  annotations:
-    kubernetes.io/ingess.class: "nginx"
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    ingress.kubernetes.io/ssl-redirect: "false"
-spec:
-  rules:
-  - host: nacos.a.com
-    http:
-       paths:
-       - path: /
-         pathType: Prefix
-         backend:
-           service:
-             name: nacos
-             port:
-               number: 8848
 ```
 
 ***!!!mysql一定要关闭ssl,否则报 no datasource set!!!***
