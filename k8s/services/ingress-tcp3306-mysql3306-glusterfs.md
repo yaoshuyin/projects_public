@@ -203,7 +203,7 @@ $ kubectl edit service ingress-nginx-controller -n ingress-nginx
     targetPort: 3306
 ```
 
-### 访问ingress的33006进行测试
+### 访问ingress的3306进行测试
 ```mysql
 $ mysql -h 192.168.20.39 -uroot -p123456 -P 3306
 
