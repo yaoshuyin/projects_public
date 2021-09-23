@@ -1,4 +1,4 @@
-###环境:
+### 环境:
 
 ```
 k8s-ingress-nginx(192.168.20.39) -->
@@ -8,7 +8,7 @@ k8s-ingress-nginx(192.168.20.39) -->
   glusterfs-01~03 (192.168.30.25~27)
 ```
 
-###创建glusterfs volume gfs-uat-mysql
+### 创建glusterfs volume gfs-uat-mysql
 
 ```
 [root@prod-glusterfs-01 ~]
@@ -31,7 +31,7 @@ $ chmod +x volume.create.sh
 $ ./volume.create.sh
 ```
 
-###创建etc子目录 (不能直接写目录，一定要先mount)
+### 创建etc子目录 (不能直接写目录，一定要先mount)
 ```bash
 $ mkdir /tmp/mysql
 $ mount -t glusterfs prod-glusterfs-01:/gfs-uat-mysql /tmp/mysql/
@@ -87,7 +87,7 @@ $ ls -l /gfs/uat/mysql/etc/
 -rw-r--r-- 1 root root my.cnf
 ```
 
-###k8s yaml
+### k8s yaml
 $ cat mysql.yaml
 apiVersion: v1
 kind: Namespace
@@ -177,7 +177,7 @@ data:
 $ kubectl apply -f mysql.yaml
 ```
 
-###修改ingress配置，添加tcp3306转发
+### 修改ingress配置，添加tcp3306转发
 ```bash
 #!!!注意  $(POD_NAMESPACE) 保持这个原样，不要变化
 
@@ -197,7 +197,7 @@ $ kubectl edit service ingress-nginx-controller -n ingress-nginx
     targetPort: 3306
 ```
 
-###访问ingress的33006进行测试
+### 访问ingress的33006进行测试
 ```mysql
 $ mysql -h 192.168.20.39 -uroot -p123456 -P 3306
 
