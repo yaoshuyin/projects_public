@@ -8,6 +8,11 @@ k8s-ingress-nginx(192.168.20.39) -->
   glusterfs-01~03 (192.168.30.25~27)
 ```
 
+### 访问路线
+```
+  ingress 192.168.20.39:3306 --> mysql service: 3306 --> mysql pod: 3306
+```
+
 ### 创建glusterfs volume gfs-uat-mysql
 
 ```
