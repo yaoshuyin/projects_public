@@ -148,12 +148,18 @@ spec:
         - mountPath: /etc/mysql
           name: gfs-pvc-var-lib-mysql
           subPath: etc
+        - mountPath: /etc/localtime
+          name: localtime
+          readOnly: true
       volumes:
       - name: gfs-pvc-var-lib-mysql
         glusterfs:
           endpoints: ep-gfs-nsmysql-deploymysql-podmysql01
           path: /gfs-uat-mysql
           readOnly: false
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
 
 ---
 apiVersion: v1
