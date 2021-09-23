@@ -142,24 +142,25 @@ spec:
           - containerPort: 3306
             name: "port3306"
         volumeMounts:
+        - mountPath: /etc/localtime
+          name: localtime
+          readOnly: true
         - mountPath: /var/lib/mysql
           name: gfs-pvc-var-lib-mysql
           subPath: data
         - mountPath: /etc/mysql
           name: gfs-pvc-var-lib-mysql
           subPath: etc
-        - mountPath: /etc/localtime
-          name: localtime
-          readOnly: true
+
       volumes:
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
       - name: gfs-pvc-var-lib-mysql
         glusterfs:
           endpoints: ep-gfs-nsmysql-deploymysql-podmysql01
           path: /gfs-uat-mysql
           readOnly: false
-      - name: localtime
-        hostPath:
-          path: /etc/localtime
 
 ---
 apiVersion: v1
