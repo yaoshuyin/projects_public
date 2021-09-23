@@ -93,6 +93,7 @@ $ ls -l /gfs/uat/mysql/etc/
 ```
 
 ### k8s yaml
+```
 $ cat mysql.yaml
 apiVersion: v1
 kind: Namespace
