@@ -3,7 +3,6 @@
  版本: NACOS2.0.3
 ```
 
-
 ***yaml***
 ```yaml
 apiVersion: v1
@@ -20,7 +19,7 @@ metadata:
   name: nacos-cm-mysql
   namespace: uat-nacos
 data:
-  mysql.host: "10.133.20.39"
+  mysql.host: "1.1.2.9"
   mysql.port: "3306"
   mysql.user: "nacos"
   mysql.password: "nacos"
@@ -153,6 +152,34 @@ spec:
     - name: nacos
       port: 8848
       targetPort: 8848
+```
+
+***ingress tcp 8848***
+```
+$ cat ingress-tcp-ports-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcp-services
+  namespace: ingress-nginx
+data:
+  8848: "uat-nacos/nacos:8848"
+  
+$ kubectl edit deployment ingress-nginx-controller -n ingress-nginx
+    spec:
+      containers:
+      - args:
+        ...
+        - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services
+        
+$ kubectl edit service ingress-nginx-controller -n ingress-nginx
+  ports:
+  ....
+  - name: proxied-tcp-8848
+    nodePort: 32076
+    port: 8848
+    protocol: TCP
+    targetPort: 8848
 ```
 
 ***!!!mysql一定要关闭ssl,否则报 no datasource set!!!***
@@ -345,7 +372,7 @@ INSERT INTO roles (username, role) VALUES ('nacos', 'ROLE_ADMIN');
 
 ***test***
 ```
-1) http://nacos.a.com/nacos
+1) http://ingressip:8848/nacos
    默认用户: nacos
    默认密码: nacos
 ```
