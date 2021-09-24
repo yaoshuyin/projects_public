@@ -39,7 +39,7 @@ gluster volume create pv1 replica 3 prod-glusterfs-01:/data/gfs/pv1 prod-gluster
 gluster volume start pv1
 gluster volume list
 
-#.挂载测试 （客户端需要 把glusterfs三台的ip hostname加入到自己的/etc/hosts中，否则 挂载报错）
+#.挂载测试 （!!! 客户端需要 把glusterfs三台的ip hostname加入到自己的/etc/hosts中，否则 挂载报错 !!!）
 mkdir /opt/pv1
 mount -t glusterfs prod-glusterfs-01:pv1 /opt/pv1
 
