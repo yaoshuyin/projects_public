@@ -31,6 +31,14 @@ $ apt install curlftpfs
   
 #mount
 $ curlftpfs -o codepage=utf8 ftp://pureftp:123456@192.168.1.100:/ /tmp/logs
+或
+$ cat > /root/.netrc <<EOF
+machine 192.168.1.100
+login pureftp
+password 123456
+EOF
+$ chmod 600 /root/.netrc
+$ curlftpfs -o codepage=utf8 ftp://192.168.1.100:/ /tmp/logs
 
 #umount
 $ fusermount -u /tmp/logs
