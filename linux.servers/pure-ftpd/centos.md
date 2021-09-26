@@ -26,6 +26,19 @@ $ pure-pw useradd pureftp -u pureftp -d /home/logs
 $ pure-pw mkdb 
 ```
 
+***firewalld***
+```bash
+$ firewall-cmd --new-service=pureftpd --permanent
+
+$ firewall-cmd --service=pureftpd --add-port=20-21/tcp --permanent
+$ firewall-cmd --service=pureftpd --add-port=30000-33000/tcp --permanent
+
+$ firewall-cmd --reload
+
+$ firewall-cmd --zone=public --add-service=pureftpd --permanent
+$ firewall-cmd --reload
+```
+
 ***客户端口挂载***
 ```bash
 $ yum install curlftpfs
