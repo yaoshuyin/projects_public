@@ -24,3 +24,14 @@ $ systemctl restart pure-ftpd
 $ ufw allow 20:21/tcp
 $ ufw allow 30000:33000/tcp
 ```
+
+***客户端口挂载***
+```bash
+$ apt install curlftpfs
+  
+#mount
+$ curlftpfs -o codepage=utf8 ftp://pureftp:123456@192.168.1.100:/ /tmp/logs
+
+#umount
+$ fusermount -u /tmp/logs
+```
