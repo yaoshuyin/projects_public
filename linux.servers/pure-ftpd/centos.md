@@ -54,6 +54,9 @@ EOF
 $ chmod 600 /root/.netrc
 $ curlftpfs -o codepage=utf8 ftp://192.168.1.100:/ /tmp/logs
 
+#fstab挂载
+$ echo 'curlftpfs#pureftp:123456@192.168.1.100 /tmp/logs fuse rw,uid=500,gid=500,user,noauto 0 0'  >>/etc/fstab
+
 #umount
 $ fusermount -u /tmp/logs
 ```
