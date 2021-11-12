@@ -80,7 +80,7 @@ spec:
   - name:  v1
     port:  80
     targetPort:  80
-	
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -154,7 +154,7 @@ spec:
   - name:  v2
     port:  80
     targetPort:  80
-	
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -258,7 +258,7 @@ spec:
   - name:  v2
     port:  80
     targetPort:  80
-	
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -412,7 +412,7 @@ spec:
   - name:  v2
     port:  80
     targetPort:  80
-	
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -615,7 +615,7 @@ spec:
   - name:  v2
     port:  80
     targetPort:  80
-	
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -643,7 +643,7 @@ spec:
           postStart:
             exec:
               command: [ "/bin/sh", "-c", "echo v2 > /usr/share/nginx/html/index.html" ]
-```	  
+```
 
 ***访问测试***
 
