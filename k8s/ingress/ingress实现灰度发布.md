@@ -112,7 +112,7 @@ spec:
 
 ## v2版本的服务
 
-***将v2版本的权重设置为50%***
+***将v2版本的权重设置为30%***
 ```yaml
 ---
 apiVersion: networking.k8s.io/v1
