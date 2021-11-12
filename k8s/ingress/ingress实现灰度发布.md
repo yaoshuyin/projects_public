@@ -41,7 +41,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
    name: test
-   labels:     name: test
+   labels:
+     name: test
    
 ---
 apiVersion: networking.k8s.io/v1
@@ -122,7 +123,6 @@ metadata:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/canary: "true"
     nginx.ingress.kubernetes.io/canary-weight: "30"
-
   labels:
     app: v2
   name: v2
