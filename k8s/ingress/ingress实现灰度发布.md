@@ -379,8 +379,8 @@ metadata:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/canary: "true"
     nginx.ingress.kubernetes.io/canary-weight: "30"
-	nginx.ingress.kubernetes.io/canary-by-header: "v2"
-	nginx.ingress.kubernetes.io/canary-by-header-value: "xx"
+    nginx.ingress.kubernetes.io/canary-by-header: "v2"
+    nginx.ingress.kubernetes.io/canary-by-header-value: "xx"
   labels:
     app: v2
   name: v2
