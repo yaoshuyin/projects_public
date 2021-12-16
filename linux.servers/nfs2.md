@@ -27,6 +27,7 @@ firewall-cmd --reload
 
 ***client***
 ```bash
+$ yum install nfs-utils -y
 $ vim /etc/fstab
 10.133.30.61:/opt/logs /home/ydfls/ys-logs/opt nfs auto,noatime,nolock,bg,nfsvers=4,intr,tcp,actimeo=1800 0 0
 10.133.30.61:/home/ydfls/logs /home/ydfls/ys-logs/home nfs auto,noatime,nolock,bg,nfsvers=4,intr,tcp,actimeo=1800 0 0
