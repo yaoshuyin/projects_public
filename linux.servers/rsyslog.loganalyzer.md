@@ -54,7 +54,7 @@ if ( $msg contains "SELinux is preventing" or \
      $msg contains "kex_exchange_identification" or \
      $msg contains "system_bus_socket" or \
      $msg contains "message repeated" or \
-     $msg contains "took too long" \
+     $msg contains "took too long" or \
      $msg contains "CCafException" \
 ) then {
      stop
