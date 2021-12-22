@@ -113,3 +113,26 @@ $CFG['ViewEnableAutoReloadSeconds'] = 30;
 $CFG['ViewEntriesPerPage'] = 12; 
 
 ```
+
+***clean old logs***
+```
+$ vim clean.old.logs.php
+
+<?php
+$con=mysqli_connect("127.0.0.1","syslog","123456#fe","syslog");
+if (!$con)
+{
+    die("连接错误: " . mysqli_connect_error());
+}
+
+$today=date_create()->format('Y-m-d');
+
+$sql="delete from systemevents where (DATE_DIFF(CURDATE(), today) >= 30";
+
+$result=mysqli_query($con,$sql);
+var_dump($result);
+mysqli_close($con);
+
+$ crontab -e
+0 0 * * * /usr/bin/php /data/www/htdocs/loganalyzer/clean.old.logs.php
+```
