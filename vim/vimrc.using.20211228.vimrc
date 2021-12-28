@@ -1,6 +1,3 @@
-root@tom:/home/tom/idc# ls
-Dockerfile  idc.sql  mvnw  mvnw.cmd  pom.xml  public  README  run.sh  src  target
-root@tom:/home/tom/idc# cat ~/.vimrc 
 "安装NerdHack字体
 "1) export http_proxy=http://127.0.0.1:8889
 "   export https_proxy=http://127.0.0.1:8889
@@ -21,6 +18,16 @@ augroup ProjectDrawer
   autocmd!
   autocmd VimEnter * :CocCommand explorer
 augroup END
+
+"..........git...............
+nmap ga :Git add .<CR>
+nmap gc :Git commit<CR>
+nmap gp :Git push<CR>
+nmap gl :Git log<CR>
+nmap gu :Git pull<CR>
+nmap gs :Git show<CR>
+"..........~git...............
+
 
 ".........................key skills...........................
 ".补全
