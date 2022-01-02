@@ -1,3 +1,22 @@
+":CocConfig
+"{
+"  "suggest.echodocSupport": true,
+"  "suggest.maxCompleteItemCount": 20,
+"  "suggest.autoTrigger": "always",
+"  "eslint.filetypes": ["javascript", "json", "typescript", "typescriptreact", "javascriptreact"],
+"  "diagnostic.errorSign": "•",
+"  "diagnostic.warningSign": "•",
+"  "diagnostic.infoSign": "•",
+"  "diagnostic.checkCurrentLine": true,
+"
+"  "prettier.singleQuote": true,
+"  "prettier.trailingComma": "all",
+"  "prettier.tabWidth": 2,
+"  "prettier.printWidth": 500,
+"  "prettier.bracketSpacing": false,
+"  "coc.preferences.formatOnSaveFiletypes": ["html", "javascript", "typescript", "typescriptreact", "json", "javascriptreact", "css", "Markdown", "md"]
+"}
+
 "安装NerdHack字体
 "1) export http_proxy=http://127.0.0.1:8889
 "   export https_proxy=http://127.0.0.1:8889
@@ -483,7 +502,8 @@ let g:coc_global_extensions = [
          \ 'coc-htmlhint',
          \ 'coc-gocode',
          \ 'coc-flow',
-         \ 'coc-css'
+         \ 'coc-css',
+         \ 'prettier'
      \ ]
 
 
