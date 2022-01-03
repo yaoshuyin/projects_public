@@ -1,5 +1,6 @@
 ":CocConfig
 "{
+"  "explorer.width": 25,
 "  "suggest.echodocSupport": true,
 "  "suggest.maxCompleteItemCount": 20,
 "  "suggest.autoTrigger": "always",
@@ -39,6 +40,8 @@ augroup ProjectDrawer
 augroup END
 
 "..........git...............
+nmap gv :Git add . <bar> :Git commit -m "." <bar> :Git push<CR>
+nmap ds :exec "!./dist.sh"<CR>
 nmap ga :Git add .<CR>
 nmap gc :Git commit<CR>
 nmap gp :Git push<CR>
