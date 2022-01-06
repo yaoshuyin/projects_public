@@ -44,7 +44,8 @@ augroup END
 
 "..........git...............
 nmap gv :Git add . <bar> :Git commit -m "." <bar> :Git push<CR>
-nmap ds :exec "!./dist.sh"<CR>
+nmap ds :exec "!/data/idc/dist.sh"<CR>
+nmap dr :exec "!/data/idc/distrun.sh"<CR>
 nmap ga :Git add .<CR>
 nmap gc :Git commit<CR>
 nmap gp :Git push<CR>
