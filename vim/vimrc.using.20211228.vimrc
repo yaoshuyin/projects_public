@@ -22,14 +22,17 @@
 "1) export http_proxy=http://127.0.0.1:8889
 "   export https_proxy=http://127.0.0.1:8889
 "   mkdir -p ~/.local/share/fonts/NerdFonts
+"   !!!! NerdFonts !!!!
 "   cd .local/share/fonts/NerdFonts
 "   wget -c https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Hack.zip
+"
 "   unzip Hack.zip
 "   fc-cache -vf .
 "   fc-list
 "
-"2)!!!重要的一步
-"  终端->编辑->配置文件->Default->字体 -> Hack Nerd Font Regular
+"2)!!!重要的一步 (不能使用Hack Regular会出乱码, 而 NF Regular效果最好)
+"  终端->编辑->配置文件->Default->字体 -> Hack NF Regular 16
+
 
 set encoding=UTF-8
 let g:WebDevIconsNerdTreeGitPluginForceVAlign=1
