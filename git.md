@@ -1,3 +1,28 @@
+## !!!国内代理!!!
+```
+git config --global url."https://github.com.cnpmjs.org/".insteadOf "https://github.com/"
+git config --global protocol.https.allow always
+
+
+https://hub.fastgit.org/ 下载速度快，但库不全
+github.com.cnpmjs.org  下载速度还可以，但库全
+
+其它代理
+ssh:
+  ssh.fastgit.org
+
+raw:
+  https://raw.githubusercontent.com/ ==> https://raw.fastgit.org/
+
+ 
+github.githubassets.com       assets.fastgit.org 	无
+customer-stories-feed.github.com    customer-stories-feed.fastgit.org 
+Github Download               download.fastgit.org 
+GitHub Archive                archive.fastgit.org
+```
+ 
+
+
 ## 分支
 ```
 #创建新分支abc
