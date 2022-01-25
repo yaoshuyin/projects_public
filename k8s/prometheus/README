@@ -1,0 +1,31 @@
+$ kubectl apply -f gfs.yaml
+$ kubectl apply -f rbac.yaml 
+$ kubectl apply -f config.yaml 
+$ kubectl apply -f exporter.yaml 
+$ kubectl apply -f prometheus.yaml 
+$ kubectl apply -f grafana.yaml 
+
+$ kubectl -n kube-system get pods
+$ kubectl -n kube-system get services
+
+$ cat >> /etc/hosts <<EOF
+10.133.10.29 test-prom.a.com.cn
+10.133.10.29 test-grafana.a.com.cn
+EOF
+
+......... grafana ...............
+http://test-grafana.a.com.cn
+.默认用户密码: admin  / admin
+.添加prometheus源
+  Add data source:
+    Name: prometheus
+    Type: Prometheus
+    URL:  http://prometheus:9090
+    Access: proxy
+  Save&Test
+
+.+
+  import
+    Grafana.com Dashboard
+       315
+    Load
