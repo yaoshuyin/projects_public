@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-core
+  namespace: kube-system
+  labels:
+    app: grafana
+    component: core
+spec:
+  selector:
+    matchLabels:
+      app: grafana
+      component: core 
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grafana
+        component: core
+    spec:
+      securityContext:
+        #fsGroup: 472
+        runAsUser: 0
+      containers:
+      - image: grafana/grafana:7.5.13-ubuntu
+        name: grafana-core
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+          - name: GF_AUTH_BASIC_ENABLED
+            value: "true"
+          - name: GF_AUTH_ANONYMOUS_ENABLED
+            value: "false"
+        #readinessProbe:
+        #  httpGet:
+        #    path: /
+        #    port: 3000
+        volumeMounts:
+        - mountPath: /var/lib/grafana
+          name: ep-gfs-prom
+          subPath: grafana-var
+        - mountPath: /etc/grafana
+          name: ep-gfs-prom
+          subPath: grafana-etc
+      volumes:
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
+      - name: ep-gfs-prom
+        glusterfs:
+          endpoints: ep-gfs-prom
+          path: /test-prom
+          readOnly: false 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: kube-system
+  labels:
+    app: grafana
+    component: core
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      nodePort: 31000
+  selector:
+    app: grafana
+
+---       
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: kube-system
+  annotations:
+    kubernetes.io/ingess.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: test-grafana.ydfinance.com.cn
+    http: 
+       paths:
+       - path: /
+         pathType: Prefix
+         backend:
+           service:
+             name: grafana
+             port:  
+               number: 3000
