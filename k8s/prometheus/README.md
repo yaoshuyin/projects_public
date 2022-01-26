@@ -44,7 +44,7 @@ $ wget -c https://github.com/prometheus/node_exporter/releases/download/v1.3.1/n
 $ tar xvf node_exporter-1.3.1.linux-amd64.tar.gz 
 $ cd node_exporter-1.3.1.linux-amd64
 $ mv node_exporter /usr/bin/
-$ nohup node_exporter &
+$ nohup /usr/bin/node_exporter &
 ```
 
 ## alertmanager
