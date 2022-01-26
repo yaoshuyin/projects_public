@@ -1,3 +1,4 @@
+![grafana](myk8s-grafana.png)
 ![alert](alert.png)
 
 ## apply yaml
