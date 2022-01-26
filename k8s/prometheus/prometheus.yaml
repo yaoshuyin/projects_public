@@ -47,14 +47,12 @@ spec:
           name: config-volume
       serviceAccountName: prometheus    
       volumes:
-      - name: data
-        emptyDir: {}
-      - name: config-volume
-        configMap:
-          name: prometheus-config      
       - name: localtime
         hostPath:
           path: /etc/localtime
+      - name: config-volume
+        configMap:
+          name: prometheus-config
       - name: ep-gfs-prom
         glusterfs:
           endpoints: ep-gfs-prom
@@ -90,7 +88,7 @@ metadata:
     ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-  - host: test-prom.ydfinance.com.cn
+  - host: test-prom.a.com.cn
     http: 
        paths:
        - path: /
