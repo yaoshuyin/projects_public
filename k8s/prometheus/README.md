@@ -53,7 +53,7 @@ $ wget -c https://github.com/prometheus/alertmanager/releases/download/v0.23.0/a
 $ wget -c https://hub.fastgit.org/prometheus/alertmanager/releases/download/v0.23.0/alertmanager-0.23.0.linux-amd64.tar.gz 
 $ tar xvf alertmanager-0.23.0.linux-amd64.tar.gz 
 $ mv alertmanager-0.23.0.linux-amd64 /usr/local/alertmanager
-$ cat  > /usr/local/alertmanager/alertmanager.yml <<'EOF'
+$ cat > /usr/local/alertmanager/alertmanager.yml <<'EOF'
 global:
   smtp_smarthost: '192.168.1.10:25'
   smtp_from: 'promalert@a.com.cn'
