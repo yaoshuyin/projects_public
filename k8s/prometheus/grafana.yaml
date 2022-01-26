@@ -42,6 +42,8 @@ spec:
         #    path: /
         #    port: 3000
         volumeMounts:
+        - mountPath: /etc/localtime
+          name: localtime
         - mountPath: /var/lib/grafana
           name: ep-gfs-prom
           subPath: grafana-var
