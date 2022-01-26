@@ -15,6 +15,9 @@ spec:
       labels:
         app: prometheus
     spec:
+      securityContext:
+        #fsGroup: 472
+        runAsUser: 0
       containers:
       - image: prom/prometheus:v2.32.1
         name: prometheus
@@ -27,11 +30,6 @@ spec:
         ports:
         - containerPort: 9090
           protocol: TCP
-        volumeMounts:
-        - mountPath: "/prometheus"
-          name: data
-        - mountPath: "/etc/prometheus"
-          name: config-volume
         resources:
           requests:
             cpu: 100m
@@ -39,6 +37,14 @@ spec:
           limits:
             cpu: 500m
             memory: 2500Mi
+        volumeMounts:
+        - mountPath: /etc/localtime
+          name: localtime
+        - mountPath: "/prometheus"
+          name: ep-gfs-prom
+          subPath: prometheus-data
+        - mountPath: "/etc/prometheus"
+          name: config-volume
       serviceAccountName: prometheus    
       volumes:
       - name: data
@@ -46,6 +52,14 @@ spec:
       - name: config-volume
         configMap:
           name: prometheus-config      
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
+      - name: ep-gfs-prom
+        glusterfs:
+          endpoints: ep-gfs-prom
+          path: /test-prom
+          readOnly: false 
 
 ---
 kind: Service
