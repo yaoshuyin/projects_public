@@ -1,4 +1,4 @@
-**apply yaml**
+## apply yaml
 ```bash
 $ kubectl apply -f gfs.yaml
 $ kubectl apply -f rbac.yaml 
@@ -16,7 +16,7 @@ $ cat >> /etc/hosts <<EOF
 EOF
 ```
 
-**grafana**
+## grafana
 ```
 http://test-grafana.a.com.cn
 .默认用户密码: admin  / admin
@@ -35,7 +35,7 @@ http://test-grafana.a.com.cn
     Load
 ```
 
-**node_exporter**
+## node_exporter
 ```bash
 $ wget -c https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
 $ tar xvf node_exporter-1.3.1.linux-amd64.tar.gz 
