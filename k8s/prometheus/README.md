@@ -1,3 +1,4 @@
+```bash
 $ kubectl apply -f gfs.yaml
 $ kubectl apply -f rbac.yaml 
 $ kubectl apply -f config.yaml 
@@ -12,7 +13,9 @@ $ cat >> /etc/hosts <<EOF
 10.133.10.29 test-prom.a.com.cn
 10.133.10.29 test-grafana.a.com.cn
 EOF
+```
 
+```
 ......... grafana ...............
 http://test-grafana.a.com.cn
 .默认用户密码: admin  / admin
@@ -29,17 +32,19 @@ http://test-grafana.a.com.cn
     Grafana.com Dashboard
        315
     Load
+```
 
-......................
-
-.node_exporter
+**node_exporter
+```bash
 $ wget -c https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
 $ tar xvf node_exporter-1.3.1.linux-amd64.tar.gz 
 $ cd node_exporter-1.3.1.linux-amd64
 $ mv node_exporter /usr/bin/
 $ nohup node_exporter &
+```
 
-.alertmanager
+**alertmanager
+```bash
 $ wget -c https://github.com/prometheus/alertmanager/releases/download/v0.23.0/alertmanager-0.23.0.linux-amd64.tar.gz
 $ wget -c https://hub.fastgit.org/prometheus/alertmanager/releases/download/v0.23.0/alertmanager-0.23.0.linux-amd64.tar.gz 
 $ tar xvf alertmanager-0.23.0.linux-amd64.tar.gz 
@@ -74,3 +79,4 @@ inhibit_rules:
 EOF
 
 $ nohup /usr/local/alertmanager/alertmanager --config.file=/usr/local/alertmanager/alertmanager.yml &
+```
