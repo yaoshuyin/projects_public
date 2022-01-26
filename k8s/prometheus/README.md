@@ -1,3 +1,4 @@
+**apply yaml**
 ```bash
 $ kubectl apply -f gfs.yaml
 $ kubectl apply -f rbac.yaml 
@@ -43,7 +44,7 @@ $ mv node_exporter /usr/bin/
 $ nohup node_exporter &
 ```
 
-**alertmanager**
+## alertmanager
 ```bash
 $ wget -c https://github.com/prometheus/alertmanager/releases/download/v0.23.0/alertmanager-0.23.0.linux-amd64.tar.gz
 $ wget -c https://hub.fastgit.org/prometheus/alertmanager/releases/download/v0.23.0/alertmanager-0.23.0.linux-amd64.tar.gz 
