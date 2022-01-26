@@ -34,7 +34,7 @@ http://test-grafana.a.com.cn
     Load
 ```
 
-**node_exporter
+**node_exporter**
 ```bash
 $ wget -c https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
 $ tar xvf node_exporter-1.3.1.linux-amd64.tar.gz 
