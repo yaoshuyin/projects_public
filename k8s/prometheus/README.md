@@ -1,3 +1,5 @@
+![alert](alert.png)
+
 ## apply yaml
 ```bash
 $ kubectl apply -f gfs.yaml
