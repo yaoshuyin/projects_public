@@ -1,4 +1,5 @@
 #!/usr/bin/python
+#Script: /etc/zabbix/scripts/k8s-stats.py
 
 import json
 import time
