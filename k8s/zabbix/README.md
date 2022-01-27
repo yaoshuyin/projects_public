@@ -1,3 +1,5 @@
+From: https://github.com/sleepka/zabbix-kubernetes-monitoring
+
 **k8s**
 ```
 .create user
@@ -31,3 +33,5 @@ $ systemctl restart zabbix-agent
  .configuration --> Hosts --> k8s-master-01
    apply template 'kubernetes'
 ```
+
+![图片](https://user-images.githubusercontent.com/16496322/151310245-0362ee75-7cea-4782-90df-d28d1d76b7eb.png)
