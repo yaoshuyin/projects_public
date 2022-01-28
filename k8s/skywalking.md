@@ -2,7 +2,7 @@
 ```
 $ docker search skywalking-oap-server
 $ wget -q https://registry.hub.docker.com/v1/repositories/apache/skywalking-oap-server/tags -O -  | sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | tr '}' '\n'  | awk -F: '{print $3}'
-    ..
+    ...
     8.6.0-es7     #使用8.6.0-es7
     8.7.0-es6
     8.7.0-es7     #有500错误，页面无法显示
