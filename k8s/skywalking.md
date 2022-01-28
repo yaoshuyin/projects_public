@@ -56,3 +56,4 @@ $ java -Duser.timezone=GMT+8 -Dfile.encoding=utf-8 -Xms128m -Xmx256m $agent -jar
 ```
 $ http://127.0.0.1:8088
 ```
+![图片](https://user-images.githubusercontent.com/16496322/151492213-18b222e3-f190-481a-a9f5-23987963baa0.png)
