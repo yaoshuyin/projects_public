@@ -1,0 +1,4 @@
+.解决乱码
+   压缩windows系统下c:\windows\fonts到fonts.zip
+   
+   解压到~/.wine/drive_c/windows/Fonts
