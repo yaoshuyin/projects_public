@@ -13,8 +13,7 @@ $ vim PKGBUILD   (替换成下面这些)
 
 $ yay -S harfbuzz   cairo   pkg-config
 $ makepkg --skipchecksums --install
-$ sudo pacman -U easyconnect-7.6.7.3.76b7ebc57725ae1e999151cdc215f8e7cef8a31b-1-x86_64.pkg.tar.zst 
 
 .启动程序
-$ 在开始菜单－－> EasyConnect
+$ 在开始菜单－－> 互联网 ---> EasyConnect
 ```
