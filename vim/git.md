@@ -4,7 +4,7 @@ Ubuntu:
   apt install zlib1g zlib1g-dev libcurl4-openssl-dev gcc make tcl gettext
 
 CentOS:
-  yum install zlib1g zlib1g-devel libcurl4-openssl-devel gcc make tcl gettext zlib zlib-devel
+  yum install zlib1g zlib1g-devel gcc make tcl gettext zlib zlib-devel libcurl-devel
 
 wget -c "https://www.kernel.org/pub/software/scm/git/git-2.30.1.tar.gz"
 tar xvf git-2.30.1.tar.gz 
