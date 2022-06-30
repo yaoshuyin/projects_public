@@ -12,7 +12,9 @@ cd git-2.30.1
 ./configure 
 make
 make install
+
 ln -s /usr/local/bin/git /usr/bin/git
+
 git clone https://github.com/powerline/fonts.git --depth=1
 ```
 
